@@ -144,6 +144,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Code\src\Core\Debug\Log.cpp" />
     <ClCompile Include="Code\src\Core\RHI\VulkanWrapper.cpp" />
     <ClCompile Include="Code\src\Core\Application\Application.cpp" />
     <ClCompile Include="Code\src\Core\Maths\Matrices\Matrix2.cpp" />
@@ -156,6 +157,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\include\Core\Application\Application.h" />
+    <ClInclude Include="Code\include\Core\Debug\Log.h" />
     <ClInclude Include="Code\include\Core\Maths\Matrices\Matrix2.h" />
     <ClInclude Include="Code\include\Core\Maths\Matrices\Matrix3.h" />
     <ClInclude Include="Code\include\Core\Maths\Matrices\Matrix4.h" />

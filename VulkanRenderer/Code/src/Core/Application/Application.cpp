@@ -2,6 +2,8 @@
 
 #include "RHI/VulkanWrapper.h"
 
+#include "Debug/Log.h"
+
 namespace Core
 {
 	Application::Application(int _Width, int _Height, const char* _WindowName, RHIType _RHIType)
@@ -26,19 +28,19 @@ namespace Core
 			break;
 		}
 
+		Debug::Log::OpenFile("Logs/LogFile.log");
+
 		if (!m_RHI)
 		{
-			// TODO: ERR
+			DEBUG_ERROR("RHI is null, cancelling application initialization");
 			return false;
 		}
 
 		if (!m_RHI->Initialize())
 		{
-			// TODO: ERR
+			DEBUG_ERROR("Application failed to initialize");
 			return false;
 		}
-
-		// TODO: Initialization
 
 		return true;
 	}
@@ -49,11 +51,13 @@ namespace Core
 
 		if (!m_RHI->Terminate())
 		{
-			// TODO: ERR
+			DEBUG_ERROR("Aplication failed to terminate");
 			returnValue = false;
 		}
 
 		delete m_RHI;
+
+		Debug::Log::CloseFile();
 
 		glfwDestroyWindow(m_Window);
 		glfwTerminate();

@@ -1,5 +1,7 @@
 #include "RHI/VulkanWrapper.h"
 
+#include "Debug/Log.h"
+
 namespace Core
 {
 	const bool VulkanWrapper::Initialize()
