@@ -195,6 +195,7 @@ namespace Core
 
 		int Log::DebugPrint(const char* _Format, ...)
 		{
+			//TODO: rework
 			va_list args;
 			va_start(args, _Format);
 
@@ -205,6 +206,7 @@ namespace Core
 
 		int Log::DebugWarn(const char* _Format, ...)
 		{
+			//TODO: rework
 			va_list args;
 			va_start(args, _Format);
 
@@ -215,6 +217,7 @@ namespace Core
 
 		int Log::DebugError(const char* _Format, ...)
 		{
+			//TODO: rework
 			va_list args;
 			va_start(args, _Format);
 

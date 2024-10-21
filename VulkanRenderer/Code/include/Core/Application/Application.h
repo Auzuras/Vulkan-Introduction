@@ -1,5 +1,8 @@
 #pragma once
 
+// Log.hpp contains Windows.h, needs to be included first to avoid macro redefinition
+#include "Debug/Log.h"
+
 #include "RHI/RHI.h"
 
 namespace Core
@@ -12,8 +15,8 @@ namespace Core
 	class Application
 	{
 	private:
-		int m_Width = 800;
-		int m_Height = 600;
+		const uint32_t m_Width = 800;
+		const uint32_t m_Height = 600;
 		const char* m_WindowName = "DefaultName";
 
 		GLFWwindow* m_Window = nullptr;
@@ -30,8 +33,8 @@ namespace Core
 		///////////////////////////////////////////////////////////////////////
 
 		Application() = default;
-		Application(int _Width, int _Height, const char* _WindowName, RHIType _RHIType);
-		Application(int _Width, int _Height);
+		Application(const uint32_t _Width, const uint32_t _Height, const char* _WindowName, RHIType _RHIType);
+		Application(const uint32_t _Width, const uint32_t _Height);
 		~Application() = default;
 
 		///////////////////////////////////////////////////////////////////////

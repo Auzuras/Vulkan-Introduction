@@ -2,20 +2,20 @@
 
 #include "RHI/VulkanWrapper.h"
 
-#include "Debug/Log.h"
-
 namespace Core
 {
-	Application::Application(int _Width, int _Height, const char* _WindowName, RHIType _RHIType)
+	Application::Application(const uint32_t _Width, const uint32_t _Height, const char* _WindowName, RHIType _RHIType)
 		:m_Width(_Width), m_Height(_Height), m_WindowName(_WindowName), m_RHIType(_RHIType)
 	{}
 
-	Application::Application(int _Width, int _Height)
+	Application::Application(const uint32_t _Width, const uint32_t _Height)
 		:m_Width(_Width), m_Height(_Height)
 	{}
 
 	const bool Application::Initialize()
 	{
+		// TODO: Wrapper class for window
+
 		glfwInit();
 
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
