@@ -1,0 +1,9 @@
+{
+    "Version": "1.1",
+    "Data": {
+        "Source": "c:\\users\\a.fontverne\\source\\repos\\vulkanrenderer\\vulkanrenderer\\externals\\vulkan\\include\\vulkan\\vulkan.cppm",
+        "ProvidedModule": "vulkan_hpp",
+        "ImportedModules": [],
+        "ImportedHeaderUnits": []
+    }
+}

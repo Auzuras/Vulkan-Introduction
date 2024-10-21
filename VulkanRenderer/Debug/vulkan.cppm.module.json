@@ -1,0 +1,22 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "Debug\\vulkan.cppm.obj",
+            "outputs": [
+                "C:\\Users\\a.fontverne\\source\\repos\\VulkanRenderer\\VulkanRenderer\\Debug\\vc143.pdb",
+                "Debug\\",
+                "C:\\Users\\a.fontverne\\source\\repos\\VulkanRenderer\\VulkanRenderer\\Debug\\vulkan.cppm.ifc"
+            ],
+            "provides": [
+                {
+                    "logical-name": "vulkan_hpp",
+                    "source-path": "c:\\users\\a.fontverne\\source\\repos\\vulkanrenderer\\vulkanrenderer\\externals\\vulkan\\include\\vulkan\\vulkan.cppm",
+                    "is-interface": true
+                }
+            ],
+            "requires": []
+        }
+    ]
+}
