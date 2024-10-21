@@ -62,7 +62,7 @@ namespace Core
 			static inline std::ofstream m_LogFile;
 
 			// TODO: REFACTOR AND ENCAPSULATE THIS SHIT MEN
-			static int LogPrint(const LogType _Type, const char* _Format, ...);
+			static int LogPrint(const LogType _Type, const char* _Format, va_list _Args);
 
 		public:
 			/// <summary>

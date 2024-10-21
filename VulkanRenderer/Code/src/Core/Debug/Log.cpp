@@ -4,11 +4,8 @@ namespace Core
 {
 	namespace Debug
 	{
-		int Log::LogPrint(const LogType _Type, const char* _Format, ...)
+		int Log::LogPrint(const LogType _Type, const char* _Format, va_list _Args)
 		{
-			va_list args;
-			va_start(args, _Format);
-
 			std::string token = "";
 			std::ostringstream finalPrint;
 
@@ -36,11 +33,11 @@ namespace Core
 						{
 							// long int case
 						case 'i': case 'd': case 'u': case 'h':
-							finalPrint << va_arg(args, long);
+							finalPrint << va_arg(_Args, long);
 							break;
 							// double case
 						case 'f':
-							finalPrint << va_arg(args, double);
+							finalPrint << va_arg(_Args, double);
 							break;
 						}
 						break;
@@ -50,11 +47,11 @@ namespace Core
 						{
 							// long long int case
 						case 'i': case 'd':
-							finalPrint << va_arg(args, long long);
+							finalPrint << va_arg(_Args, long long);
 							break;
 							// long double case
 						case 'f':
-							finalPrint << va_arg(args, long double);
+							finalPrint << va_arg(_Args, long double);
 							break;
 						}
 						break;
@@ -64,7 +61,7 @@ namespace Core
 						{
 							// short
 						case 'i': case 'd':
-							finalPrint << va_arg(args, short);
+							finalPrint << va_arg(_Args, short);
 							break;
 						}
 						break;
@@ -76,37 +73,36 @@ namespace Core
 					{
 						// int case
 					case 'i': case 'd':
-						finalPrint << va_arg(args, int);
+						finalPrint << va_arg(_Args, int);
 						break;
 						// usigned int
 					case 'u':
-						finalPrint << va_arg(args, unsigned int);
+						finalPrint << va_arg(_Args, unsigned int);
 						break;
 						// char case
 					case 'c':
-						finalPrint << va_arg(args, char);
+						finalPrint << va_arg(_Args, char);
 						break;
 						// float case
 					case 'f':
-						finalPrint << va_arg(args, float);
+						finalPrint << va_arg(_Args, float);
 						break;
 						// string case
 					case 's':
-						finalPrint << va_arg(args, char*);
+						finalPrint << va_arg(_Args, char*);
 						break;
 						// pointer case
 					case 'p':
-						finalPrint << va_arg(args, void*);
+						finalPrint << va_arg(_Args, void*);
 					}
 				}
 
 				token = "";
 			}
-			va_end(args);
 
 			int result = 0;
 
-			std::string strForm = _Format;
+			std::string strForm = finalPrint.str();
 			std::string finalForm;
 
 			switch (_Type)
@@ -199,9 +195,11 @@ namespace Core
 			va_list args;
 			va_start(args, _Format);
 
-			return Log::LogPrint(LogType::LOG, _Format, args);
+			int result = Log::LogPrint(LogType::LOG, _Format, args);
 
 			va_end(args);
+
+			return result;
 		}
 
 		int Log::DebugWarn(const char* _Format, ...)
@@ -210,9 +208,11 @@ namespace Core
 			va_list args;
 			va_start(args, _Format);
 
-			return Log::LogPrint(LogType::WARN, _Format, args);
+			int result = Log::LogPrint(LogType::WARN, _Format, args);
 
 			va_end(args);
+
+			return result;
 		}
 
 		int Log::DebugError(const char* _Format, ...)
@@ -221,9 +221,11 @@ namespace Core
 			va_list args;
 			va_start(args, _Format);
 
-			return Log::LogPrint(LogType::ERR, _Format, args);
+			int result = Log::LogPrint(LogType::ERR, _Format, args);
 
 			va_end(args);
+
+			return result;
 		}
 
 		std::string Log::GetCurrentLocalTime()

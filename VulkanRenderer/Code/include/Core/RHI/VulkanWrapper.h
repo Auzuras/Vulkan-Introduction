@@ -89,6 +89,12 @@ namespace Core
 		/// <param name="_Allocator"></param>
 		void DestroyDebugUtilsMessengerEXT(VkInstance _Instance, VkDebugUtilsMessengerEXT _DebugMessenger, const VkAllocationCallbacks* _Allocator);
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="_CreateInfo"></param>
+		void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& _CreateInfo);
+
 		///////////////////////////////////////////////////////////////////////
 
 		/// Extensions related methods

@@ -11,6 +11,8 @@ namespace Core
 		if (!CreateVulkanInstance())
 			return false;
 
+		SetupDebugMessenger();
+
 		return true;
 	}
 
@@ -29,42 +31,32 @@ namespace Core
 		appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
 		appInfo.apiVersion = VK_API_VERSION_1_0;
 
-		// Gets all extensions
-
-		uint32_t extensionCount = 0;
-		vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
-
-		std::vector<VkExtensionProperties> extensions(extensionCount);
-
-		vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
-
-		DEBUG_LOG("Available extenions:");
-		for (const auto& extension : extensions)
-		{
-			//DEBUG_LOG("\t %s", *extension.extensionName);
-		}
-
 		VkInstanceCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 		createInfo.pApplicationInfo = &appInfo;
 
+		// Gets all extensions
 		// TODO: Move this outside of the vulkan initialization \/
 
 		std::vector<const char*> requiredExtensions = GetRequiredExtensions();
+		createInfo.enabledLayerCount = static_cast<uint32_t>(m_ValidationLayers.size());
+		createInfo.ppEnabledLayerNames = m_ValidationLayers.data();
 
 		// /\
-
-		createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
-		createInfo.ppEnabledExtensionNames = requiredExtensions.data();
 		
+		VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
 		if (m_EnableValidationLayers)
 		{
 			createInfo.enabledLayerCount = static_cast<uint32_t>(m_ValidationLayers.size());
 			createInfo.ppEnabledLayerNames = m_ValidationLayers.data();
+
+			PopulateDebugMessengerCreateInfo(debugCreateInfo);
+			createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debugCreateInfo;
 		}
 		else 
 		{
 			createInfo.enabledLayerCount = 0;
+			createInfo.pNext = nullptr;
 		}
 
 		if (vkCreateInstance(&createInfo, nullptr, &m_VulkanInstance) != VK_SUCCESS)
@@ -78,12 +70,11 @@ namespace Core
 
 	const bool VulkanWrapper::SetupDebugMessenger()
 	{
-		VkDebugUtilsMessengerCreateInfoEXT createInfo{};
-		createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-		createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-		createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-		createInfo.pfnUserCallback = DebugCallBack;
-		createInfo.pUserData = nullptr;
+		if (!m_EnableValidationLayers)
+			return false;
+
+		VkDebugUtilsMessengerCreateInfoEXT createInfo;
+		PopulateDebugMessengerCreateInfo(createInfo);
 
 		if (CreateDebugUtilsMessengerEXT(m_VulkanInstance, &createInfo, nullptr, &m_DebugMessenger) != VK_SUCCESS)
 		{
@@ -184,6 +175,15 @@ namespace Core
 		{
 			DEBUG_ERROR("Failed to destroy debug messenger");
 		}
+	}
+
+	void VulkanWrapper::PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& _CreateInfo)
+	{
+		_CreateInfo = {};
+		_CreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+		_CreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+		_CreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+		_CreateInfo.pfnUserCallback = DebugCallBack;
 	}
 
 	std::vector<const char*> VulkanWrapper::GetRequiredExtensions()
