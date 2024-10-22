@@ -12,6 +12,8 @@ namespace Core
 			return false;
 
 		SetupDebugMessenger();
+		PickPhysicalDevice();
+
 
 		return true;
 	}
@@ -39,10 +41,10 @@ namespace Core
 		// TODO: Move this outside of the vulkan initialization \/
 
 		std::vector<const char*> requiredExtensions = GetRequiredExtensions();
-		createInfo.enabledLayerCount = static_cast<uint32_t>(m_ValidationLayers.size());
-		createInfo.ppEnabledLayerNames = m_ValidationLayers.data();
+		createInfo.enabledExtensionCount = static_cast<uint32_t>(requiredExtensions.size());
+		createInfo.ppEnabledExtensionNames = requiredExtensions.data();
 
-		// /\
+		//// /\
 		
 		VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
 		if (m_EnableValidationLayers)
@@ -51,7 +53,7 @@ namespace Core
 			createInfo.ppEnabledLayerNames = m_ValidationLayers.data();
 
 			PopulateDebugMessengerCreateInfo(debugCreateInfo);
-			createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debugCreateInfo;
+			createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*) &debugCreateInfo;
 		}
 		else 
 		{
@@ -59,9 +61,11 @@ namespace Core
 			createInfo.pNext = nullptr;
 		}
 
-		if (vkCreateInstance(&createInfo, nullptr, &m_VulkanInstance) != VK_SUCCESS)
+		VkResult result = vkCreateInstance(&createInfo, nullptr, &m_VulkanInstance);
+
+		if (result != VK_SUCCESS)
 		{
-			DEBUG_ERROR("Failed to create Vulkan instance");
+			DEBUG_ERROR("Failed to create Vulkan instance, Error Code : %d", result);
 			return false;
 		}
 
@@ -76,9 +80,11 @@ namespace Core
 		VkDebugUtilsMessengerCreateInfoEXT createInfo;
 		PopulateDebugMessengerCreateInfo(createInfo);
 
-		if (CreateDebugUtilsMessengerEXT(m_VulkanInstance, &createInfo, nullptr, &m_DebugMessenger) != VK_SUCCESS)
+		VkResult result = CreateDebugUtilsMessengerEXT(m_VulkanInstance, &createInfo, nullptr, &m_DebugMessenger);
+
+		if (result != VK_SUCCESS)
 		{
-			DEBUG_ERROR("Failed to set up debug messenger");
+			DEBUG_ERROR("Failed to set up debug messenger, Error Code %d", result);
 			return false;
 		}
 
@@ -99,8 +105,7 @@ namespace Core
 
 	const bool VulkanWrapper::CheckValidationLayerSupport()
 	{
-		uint32_t layerNbr = 0;
-
+		uint32_t layerNbr;
 		vkEnumerateInstanceLayerProperties(&layerNbr, nullptr);
 
 		std::vector<VkLayerProperties> availableLayers(layerNbr);
@@ -201,5 +206,57 @@ namespace Core
 		}
 
 		return extensions;
+	}
+
+	void VulkanWrapper::PickPhysicalDevice()
+	{
+		uint32_t deviceNbr = 0;
+		vkEnumeratePhysicalDevices(m_VulkanInstance, &deviceNbr, nullptr);
+
+		if (deviceNbr == 0)
+		{
+			DEBUG_ERROR("Failed to find GPUs with Vulkan support");
+		}
+
+		vkEnumeratePhysicalDevices(m_VulkanInstance, &deviceNbr, nullptr);
+
+		std::vector<VkPhysicalDevice> devices(deviceNbr);
+		vkEnumeratePhysicalDevices(m_VulkanInstance, &deviceNbr, devices.data());
+
+		// Can be change to choose a device according to a score
+		for (VkPhysicalDevice device : devices)
+		{
+			if (IsDeviceSuitable(device))
+			{
+				m_PhysicalDevice = device;
+				break;
+			}
+		}
+
+		if (m_PhysicalDevice == VK_NULL_HANDLE)
+		{
+			DEBUG_ERROR("Failed to find a suitable GPU");
+		}
+
+	}
+
+	const bool VulkanWrapper::IsDeviceSuitable(VkPhysicalDevice _Device)
+	{
+		VkPhysicalDeviceProperties deviceProperties;
+		VkPhysicalDeviceFeatures deviceFeatures;
+
+		vkGetPhysicalDeviceProperties(_Device, &deviceProperties);
+		vkGetPhysicalDeviceFeatures(_Device, &deviceFeatures);
+
+		return deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && deviceFeatures.geometryShader;
+	}
+
+	QueueFamilyIndices VulkanWrapper::FindQueueFamilies(VkPhysicalDevice _Device)
+	{
+		QueueFamilyIndices indices;
+
+
+
+		return indices;
 	}
 }

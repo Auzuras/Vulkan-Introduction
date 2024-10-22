@@ -4,14 +4,21 @@
 #include "RHI/RHI.h"
 
 #include <vector>
+#include <optional>
 
 namespace Core
 {
+	struct QueueFamilyIndices
+	{
+		std::optional<uint32_t> graphicsFamily;
+	};
+
 	class VulkanWrapper : public RHI
 	{
 	private:
 		VkInstance m_VulkanInstance;
 		VkDebugUtilsMessengerEXT m_DebugMessenger;
+		VkPhysicalDevice m_PhysicalDevice = VK_NULL_HANDLE;
 
 		const std::vector<const char*> m_ValidationLayers = {
 			"VK_LAYER_KHRONOS_validation"
@@ -106,5 +113,22 @@ namespace Core
 		/// </summary>
 		/// <returns></returns>
 		std::vector<const char*> GetRequiredExtensions();
+
+		///////////////////////////////////////////////////////////////////////
+
+		/// Physical divice related methods
+		
+		///////////////////////////////////////////////////////////////////////
+
+		void PickPhysicalDevice();
+		const bool IsDeviceSuitable(VkPhysicalDevice _Device);
+
+		///////////////////////////////////////////////////////////////////////
+
+		/// Families queues related methods
+		
+		///////////////////////////////////////////////////////////////////////
+
+		QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice _Device);
 	};
 }
