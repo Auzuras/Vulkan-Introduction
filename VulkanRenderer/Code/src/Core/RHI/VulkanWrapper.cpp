@@ -254,7 +254,21 @@ namespace Core
 
 		QueueFamilyIndices indices = FindQueueFamilies(_Device);
 
-		return deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && deviceFeatures.geometryShader && indices.isComplete;
+		bool areExtensionsSupported = CheckDeviceExtensionSupport(_Device);
+
+		bool isSwapChainAdequate = false;
+
+		if (areExtensionsSupported)
+		{
+			SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(_Device);
+			isSwapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
+		}
+
+		return deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU 
+			&& deviceFeatures.geometryShader 
+			&& indices.isComplete 
+			&& areExtensionsSupported
+			&& isSwapChainAdequate;
 	}
 
 	QueueFamilyIndices VulkanWrapper::FindQueueFamilies(VkPhysicalDevice _Device)
@@ -321,7 +335,8 @@ namespace Core
 		createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
 		createInfo.pQueueCreateInfos = queueCreateInfos.data();
 		createInfo.pEnabledFeatures = &deviceFeatures;
-		createInfo.enabledExtensionCount = 0;
+		createInfo.enabledExtensionCount = static_cast<uint32_t>(m_DeviceExtensions.size());
+		createInfo.ppEnabledExtensionNames = m_DeviceExtensions.data();
 
 		if (m_EnableValidationLayers) 
 		{
@@ -355,5 +370,50 @@ namespace Core
 		{
 			DEBUG_ERROR("Failed to create window surface, Error Code: %d", result);
 		}
+	}
+
+	const bool VulkanWrapper::CheckDeviceExtensionSupport(VkPhysicalDevice _Device)
+	{
+		uint32_t extensionsNbr;
+		vkEnumerateDeviceExtensionProperties(_Device, nullptr, &extensionsNbr, nullptr);
+
+		std::vector<VkExtensionProperties> availableExtensions(extensionsNbr);
+		vkEnumerateDeviceExtensionProperties(_Device, nullptr, &extensionsNbr, availableExtensions.data());
+
+		std::set<std::string> requiredExtensions(m_DeviceExtensions.begin(), m_DeviceExtensions.end());
+
+		for (const VkExtensionProperties& extension : availableExtensions)
+		{
+			requiredExtensions.erase(extension.extensionName);
+		}
+
+		return requiredExtensions.empty();
+	}
+
+	SwapChainSupportDetails VulkanWrapper::QuerySwapChainSupport(VkPhysicalDevice _Device)
+	{
+		SwapChainSupportDetails details;
+
+		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(_Device, m_Surface, &details.capabilities);
+
+		uint32_t formatNbr;
+		vkGetPhysicalDeviceSurfaceFormatsKHR(_Device, m_Surface, &formatNbr, nullptr);
+
+		if (formatNbr != 0)
+		{
+			details.formats.resize(formatNbr);
+			vkGetPhysicalDeviceSurfaceFormatsKHR(_Device, m_Surface, &formatNbr, details.formats.data());
+		}
+
+		uint32_t presentModeNbr;
+		vkGetPhysicalDeviceSurfacePresentModesKHR(_Device, m_Surface, &presentModeNbr, nullptr);
+
+		if (presentModeNbr != 0)
+		{
+			details.formats.resize(presentModeNbr);
+			vkGetPhysicalDeviceSurfacePresentModesKHR(_Device, m_Surface, &presentModeNbr, details.presentModes.data());
+		}
+
+		return details;
 	}
 }

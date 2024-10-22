@@ -6,6 +6,7 @@
 
 #include <vector>
 #include <optional>
+#include <string>
 
 namespace Core
 {
@@ -15,6 +16,13 @@ namespace Core
 		std::optional<uint32_t> presentFamily;
 
 		bool isComplete = false;
+	};
+
+	struct SwapChainSupportDetails
+	{
+		VkSurfaceCapabilitiesKHR capabilities;
+		std::vector<VkSurfaceFormatKHR> formats;
+		std::vector<VkPresentModeKHR> presentModes;
 	};
 
 	class VulkanWrapper : public RHI
@@ -32,6 +40,10 @@ namespace Core
 
 		const std::vector<const char*> m_ValidationLayers = {
 			"VK_LAYER_KHRONOS_validation"
+		};
+
+		const std::vector<const char*> m_DeviceExtensions = {
+			VK_KHR_SWAPCHAIN_EXTENSION_NAME
 		};
 
 #ifdef NDEBUG
@@ -69,7 +81,7 @@ namespace Core
 		///////////////////////////////////////////////////////////////////////
 
 		/// Validation layers related methods
-		
+
 		///////////////////////////////////////////////////////////////////////
 
 		/// <summary>
@@ -87,7 +99,7 @@ namespace Core
 		/// <param name="_UserData"></param>
 		/// <returns></returns>
 		static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallBack(VkDebugUtilsMessageSeverityFlagBitsEXT _MessageSeverity, VkDebugUtilsMessageTypeFlagsEXT _MessageType, const VkDebugUtilsMessengerCallbackDataEXT* _CallbackData, void* _UserData);
-		
+
 		/// <summary>
 		/// 
 		/// </summary>
@@ -115,7 +127,7 @@ namespace Core
 		///////////////////////////////////////////////////////////////////////
 
 		/// Extensions related methods
-		
+
 		///////////////////////////////////////////////////////////////////////
 
 		/// <summary>
@@ -127,34 +139,76 @@ namespace Core
 		///////////////////////////////////////////////////////////////////////
 
 		/// Physical divice related methods
-		
-		///////////////////////////////////////////////////////////////////////
 
+		///////////////////////////////////////////////////////////////////////
+		
+		/// <summary>
+		/// 
+		/// </summary>
 		void PickPhysicalDevice();
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="_Device"></param>
+		/// <returns></returns>
 		const bool IsDeviceSuitable(VkPhysicalDevice _Device);
 
 		///////////////////////////////////////////////////////////////////////
 
 		/// Families queues related methods
-		
+
 		///////////////////////////////////////////////////////////////////////
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="_Device"></param>
+		/// <returns></returns>
 		QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice _Device);
 
 		///////////////////////////////////////////////////////////////////////
 
 		/// Logical devices related methods
-		
+
 		///////////////////////////////////////////////////////////////////////
 
+		/// <summary>
+		/// 
+		/// </summary>
 		void CreateLogicalDevice();
 
 		///////////////////////////////////////////////////////////////////////
 
-		/// Surface devices related methods
+		/// Surface related methods
+
+		///////////////////////////////////////////////////////////////////////
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="_Window"></param>
+		void CreateSurface(GLFWwindow* _Window);
+
+
+		///////////////////////////////////////////////////////////////////////
+
+		/// SwapChain related methods
 		
 		///////////////////////////////////////////////////////////////////////
 
-		void CreateSurface(GLFWwindow* _Window);
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="_Device"></param>
+		/// <returns></returns>
+		const bool CheckDeviceExtensionSupport(VkPhysicalDevice _Device);
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="_Device"></param>
+		/// <returns></returns>
+		SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice _Device);
 	};
 }
