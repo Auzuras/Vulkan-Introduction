@@ -65,7 +65,7 @@ namespace Core
 
 		if (result != VK_SUCCESS)
 		{
-			DEBUG_ERROR("Failed to create Vulkan instance, Error Code : %d", result);
+			DEBUG_ERROR("Failed to create Vulkan instance, Error Code: %d", result);
 			return false;
 		}
 
@@ -84,7 +84,7 @@ namespace Core
 
 		if (result != VK_SUCCESS)
 		{
-			DEBUG_ERROR("Failed to set up debug messenger, Error Code %d", result);
+			DEBUG_ERROR("Failed to set up debug messenger, Error Code: %d", result);
 			return false;
 		}
 
@@ -93,13 +93,14 @@ namespace Core
 
 	const bool VulkanWrapper::Terminate()
 	{
+		vkDestroyDevice(m_LogicalDevice, nullptr);
+
 		if (m_EnableValidationLayers)
 		{
 			DestroyDebugUtilsMessengerEXT(m_VulkanInstance, m_DebugMessenger, nullptr);
 		}
 
 		vkDestroyInstance(m_VulkanInstance, nullptr);
-
 		return true;
 	}
 
@@ -248,15 +249,72 @@ namespace Core
 		vkGetPhysicalDeviceProperties(_Device, &deviceProperties);
 		vkGetPhysicalDeviceFeatures(_Device, &deviceFeatures);
 
-		return deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && deviceFeatures.geometryShader;
+		QueueFamilyIndices indices = FindQueueFamilies(_Device);
+
+		return deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && deviceFeatures.geometryShader && indices.isComplete;
 	}
 
 	QueueFamilyIndices VulkanWrapper::FindQueueFamilies(VkPhysicalDevice _Device)
 	{
 		QueueFamilyIndices indices;
 
+		uint32_t queueFamilyNbr = 0;
+		vkGetPhysicalDeviceQueueFamilyProperties(_Device, &queueFamilyNbr, nullptr);
 
+		std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyNbr);
+		vkGetPhysicalDeviceQueueFamilyProperties(_Device, &queueFamilyNbr, queueFamilies.data());
+
+		int index = 0;
+		for (const VkQueueFamilyProperties& queueFamily : queueFamilies)
+		{
+			if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+			{
+				indices.graphicsFamily = index;
+			}
+
+			if (indices.graphicsFamily.has_value())
+			{
+				break;
+			}
+
+			++index;
+		}
+
+		indices.isComplete = indices.graphicsFamily.has_value();
 
 		return indices;
+	}
+
+	void VulkanWrapper::CreateLogicalDevice()
+	{
+		QueueFamilyIndices indices = FindQueueFamilies(m_PhysicalDevice);
+		float queuePriority = 1.0f;
+
+		VkDeviceQueueCreateInfo queueCreateInfo{};
+		queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+		queueCreateInfo.queueFamilyIndex = indices.graphicsFamily.value();
+		queueCreateInfo.queueCount = 1;
+		queueCreateInfo.pQueuePriorities = &queuePriority;
+
+		VkPhysicalDeviceFeatures deviceFeatures{};
+
+		VkDeviceCreateInfo createInfo{};
+		createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+		createInfo.pQueueCreateInfos = &queueCreateInfo;
+		createInfo.queueCreateInfoCount = 1;
+
+		createInfo.pEnabledFeatures = &deviceFeatures;
+
+		VkResult result = vkCreateDevice(m_PhysicalDevice, &createInfo, nullptr, &m_LogicalDevice);
+
+		if (result != VK_SUCCESS)
+		{
+			DEBUG_ERROR("Failed to created logical device, Error Code: %d", result);
+			return;
+		}
+
+		vkGetDeviceQueue(m_LogicalDevice, indices.graphicsFamily.value(), 0, &m_GraphicsQueue);
+
+		return;
 	}
 }

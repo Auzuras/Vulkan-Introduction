@@ -11,6 +11,7 @@ namespace Core
 	struct QueueFamilyIndices
 	{
 		std::optional<uint32_t> graphicsFamily;
+		bool isComplete = false;
 	};
 
 	class VulkanWrapper : public RHI
@@ -19,6 +20,8 @@ namespace Core
 		VkInstance m_VulkanInstance;
 		VkDebugUtilsMessengerEXT m_DebugMessenger;
 		VkPhysicalDevice m_PhysicalDevice = VK_NULL_HANDLE;
+		VkDevice m_LogicalDevice;
+		VkQueue m_GraphicsQueue;
 
 		const std::vector<const char*> m_ValidationLayers = {
 			"VK_LAYER_KHRONOS_validation"
@@ -130,5 +133,13 @@ namespace Core
 		///////////////////////////////////////////////////////////////////////
 
 		QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice _Device);
+
+		///////////////////////////////////////////////////////////////////////
+
+		/// Logical devices related methods
+		
+		///////////////////////////////////////////////////////////////////////
+
+		void CreateLogicalDevice();
 	};
 }
