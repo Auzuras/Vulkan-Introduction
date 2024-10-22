@@ -17,6 +17,7 @@ namespace Core
 		PickPhysicalDevice();
 		CreateLogicalDevice();
 		CreateSwapChain(_Window);
+		CreateGraphicsPipeline();
 
 		return true;
 	}
@@ -56,9 +57,9 @@ namespace Core
 			createInfo.ppEnabledLayerNames = m_ValidationLayers.data();
 
 			PopulateDebugMessengerCreateInfo(debugCreateInfo);
-			createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*) &debugCreateInfo;
+			createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debugCreateInfo;
 		}
-		else 
+		else
 		{
 			createInfo.enabledLayerCount = 0;
 			createInfo.pNext = nullptr;
@@ -345,12 +346,12 @@ namespace Core
 		createInfo.enabledExtensionCount = static_cast<uint32_t>(m_DeviceExtensions.size());
 		createInfo.ppEnabledExtensionNames = m_DeviceExtensions.data();
 
-		if (m_EnableValidationLayers) 
+		if (m_EnableValidationLayers)
 		{
 			createInfo.enabledLayerCount = static_cast<uint32_t>(m_ValidationLayers.size());
 			createInfo.ppEnabledLayerNames = m_ValidationLayers.data();
 		}
-		else 
+		else
 		{
 			createInfo.enabledLayerCount = 0;
 		}
@@ -449,7 +450,7 @@ namespace Core
 
 		return VK_PRESENT_MODE_FIFO_KHR;
 	}
-	
+
 	VkExtent2D VulkanWrapper::ChooseSwapExtent(GLFWwindow* _Window, const VkSurfaceCapabilitiesKHR& _Capabilities)
 	{
 		if (_Capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
@@ -472,11 +473,11 @@ namespace Core
 			return actualExtent;
 		}
 	}
-	
+
 	void VulkanWrapper::CreateSwapChain(GLFWwindow* _Window)
 	{
 		SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(m_PhysicalDevice);
-		
+
 		VkSurfaceFormatKHR surfaceFormat = ChooseSwapSurfaceFormat(swapChainSupport.formats);
 
 		VkPresentModeKHR presentMode = ChooseSwapPresentMode(swapChainSupport.presentModes);
@@ -571,5 +572,79 @@ namespace Core
 		}
 
 		return;
+	}
+
+	void VulkanWrapper::CreateGraphicsPipeline()
+	{
+		std::vector<char> verShader = ReadShader("Assets/Shaders/vert.spv");
+		std::vector<char> fragShader = ReadShader("Assets/Shaders/frag.spv");
+
+		VkShaderModule vertShaderModule = CreateShaderModule(verShader);
+		VkShaderModule fragShaderModule = CreateShaderModule(fragShader);
+
+		VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
+		vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
+		vertShaderStageInfo.module = vertShaderModule;
+		vertShaderStageInfo.pName = "main";
+
+		VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
+		fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+		fragShaderStageInfo.module = fragShaderModule;
+		fragShaderStageInfo.pName = "main";
+
+		VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
+
+		vkDestroyShaderModule(m_LogicalDevice, fragShaderModule, nullptr);
+		vkDestroyShaderModule(m_LogicalDevice, vertShaderModule, nullptr);
+	}
+
+	std::vector<char> VulkanWrapper::ReadShader(const std::filesystem::path& _FilePath)
+	{
+		if (_FilePath.extension() != ".spv")
+		{
+			DEBUG_ERROR("Wrong shader file extension");
+			std::vector<char> err(0);
+			return err;
+		}
+
+		std::ifstream file(_FilePath, std::ios::ate | std::ios::binary);
+
+		if (!file.is_open())
+		{
+			DEBUG_ERROR("Failed to open shader file");
+			std::vector<char> err(0);
+			return err;
+		}
+
+		size_t fileSize = (size_t)file.tellg();
+		std::vector<char> buffer(fileSize);
+
+		file.seekg(0);
+		file.read(buffer.data(), fileSize);
+
+		file.close();
+
+		return buffer;
+	}
+
+	VkShaderModule VulkanWrapper::CreateShaderModule(const std::vector<char>& _ShaderSourceCode)
+	{
+		VkShaderModuleCreateInfo createInfo{};
+		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+		createInfo.codeSize = _ShaderSourceCode.size();
+		createInfo.pCode = reinterpret_cast<const uint32_t*>(_ShaderSourceCode.data());
+
+		VkShaderModule shaderModule;
+
+		VkResult result = vkCreateShaderModule(m_LogicalDevice, &createInfo, nullptr, &shaderModule);
+
+		if (result != VK_SUCCESS)
+		{
+			DEBUG_ERROR("Failed to create shader module, Error Code: %d", result);
+		}
+
+		return shaderModule;
 	}
 }

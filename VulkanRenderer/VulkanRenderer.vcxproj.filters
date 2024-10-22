@@ -87,4 +87,8 @@
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Assets\Shaders\HelloTriangle.vert" />
+    <None Include="Assets\Shaders\HelloTriangle.frag" />
+  </ItemGroup>
 </Project>
