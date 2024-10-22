@@ -2,6 +2,8 @@
 
 #include <vulkan/vulkan.h>
 
+#define NOMINMAX
+
 #include "RHI/RHI.h"
 
 #include <vector>
@@ -37,6 +39,11 @@ namespace Core
 		VkQueue m_PresentQueue;
 
 		VkSurfaceKHR m_Surface;
+
+		VkSwapchainKHR m_SwapChain;
+		std::vector<VkImage> m_SwapChainImages;
+		VkFormat m_SwapChainImageFormat;
+		VkExtent2D m_SwapChainExtent;
 
 		const std::vector<const char*> m_ValidationLayers = {
 			"VK_LAYER_KHRONOS_validation"
@@ -210,5 +217,32 @@ namespace Core
 		/// <param name="_Device"></param>
 		/// <returns></returns>
 		SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice _Device);
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="_AvailableFormats"></param>
+		/// <returns></returns>
+		VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& _AvailableFormats);
+		
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="_AvailablePresentModes"></param>
+		/// <returns></returns>
+		VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& _AvailablePresentModes);
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="capabilities"></param>
+		/// <returns></returns>
+		VkExtent2D ChooseSwapExtent(GLFWwindow* _Window, const VkSurfaceCapabilitiesKHR& _Capabilities);
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="_Window"></param>
+		void CreateSwapChain(GLFWwindow* _Window);
 	};
 }
