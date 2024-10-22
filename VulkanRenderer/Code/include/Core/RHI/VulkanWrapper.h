@@ -42,6 +42,7 @@ namespace Core
 
 		VkSwapchainKHR m_SwapChain;
 		std::vector<VkImage> m_SwapChainImages;
+		std::vector<VkImageView> m_SwapChainImageViews;
 		VkFormat m_SwapChainImageFormat;
 		VkExtent2D m_SwapChainExtent;
 
@@ -244,5 +245,13 @@ namespace Core
 		/// </summary>
 		/// <param name="_Window"></param>
 		void CreateSwapChain(GLFWwindow* _Window);
+
+		///////////////////////////////////////////////////////////////////////
+
+		/// Image view related methods
+
+		///////////////////////////////////////////////////////////////////////
+
+		void CreateImageViews();
 	};
 }
