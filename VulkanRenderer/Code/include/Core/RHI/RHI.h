@@ -1,6 +1,7 @@
 #pragma once
 
 #include <GLFW/glfw3.h>
+#include <GLFW/glfw3native.h>
 
 #include <string>
 
@@ -38,7 +39,7 @@ namespace Core
 		/// <param name="_Height"> : height of the window</param>
 		/// <param name="_WindowName"> : name of the window</param>
 		/// <returns></returns>
-		virtual const bool Initialize() = 0;
+		virtual const bool Initialize(GLFWwindow* _Window) = 0;
 
 		/// <summary>
 		/// Termination method of the graphic API

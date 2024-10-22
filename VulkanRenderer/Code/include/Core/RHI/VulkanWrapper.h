@@ -1,4 +1,5 @@
 #pragma once
+
 #include <vulkan/vulkan.h>
 
 #include "RHI/RHI.h"
@@ -11,6 +12,8 @@ namespace Core
 	struct QueueFamilyIndices
 	{
 		std::optional<uint32_t> graphicsFamily;
+		std::optional<uint32_t> presentFamily;
+
 		bool isComplete = false;
 	};
 
@@ -21,7 +24,11 @@ namespace Core
 		VkDebugUtilsMessengerEXT m_DebugMessenger;
 		VkPhysicalDevice m_PhysicalDevice = VK_NULL_HANDLE;
 		VkDevice m_LogicalDevice;
+
 		VkQueue m_GraphicsQueue;
+		VkQueue m_PresentQueue;
+
+		VkSurfaceKHR m_Surface;
 
 		const std::vector<const char*> m_ValidationLayers = {
 			"VK_LAYER_KHRONOS_validation"
@@ -44,7 +51,7 @@ namespace Core
 
 		///////////////////////////////////////////////////////////////////////
 
-		const bool Initialize() override;
+		const bool Initialize(GLFWwindow* _Window) override;
 
 		/// <summary>
 		/// Creates a vulkan instance
@@ -141,5 +148,13 @@ namespace Core
 		///////////////////////////////////////////////////////////////////////
 
 		void CreateLogicalDevice();
+
+		///////////////////////////////////////////////////////////////////////
+
+		/// Surface devices related methods
+		
+		///////////////////////////////////////////////////////////////////////
+
+		void CreateSurface(GLFWwindow* _Window);
 	};
 }

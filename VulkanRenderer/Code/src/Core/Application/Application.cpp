@@ -36,7 +36,7 @@ namespace Core
 			return false;
 		}
 
-		if (!m_RHI->Initialize())
+		if (!m_RHI->Initialize(m_Window))
 		{
 			DEBUG_ERROR("Application failed to initialize");
 			return false;
