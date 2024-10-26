@@ -51,6 +51,10 @@ namespace Core
 
 		VkRenderPass m_RenderPass;
 
+		VkPipeline m_GraphicsPipeline;
+
+		std::vector<VkFramebuffer> m_SwapChainFramebuffers;
+
 		const std::vector<const char*> m_ValidationLayers = {
 			"VK_LAYER_KHRONOS_validation"
 		};
@@ -303,5 +307,16 @@ namespace Core
 		/// 
 		/// </summary>
 		void CreateRenderPass();
+
+		///////////////////////////////////////////////////////////////////////
+
+		/// Render pass related methods
+
+		///////////////////////////////////////////////////////////////////////
+
+		/// <summary>
+		/// 
+		/// </summary>
+		void CreateFramebuffers();
 	};
 }

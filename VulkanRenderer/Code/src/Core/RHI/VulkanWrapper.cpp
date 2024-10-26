@@ -97,6 +97,15 @@ namespace Core
 
 	const bool VulkanWrapper::Terminate()
 	{
+		for (auto framebuffer : m_SwapChainFramebuffers) 
+		{
+			vkDestroyFramebuffer(m_LogicalDevice, framebuffer, nullptr);
+		}
+
+		vkDestroyPipeline(m_LogicalDevice, m_GraphicsPipeline, nullptr);
+
+		vkDestroyPipelineLayout(m_LogicalDevice, m_PipelineLayout, nullptr);
+
 		vkDestroyPipelineLayout(m_LogicalDevice, m_PipelineLayout, nullptr);
 
 		vkDestroyRenderPass(m_LogicalDevice, m_RenderPass, nullptr);
@@ -699,6 +708,31 @@ namespace Core
 			DEBUG_ERROR("Failed to create pipeline layout, Error Code: %d", result);
 		}
 
+		VkGraphicsPipelineCreateInfo pipelineInfo{};
+		pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+		pipelineInfo.stageCount = 2;
+		pipelineInfo.pStages = shaderStages;
+		pipelineInfo.pVertexInputState = &vertexInputInfo;
+		pipelineInfo.pInputAssemblyState = &inputAssembly;
+		pipelineInfo.pViewportState = &viewportState;
+		pipelineInfo.pRasterizationState = &rasterizer;
+		pipelineInfo.pMultisampleState = &multisampling;
+		pipelineInfo.pDepthStencilState = nullptr;
+		pipelineInfo.pColorBlendState = &colorBlending;
+		pipelineInfo.pDynamicState = &dynamicState;
+		pipelineInfo.layout = m_PipelineLayout;
+		pipelineInfo.renderPass = m_RenderPass;
+		pipelineInfo.subpass = 0;
+		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
+		pipelineInfo.basePipelineIndex = -1;
+
+		result = vkCreateGraphicsPipelines(m_LogicalDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_GraphicsPipeline);
+
+		if (result != VK_SUCCESS)
+		{
+			DEBUG_ERROR("Failed to create graphics pipeline, Error Code: %d", result);
+		}
+
 		vkDestroyShaderModule(m_LogicalDevice, fragShaderModule, nullptr);
 		vkDestroyShaderModule(m_LogicalDevice, vertShaderModule, nullptr);
 	}
@@ -784,6 +818,34 @@ namespace Core
 		if (result !=  VK_SUCCESS)
 		{
 			DEBUG_ERROR("Failed to create render pass, Error Code: %d", result);
+		}
+	}
+
+	void VulkanWrapper::CreateFramebuffers()
+	{
+		m_SwapChainFramebuffers.resize(m_SwapChainImageViews.size());
+
+		for (size_t i = 0; i < m_SwapChainImageViews.size(); ++i)
+		{
+			VkImageView attachments[] = {
+				m_SwapChainImageViews[i]
+			};
+
+			VkFramebufferCreateInfo framebufferInfo{};
+			framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+			framebufferInfo.renderPass = m_RenderPass;
+			framebufferInfo.attachmentCount = 1;
+			framebufferInfo.pAttachments = attachments;
+			framebufferInfo.width = m_SwapChainExtent.width;
+			framebufferInfo.height = m_SwapChainExtent.height;
+			framebufferInfo.layers = 1;
+
+			VkResult result = vkCreateFramebuffer(m_LogicalDevice, &framebufferInfo, nullptr, &m_SwapChainFramebuffers[i]);
+
+			if (result != VK_SUCCESS)
+			{
+				DEBUG_ERROR("Failed to create Framebuffer, Error Code: %d", result);
+			}
 		}
 	}
 }
