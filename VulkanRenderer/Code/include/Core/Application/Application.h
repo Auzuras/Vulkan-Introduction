@@ -32,9 +32,30 @@ namespace Core
 
 		///////////////////////////////////////////////////////////////////////
 
+		/// <summary>
+		/// Application default constructot
+		/// </summary>
 		Application() = default;
+
+		/// <summary>
+		/// Application constructor
+		/// </summary>
+		/// <param name="_Width">: Width of the window </param>
+		/// <param name="_Height">: Height of the window </param>
+		/// <param name="_WindowName">: Name of the window </param>
+		/// <param name="_RHIType">: Type of renderer </param>
 		Application(const uint32_t _Width, const uint32_t _Height, const char* _WindowName, RHIType _RHIType);
+
+		/// <summary>
+		/// Application constructor
+		/// </summary>
+		/// <param name="_Width">: Width of the window </param>
+		/// <param name="_Height">: Height of the window </param>
 		Application(const uint32_t _Width, const uint32_t _Height);
+
+		/// <summary>
+		/// Application default destructor
+		/// </summary>
 		~Application() = default;
 
 		///////////////////////////////////////////////////////////////////////
@@ -43,9 +64,28 @@ namespace Core
 		
 		///////////////////////////////////////////////////////////////////////
 
+		/// <summary>
+		/// Window width getter
+		/// </summary>
+		/// <returns></returns>
 		inline int GetWindowWidth() { return m_Width; }
+
+		/// <summary>
+		/// Window height getter
+		/// </summary>
+		/// <returns></returns>
 		inline int GetWindowHeight() { return m_Height; }
+
+		/// <summary>
+		/// Window name getter
+		/// </summary>
+		/// <returns></returns>
 		inline const char* GetWindowName() { return m_WindowName; }
+
+		/// <summary>
+		/// Window getter
+		/// </summary>
+		/// <returns></returns>
 		inline GLFWwindow* GetWindow() { return m_Window; }
 
 		///////////////////////////////////////////////////////////////////////
@@ -54,7 +94,16 @@ namespace Core
 
 		///////////////////////////////////////////////////////////////////////
 
+		/// <summary>
+		/// Initialize the application
+		/// </summary>
+		/// <returns></returns>
 		const bool Initialize();
+
+		/// <summary>
+		/// Terminate the application
+		/// </summary>
+		/// <returns></returns>
 		const bool Terminate();
 	};
 }
