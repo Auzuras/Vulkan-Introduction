@@ -47,6 +47,10 @@ namespace Core
 		VkFormat m_SwapChainImageFormat;
 		VkExtent2D m_SwapChainExtent;
 
+		VkPipelineLayout m_PipelineLayout;
+
+		VkRenderPass m_RenderPass;
+
 		const std::vector<const char*> m_ValidationLayers = {
 			"VK_LAYER_KHRONOS_validation"
 		};
@@ -253,6 +257,9 @@ namespace Core
 
 		///////////////////////////////////////////////////////////////////////
 
+		/// <summary>
+		/// 
+		/// </summary>
 		void CreateImageViews();
 
 		///////////////////////////////////////////////////////////////////////
@@ -261,7 +268,16 @@ namespace Core
 
 		///////////////////////////////////////////////////////////////////////
 
+		/// <summary>
+		/// 
+		/// </summary>
 		void CreateGraphicsPipeline();
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="_FilePath"></param>
+		/// <returns></returns>
 		std::vector<char> ReadShader(const std::filesystem::path& _FilePath);
 
 		///////////////////////////////////////////////////////////////////////
@@ -270,6 +286,22 @@ namespace Core
 
 		///////////////////////////////////////////////////////////////////////
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="_ShaderSourceCode"></param>
+		/// <returns></returns>
 		VkShaderModule CreateShaderModule(const std::vector<char>& _ShaderSourceCode);
+
+		///////////////////////////////////////////////////////////////////////
+
+		/// Render pass related methods
+		
+		///////////////////////////////////////////////////////////////////////
+
+		/// <summary>
+		/// 
+		/// </summary>
+		void CreateRenderPass();
 	};
 }
