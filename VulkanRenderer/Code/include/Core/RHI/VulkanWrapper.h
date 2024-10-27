@@ -55,6 +55,9 @@ namespace Core
 
 		std::vector<VkFramebuffer> m_SwapChainFramebuffers;
 
+		VkCommandPool m_CommandPool;
+		VkCommandBuffer m_CommandBuffer;
+
 		const std::vector<const char*> m_ValidationLayers = {
 			"VK_LAYER_KHRONOS_validation"
 		};
@@ -318,5 +321,28 @@ namespace Core
 		/// 
 		/// </summary>
 		void CreateFramebuffers();
+
+		///////////////////////////////////////////////////////////////////////
+
+		/// Commands related methods
+
+		///////////////////////////////////////////////////////////////////////
+
+		/// <summary>
+		/// 
+		/// </summary>
+		void CreateCommandPool();
+
+		/// <summary>
+		/// 
+		/// </summary>
+		void CreateCommandBuffer();
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="_CommandBuffer"></param>
+		/// <param name="_ImageIndex"></param>
+		void RecordCommandBuffer(VkCommandBuffer _CommandBuffer, uint32_t _ImageIndex);
 	};
 }

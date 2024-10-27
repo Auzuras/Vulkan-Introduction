@@ -17,7 +17,12 @@ namespace Core
 		PickPhysicalDevice();
 		CreateLogicalDevice();
 		CreateSwapChain(_Window);
+		CreateImageViews();
+		CreateRenderPass();
 		CreateGraphicsPipeline();
+		CreateFramebuffers();
+		CreateCommandPool();
+		CreateCommandBuffer();
 
 		return true;
 	}
@@ -97,7 +102,9 @@ namespace Core
 
 	const bool VulkanWrapper::Terminate()
 	{
-		for (auto framebuffer : m_SwapChainFramebuffers) 
+		vkDestroyCommandPool(m_LogicalDevice, m_CommandPool, nullptr);
+
+		for (auto framebuffer : m_SwapChainFramebuffers)
 		{
 			vkDestroyFramebuffer(m_LogicalDevice, framebuffer, nullptr);
 		}
@@ -815,7 +822,7 @@ namespace Core
 
 		VkResult result = vkCreateRenderPass(m_LogicalDevice, &renderPassInfo, nullptr, &m_RenderPass);
 
-		if (result !=  VK_SUCCESS)
+		if (result != VK_SUCCESS)
 		{
 			DEBUG_ERROR("Failed to create render pass, Error Code: %d", result);
 		}
@@ -846,6 +853,97 @@ namespace Core
 			{
 				DEBUG_ERROR("Failed to create Framebuffer, Error Code: %d", result);
 			}
+		}
+	}
+
+	void VulkanWrapper::CreateCommandPool()
+	{
+		QueueFamilyIndices queueFamilyIndices = FindQueueFamilies(m_PhysicalDevice);
+
+		VkCommandPoolCreateInfo poolInfo{};
+		poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+		poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+		poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
+
+		VkResult result = vkCreateCommandPool(m_LogicalDevice, &poolInfo, nullptr, &m_CommandPool);
+
+		if (result != VK_SUCCESS)
+		{
+			DEBUG_ERROR("Failed to create command pool, Error Code: %d", result);
+		}
+	}
+
+	void VulkanWrapper::CreateCommandBuffer()
+	{
+		VkCommandBufferAllocateInfo allocInfo{};
+		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		allocInfo.commandPool = m_CommandPool;
+		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		allocInfo.commandBufferCount = 1;
+
+		VkResult result = vkAllocateCommandBuffers(m_LogicalDevice, &allocInfo, &m_CommandBuffer);
+
+		if (result != VK_SUCCESS)
+		{
+			DEBUG_ERROR("Failed to allocate command buffers, Error Code: %d", result);
+		}
+	}
+
+	void VulkanWrapper::RecordCommandBuffer(VkCommandBuffer _CommandBuffer, uint32_t _ImageIndex)
+	{
+		VkCommandBufferBeginInfo beginInfo{};
+		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		beginInfo.flags = 0;
+		beginInfo.pInheritanceInfo = nullptr;
+
+		VkResult result = vkBeginCommandBuffer(_CommandBuffer, &beginInfo);
+
+		if (result != VK_SUCCESS)
+		{
+			DEBUG_ERROR("Failed to begin recording command buffer, Error Code: %d", result);
+		}
+
+		VkRenderPassBeginInfo renderPassInfo{};
+		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		renderPassInfo.renderPass = m_RenderPass;
+		renderPassInfo.framebuffer = m_SwapChainFramebuffers[_ImageIndex];
+		renderPassInfo.renderArea.offset = { 0, 0 };
+		renderPassInfo.renderArea.extent = m_SwapChainExtent;
+
+		VkClearValue clearColor = { {{0.f, 0.f, 0.f, 1.f}} };
+
+		renderPassInfo.clearValueCount = 1;
+		renderPassInfo.pClearValues = &clearColor;
+
+		vkCmdBeginRenderPass(m_CommandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+		vkCmdBindPipeline(m_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_GraphicsPipeline);
+
+		VkViewport viewport{};
+		viewport.x = 0.f;
+		viewport.y = 0.f;
+		viewport.width = static_cast<float>(m_SwapChainExtent.width);
+		viewport.height = static_cast<float>(m_SwapChainExtent.height);
+		viewport.minDepth = 0.f;
+		viewport.maxDepth = 1.f;
+
+		vkCmdSetViewport(m_CommandBuffer, 0, 1, &viewport);
+
+		VkRect2D scissor{};
+		scissor.offset = { 0, 0 };
+		scissor.extent = m_SwapChainExtent;
+
+		vkCmdSetScissor(m_CommandBuffer, 0, 1, &scissor);
+
+		vkCmdDraw(m_CommandBuffer, 3, 1, 0, 0);
+
+		vkCmdEndRenderPass(m_CommandBuffer);
+
+		result = vkEndCommandBuffer(m_CommandBuffer);
+
+		if (result != VK_SUCCESS)
+		{
+			DEBUG_ERROR("Failed to record command buffer, Error Code %d", result);
 		}
 	}
 }
