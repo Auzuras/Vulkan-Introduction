@@ -146,7 +146,7 @@
   <ItemGroup>
     <ClCompile Include="Code\src\Core\Debug\Log.cpp" />
     <ClCompile Include="Code\src\Core\RHI\VulkanWrapper.cpp" />
-    <ClCompile Include="Code\src\Core\Application\Application.cpp" />
+    <ClCompile Include="Code\src\Core\Application.cpp" />
     <ClCompile Include="Code\src\Core\Maths\Matrices\Matrix2.cpp" />
     <ClCompile Include="Code\src\Core\Maths\Matrices\Matrix3.cpp" />
     <ClCompile Include="Code\src\Core\Maths\Matrices\Matrix4.cpp" />
@@ -156,7 +156,7 @@
     <ClCompile Include="Code\src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Code\include\Core\Application\Application.h" />
+    <ClInclude Include="Code\include\Core\Application.h" />
     <ClInclude Include="Code\include\Core\Debug\Log.h" />
     <ClInclude Include="Code\include\Core\Maths\Matrices\Matrix2.h" />
     <ClInclude Include="Code\include\Core\Maths\Matrices\Matrix3.h" />

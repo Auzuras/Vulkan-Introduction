@@ -1,10 +1,9 @@
 #pragma once
 
-#include <vulkan/vulkan.h>
-
 #define NOMINMAX
 
 #include "RHI/RHI.h"
+#include <vulkan/vulkan.h>
 
 #include <vector>
 #include <optional>
@@ -13,6 +12,8 @@
 
 namespace Core
 {
+	const int MAX_FRAMES_IN_FLIGHT = 2;
+
 	struct QueueFamilyIndices
 	{
 		std::optional<uint32_t> graphicsFamily;
@@ -56,11 +57,15 @@ namespace Core
 		std::vector<VkFramebuffer> m_SwapChainFramebuffers;
 
 		VkCommandPool m_CommandPool;
-		VkCommandBuffer m_CommandBuffer;
+		std::vector<VkCommandBuffer> m_CommandBuffers;
 
-		VkSemaphore m_ImageAvailableSemaphore;
-		VkSemaphore m_RenderFinishedSemaphore;
-		VkFence m_InFlightFence;
+		std::vector<VkSemaphore> m_ImageAvailableSemaphores;
+		std::vector<VkSemaphore> m_RenderFinishedSemaphores;
+		std::vector<VkFence> m_InFlightFences;
+
+		bool m_FramebufferResized = false;
+
+		uint32_t m_CurrentFrame = 0;
 
 		const std::vector<const char*> m_ValidationLayers = {
 			"VK_LAYER_KHRONOS_validation"
@@ -262,6 +267,10 @@ namespace Core
 		/// <param name="_Window"></param>
 		void CreateSwapChain(GLFWwindow* _Window);
 
+		void RecreateSwapChain(GLFWwindow* _Window);
+
+		void CleanSwapChain();
+
 		///////////////////////////////////////////////////////////////////////
 
 		/// Image view related methods
@@ -340,7 +349,7 @@ namespace Core
 		/// <summary>
 		/// 
 		/// </summary>
-		void CreateCommandBuffer();
+		void CreateCommandBuffers();
 
 		/// <summary>
 		/// 
@@ -358,11 +367,13 @@ namespace Core
 		/// <summary>
 		/// 
 		/// </summary>
-		void DrawFrame() override;
+		void DrawFrame(GLFWwindow* _Window) override;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		void CreateSyncObjects();
+
+		static void FrameBufferResizeCallback(GLFWwindow* _Window, int _Width, int _Height);
 	};
 }

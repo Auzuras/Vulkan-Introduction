@@ -2,7 +2,7 @@
 #include <crtdbg.h>
 #endif
 
-#include "Application/Application.h"
+#include "Application.h"
 
 // Selects GPU
 extern "C"

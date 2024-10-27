@@ -1,15 +1,15 @@
 #pragma once
 
-// Log.hpp contains Windows.h, needs to be included first to avoid macro redefinition
-#include "Debug/Log.h"
-
 #include "RHI/RHI.h"
+#include "RHI/VulkanWrapper.h"
 
 namespace Core
 {
 	enum RHIType
 	{
-		VULKAN
+		OPENGL,
+		VULKAN,
+		DIRECTX
 	};
 
 	class Application

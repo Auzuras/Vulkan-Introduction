@@ -1,6 +1,4 @@
-#include "Application/Application.h"
-
-#include "RHI/VulkanWrapper.h"
+#include "Application.h"
 
 namespace Core
 {
@@ -23,8 +21,12 @@ namespace Core
 
 		switch (m_RHIType)
 		{
+		case Core::OPENGL:
+			break;
 		case Core::VULKAN: default:
 			m_RHI = new Core::VulkanWrapper;
+			break;
+		case Core::DIRECTX:
 			break;
 		}
 
@@ -67,6 +69,6 @@ namespace Core
 
 	void Application::Draw()
 	{
-		m_RHI->DrawFrame();
+		m_RHI->DrawFrame(m_Window);
 	}
 }

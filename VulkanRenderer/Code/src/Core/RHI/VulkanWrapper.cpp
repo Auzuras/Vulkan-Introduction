@@ -1,7 +1,5 @@
 #include "RHI/VulkanWrapper.h"
 
-#include "Debug/Log.h"
-
 #include <cstring>
 #include <set>
 
@@ -11,6 +9,9 @@ namespace Core
 	{
 		if (!CreateVulkanInstance())
 			return false;
+
+		glfwSetWindowUserPointer(_Window, this);
+		glfwSetFramebufferSizeCallback(_Window, FrameBufferResizeCallback);
 
 		SetupDebugMessenger();
 		CreateSurface(_Window);
@@ -22,7 +23,7 @@ namespace Core
 		CreateGraphicsPipeline();
 		CreateFramebuffers();
 		CreateCommandPool();
-		CreateCommandBuffer();
+		CreateCommandBuffers();
 		CreateSyncObjects();
 
 		return true;
@@ -105,35 +106,23 @@ namespace Core
 	{
 		vkDeviceWaitIdle(m_LogicalDevice);
 
-		vkDestroySemaphore(m_LogicalDevice, m_ImageAvailableSemaphore, nullptr);
+		CleanSwapChain();
 
-		vkDestroySemaphore(m_LogicalDevice, m_RenderFinishedSemaphore, nullptr);
+		vkDestroyPipeline(m_LogicalDevice, m_GraphicsPipeline, nullptr);
+		vkDestroyPipelineLayout(m_LogicalDevice, m_PipelineLayout, nullptr);
+		vkDestroyRenderPass(m_LogicalDevice, m_RenderPass, nullptr);
 
-		vkDestroyFence(m_LogicalDevice, m_InFlightFence, nullptr);
+		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+		{
+			vkDestroySemaphore(m_LogicalDevice, m_ImageAvailableSemaphores[i], nullptr);
+
+			vkDestroySemaphore(m_LogicalDevice, m_RenderFinishedSemaphores[i], nullptr);
+
+			vkDestroyFence(m_LogicalDevice, m_InFlightFences[i], nullptr);
+		}
 
 		vkDestroyCommandPool(m_LogicalDevice, m_CommandPool, nullptr);
 
-		for (auto framebuffer : m_SwapChainFramebuffers)
-		{
-			vkDestroyFramebuffer(m_LogicalDevice, framebuffer, nullptr);
-		}
-
-		vkDestroyPipeline(m_LogicalDevice, m_GraphicsPipeline, nullptr);
-
-		vkDestroyPipelineLayout(m_LogicalDevice, m_PipelineLayout, nullptr);
-
-		vkDestroyPipelineLayout(m_LogicalDevice, m_PipelineLayout, nullptr);
-
-		vkDestroyRenderPass(m_LogicalDevice, m_RenderPass, nullptr);
-
-		vkDestroyPipelineLayout(m_LogicalDevice, m_PipelineLayout, nullptr);
-
-		for (VkImageView imageView : m_SwapChainImageViews)
-		{
-			vkDestroyImageView(m_LogicalDevice, imageView, nullptr);
-		}
-
-		vkDestroySwapchainKHR(m_LogicalDevice, m_SwapChain, nullptr);
 		vkDestroyDevice(m_LogicalDevice, nullptr);
 
 		if (m_EnableValidationLayers)
@@ -573,6 +562,42 @@ namespace Core
 		return;
 	}
 
+	void VulkanWrapper::RecreateSwapChain(GLFWwindow* _Window)
+	{
+		int width = 0, height = 0;
+		glfwGetFramebufferSize(_Window, &width, &height);
+
+		while (width == 0 || height == 0)
+		{
+			glfwGetFramebufferSize(_Window, &width, &height);
+			glfwWaitEvents();
+		}
+
+		vkDeviceWaitIdle(m_LogicalDevice);
+
+		CleanSwapChain();
+
+		CreateSwapChain(_Window);
+		CreateImageViews();
+		CreateFramebuffers();
+	}
+
+	void VulkanWrapper::CleanSwapChain()
+	{
+		for (auto framebuffer : m_SwapChainFramebuffers)
+		{
+			vkDestroyFramebuffer(m_LogicalDevice, framebuffer, nullptr);
+		}
+
+		for (VkImageView imageView : m_SwapChainImageViews)
+		{
+			vkDestroyImageView(m_LogicalDevice, imageView, nullptr);
+		}
+
+		vkDestroySwapchainKHR(m_LogicalDevice, m_SwapChain, nullptr);
+
+	}
+
 	void VulkanWrapper::CreateImageViews()
 	{
 		m_SwapChainImageViews.resize(m_SwapChainImages.size());
@@ -880,15 +905,17 @@ namespace Core
 		}
 	}
 
-	void VulkanWrapper::CreateCommandBuffer()
+	void VulkanWrapper::CreateCommandBuffers()
 	{
+		m_CommandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+
 		VkCommandBufferAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 		allocInfo.commandPool = m_CommandPool;
 		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocInfo.commandBufferCount = 1;
+		allocInfo.commandBufferCount = (uint32_t) m_CommandBuffers.size();
 
-		VkResult result = vkAllocateCommandBuffers(m_LogicalDevice, &allocInfo, &m_CommandBuffer);
+		VkResult result = vkAllocateCommandBuffers(m_LogicalDevice, &allocInfo, m_CommandBuffers.data());
 
 		if (result != VK_SUCCESS)
 		{
@@ -922,9 +949,9 @@ namespace Core
 		renderPassInfo.clearValueCount = 1;
 		renderPassInfo.pClearValues = &clearColor;
 
-		vkCmdBeginRenderPass(m_CommandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+		vkCmdBeginRenderPass(_CommandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-		vkCmdBindPipeline(m_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_GraphicsPipeline);
+		vkCmdBindPipeline(_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_GraphicsPipeline);
 
 		VkViewport viewport{};
 		viewport.x = 0.f;
@@ -934,19 +961,19 @@ namespace Core
 		viewport.minDepth = 0.f;
 		viewport.maxDepth = 1.f;
 
-		vkCmdSetViewport(m_CommandBuffer, 0, 1, &viewport);
+		vkCmdSetViewport(_CommandBuffer, 0, 1, &viewport);
 
 		VkRect2D scissor{};
 		scissor.offset = { 0, 0 };
 		scissor.extent = m_SwapChainExtent;
 
-		vkCmdSetScissor(m_CommandBuffer, 0, 1, &scissor);
+		vkCmdSetScissor(_CommandBuffer, 0, 1, &scissor);
 
-		vkCmdDraw(m_CommandBuffer, 3, 1, 0, 0);
+		vkCmdDraw(_CommandBuffer, 3, 1, 0, 0);
 
-		vkCmdEndRenderPass(m_CommandBuffer);
+		vkCmdEndRenderPass(_CommandBuffer);
 
-		result = vkEndCommandBuffer(m_CommandBuffer);
+		result = vkEndCommandBuffer(_CommandBuffer);
 
 		if (result != VK_SUCCESS)
 		{
@@ -954,36 +981,49 @@ namespace Core
 		}
 	}
 
-	void VulkanWrapper::DrawFrame()
+	void VulkanWrapper::DrawFrame(GLFWwindow* _Window)
 	{
-		vkWaitForFences(m_LogicalDevice, 1, &m_InFlightFence, VK_TRUE, UINT64_MAX);
-		vkResetFences(m_LogicalDevice, 1, &m_InFlightFence);
-
+		vkWaitForFences(m_LogicalDevice, 1, &m_InFlightFences[m_CurrentFrame], VK_TRUE, UINT64_MAX);
 		uint32_t imageIndex;
-		vkAcquireNextImageKHR(m_LogicalDevice, m_SwapChain, UINT64_MAX, m_ImageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
 
-		vkResetCommandBuffer(m_CommandBuffer, 0);
+		VkResult result = vkAcquireNextImageKHR(m_LogicalDevice, m_SwapChain, UINT64_MAX, m_ImageAvailableSemaphores[m_CurrentFrame], VK_NULL_HANDLE, &imageIndex);
 
-		RecordCommandBuffer(m_CommandBuffer, imageIndex);
+		if (result == VK_ERROR_OUT_OF_DATE_KHR)
+		{
+			RecreateSwapChain(_Window);
+			return;
+		}
+		else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
+		{
+			DEBUG_ERROR("Failed to acquire swap chain image, Error Code: %d", result);
+		}
+
+		vkResetFences(m_LogicalDevice, 1, &m_InFlightFences[m_CurrentFrame]);
+
+		vkAcquireNextImageKHR(m_LogicalDevice, m_SwapChain, UINT64_MAX, m_ImageAvailableSemaphores[m_CurrentFrame], VK_NULL_HANDLE, &imageIndex);
+
+		vkResetCommandBuffer(m_CommandBuffers[m_CurrentFrame], 0);
+
+		RecordCommandBuffer(m_CommandBuffers[m_CurrentFrame], imageIndex);
 
 		VkSubmitInfo submitInfo{};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-		VkSemaphore waitSemaphores[] = { m_ImageAvailableSemaphore };
+		VkSemaphore waitSemaphores[] = { m_ImageAvailableSemaphores[m_CurrentFrame] };
 		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT };
 
 		submitInfo.waitSemaphoreCount = 1;
 		submitInfo.pWaitSemaphores = waitSemaphores;
 		submitInfo.pWaitDstStageMask = waitStages;
 		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers = &m_CommandBuffer;
+		submitInfo.pCommandBuffers = &m_CommandBuffers[m_CurrentFrame];
 
-		VkSemaphore signalSemaphores[] = { m_RenderFinishedSemaphore };\
+		VkSemaphore signalSemaphores[] = { m_RenderFinishedSemaphores[m_CurrentFrame] };\
 
 		submitInfo.signalSemaphoreCount = 1;
 		submitInfo.pSignalSemaphores = signalSemaphores;
 
-		VkResult result = vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, m_InFlightFence);
+		result = vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, m_InFlightFences[m_CurrentFrame]);
 
 		if (result != VK_SUCCESS)
 		{
@@ -1002,11 +1042,27 @@ namespace Core
 		presentInfo.pImageIndices = &imageIndex;
 		presentInfo.pResults = nullptr;
 
-		vkQueuePresentKHR(m_PresentQueue, &presentInfo);
+		result = vkQueuePresentKHR(m_PresentQueue, &presentInfo);
+
+		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_FramebufferResized)
+		{
+			m_FramebufferResized = false;
+			RecreateSwapChain(_Window);
+		}
+		else if (result != VK_SUCCESS)
+		{
+			DEBUG_ERROR("Failed to present swap chain image, Error Code: %d", result);
+		}
+
+		m_CurrentFrame = (m_CurrentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 	}
 
 	void VulkanWrapper::CreateSyncObjects()
 	{
+		m_ImageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+		m_RenderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+		m_InFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
+
 		VkSemaphoreCreateInfo smaphoreInfo{};
 		smaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
@@ -1014,25 +1070,34 @@ namespace Core
 		fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
 		fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-		VkResult result = vkCreateSemaphore(m_LogicalDevice, &smaphoreInfo, nullptr, &m_ImageAvailableSemaphore);
-
-		if (result != VK_SUCCESS)
+		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
 		{
-			DEBUG_ERROR("Failed to create semaphore, Error Code: %d", result)
+			VkResult result = vkCreateSemaphore(m_LogicalDevice, &smaphoreInfo, nullptr, &m_ImageAvailableSemaphores[i]);
+
+			if (result != VK_SUCCESS)
+			{
+				DEBUG_ERROR("Failed to create semaphore, Error Code: %d", result)
+			}
+
+			result = vkCreateSemaphore(m_LogicalDevice, &smaphoreInfo, nullptr, &m_RenderFinishedSemaphores[i]);
+
+			if (result != VK_SUCCESS)
+			{
+				DEBUG_ERROR("Failed to create semaphore, Error Code: %d", result)
+			}
+
+			result = vkCreateFence(m_LogicalDevice, &fenceInfo, nullptr, &m_InFlightFences[i]);
+
+			if (result != VK_SUCCESS)
+			{
+				DEBUG_ERROR("Failed to create fence, Error Code: %d", result)
+			}
 		}
+	}
 
-		result = vkCreateSemaphore(m_LogicalDevice, &smaphoreInfo, nullptr, &m_RenderFinishedSemaphore);
-
-		if (result != VK_SUCCESS)
-		{
-			DEBUG_ERROR("Failed to create semaphore, Error Code: %d", result)
-		}
-
-		result = vkCreateFence(m_LogicalDevice, &fenceInfo, nullptr, &m_InFlightFence);
-
-		if (result != VK_SUCCESS)
-		{
-			DEBUG_ERROR("Failed to create fence, Error Code: %d", result)
-		}
+	void VulkanWrapper::FrameBufferResizeCallback(GLFWwindow* _Window, int _Width, int _Height)
+	{
+		VulkanWrapper* vkWrapper = reinterpret_cast<VulkanWrapper*>(glfwGetWindowUserPointer(_Window));
+		vkWrapper->m_FramebufferResized = true;
 	}
 }
