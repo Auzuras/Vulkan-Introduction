@@ -47,6 +47,8 @@ namespace Core
 		/// <returns></returns>
 		virtual const bool Terminate() = 0;
 
+		virtual void DrawFrame() = 0;
+
 		///////////////////////////////////////////////////////////////////////
 
 		/// Rendering methods

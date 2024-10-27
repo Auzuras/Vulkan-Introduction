@@ -29,6 +29,7 @@ int main()
 	while (!glfwWindowShouldClose(application.GetWindow()))
 	{
 		glfwPollEvents();
+		application.Draw();
 	}
 
 	if (!application.Terminate())

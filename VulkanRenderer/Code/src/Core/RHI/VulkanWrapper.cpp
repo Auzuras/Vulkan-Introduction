@@ -23,6 +23,7 @@ namespace Core
 		CreateFramebuffers();
 		CreateCommandPool();
 		CreateCommandBuffer();
+		CreateSyncObjects();
 
 		return true;
 	}
@@ -102,6 +103,14 @@ namespace Core
 
 	const bool VulkanWrapper::Terminate()
 	{
+		vkDeviceWaitIdle(m_LogicalDevice);
+
+		vkDestroySemaphore(m_LogicalDevice, m_ImageAvailableSemaphore, nullptr);
+
+		vkDestroySemaphore(m_LogicalDevice, m_RenderFinishedSemaphore, nullptr);
+
+		vkDestroyFence(m_LogicalDevice, m_InFlightFence, nullptr);
+
 		vkDestroyCommandPool(m_LogicalDevice, m_CommandPool, nullptr);
 
 		for (auto framebuffer : m_SwapChainFramebuffers)
@@ -631,18 +640,6 @@ namespace Core
 		inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 		inputAssembly.primitiveRestartEnable = VK_FALSE;
 
-		VkViewport viewport{};
-		viewport.x = 0.f;
-		viewport.y = 0.f;
-		viewport.width = (float)m_SwapChainExtent.width;
-		viewport.height = (float)m_SwapChainExtent.height;
-		viewport.minDepth = 0.f;
-		viewport.maxDepth = 1.f;
-
-		VkRect2D scissor{};
-		scissor.offset = { 0, 0 };
-		scissor.extent = m_SwapChainExtent;
-
 		std::vector<VkDynamicState> dynamicStates = {
 			VK_DYNAMIC_STATE_VIEWPORT,
 			VK_DYNAMIC_STATE_SCISSOR
@@ -813,12 +810,22 @@ namespace Core
 		subpass.colorAttachmentCount = 1;
 		subpass.pColorAttachments = &colorAttachmentRef;
 
+		VkSubpassDependency dependency{};
+		dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+		dependency.dstSubpass = 0;
+		dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		dependency.srcAccessMask = 0;
+		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
 		VkRenderPassCreateInfo renderPassInfo{};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
 		renderPassInfo.attachmentCount = 1;
 		renderPassInfo.pAttachments = &colorAttachement;
 		renderPassInfo.subpassCount = 1;
 		renderPassInfo.pSubpasses = &subpass;
+		renderPassInfo.dependencyCount = 1;
+		renderPassInfo.pDependencies = &dependency;
 
 		VkResult result = vkCreateRenderPass(m_LogicalDevice, &renderPassInfo, nullptr, &m_RenderPass);
 
@@ -944,6 +951,88 @@ namespace Core
 		if (result != VK_SUCCESS)
 		{
 			DEBUG_ERROR("Failed to record command buffer, Error Code %d", result);
+		}
+	}
+
+	void VulkanWrapper::DrawFrame()
+	{
+		vkWaitForFences(m_LogicalDevice, 1, &m_InFlightFence, VK_TRUE, UINT64_MAX);
+		vkResetFences(m_LogicalDevice, 1, &m_InFlightFence);
+
+		uint32_t imageIndex;
+		vkAcquireNextImageKHR(m_LogicalDevice, m_SwapChain, UINT64_MAX, m_ImageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+
+		vkResetCommandBuffer(m_CommandBuffer, 0);
+
+		RecordCommandBuffer(m_CommandBuffer, imageIndex);
+
+		VkSubmitInfo submitInfo{};
+		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+		VkSemaphore waitSemaphores[] = { m_ImageAvailableSemaphore };
+		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT };
+
+		submitInfo.waitSemaphoreCount = 1;
+		submitInfo.pWaitSemaphores = waitSemaphores;
+		submitInfo.pWaitDstStageMask = waitStages;
+		submitInfo.commandBufferCount = 1;
+		submitInfo.pCommandBuffers = &m_CommandBuffer;
+
+		VkSemaphore signalSemaphores[] = { m_RenderFinishedSemaphore };\
+
+		submitInfo.signalSemaphoreCount = 1;
+		submitInfo.pSignalSemaphores = signalSemaphores;
+
+		VkResult result = vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, m_InFlightFence);
+
+		if (result != VK_SUCCESS)
+		{
+			DEBUG_ERROR("Failed to submit draw command buffer, Error Code %d", result);
+		}
+
+		VkPresentInfoKHR presentInfo{};
+		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+		presentInfo.waitSemaphoreCount = 1;
+		presentInfo.pWaitSemaphores = signalSemaphores;
+
+		VkSwapchainKHR swapChains[] = { m_SwapChain };
+
+		presentInfo.swapchainCount = 1;
+		presentInfo.pSwapchains = swapChains;
+		presentInfo.pImageIndices = &imageIndex;
+		presentInfo.pResults = nullptr;
+
+		vkQueuePresentKHR(m_PresentQueue, &presentInfo);
+	}
+
+	void VulkanWrapper::CreateSyncObjects()
+	{
+		VkSemaphoreCreateInfo smaphoreInfo{};
+		smaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+		VkFenceCreateInfo fenceInfo{};
+		fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+		fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+		VkResult result = vkCreateSemaphore(m_LogicalDevice, &smaphoreInfo, nullptr, &m_ImageAvailableSemaphore);
+
+		if (result != VK_SUCCESS)
+		{
+			DEBUG_ERROR("Failed to create semaphore, Error Code: %d", result)
+		}
+
+		result = vkCreateSemaphore(m_LogicalDevice, &smaphoreInfo, nullptr, &m_RenderFinishedSemaphore);
+
+		if (result != VK_SUCCESS)
+		{
+			DEBUG_ERROR("Failed to create semaphore, Error Code: %d", result)
+		}
+
+		result = vkCreateFence(m_LogicalDevice, &fenceInfo, nullptr, &m_InFlightFence);
+
+		if (result != VK_SUCCESS)
+		{
+			DEBUG_ERROR("Failed to create fence, Error Code: %d", result)
 		}
 	}
 }

@@ -58,6 +58,10 @@ namespace Core
 		VkCommandPool m_CommandPool;
 		VkCommandBuffer m_CommandBuffer;
 
+		VkSemaphore m_ImageAvailableSemaphore;
+		VkSemaphore m_RenderFinishedSemaphore;
+		VkFence m_InFlightFence;
+
 		const std::vector<const char*> m_ValidationLayers = {
 			"VK_LAYER_KHRONOS_validation"
 		};
@@ -344,5 +348,21 @@ namespace Core
 		/// <param name="_CommandBuffer"></param>
 		/// <param name="_ImageIndex"></param>
 		void RecordCommandBuffer(VkCommandBuffer _CommandBuffer, uint32_t _ImageIndex);
+
+		///////////////////////////////////////////////////////////////////////
+
+		/// Draw related methods
+
+		///////////////////////////////////////////////////////////////////////
+
+		/// <summary>
+		/// 
+		/// </summary>
+		void DrawFrame() override;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		void CreateSyncObjects();
 	};
 }

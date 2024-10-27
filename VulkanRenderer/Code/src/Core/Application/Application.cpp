@@ -64,4 +64,9 @@ namespace Core
 
 		return returnValue;
 	}
+
+	void Application::Draw()
+	{
+		m_RHI->DrawFrame();
+	}
 }
