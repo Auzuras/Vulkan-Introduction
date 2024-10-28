@@ -18,9 +18,9 @@ namespace Core
 
 	struct UniformMVP
 	{
-		Math::Matrix4 model;
-		Math::Matrix4 view;
-		Math::Matrix4 projection;
+		 alignas(16) Math::Matrix4 model;
+		 alignas(16) Math::Matrix4 view;
+		 alignas(16) Math::Matrix4 projection;
 	};
 
 	const std::vector<Vertex> vertices = {
@@ -52,6 +52,8 @@ namespace Core
 	class VulkanWrapper : public RHI
 	{
 	private:
+		float iRandomRotation = 0.f;
+
 		VkInstance m_VulkanInstance;
 		VkDebugUtilsMessengerEXT m_DebugMessenger;
 		VkPhysicalDevice m_PhysicalDevice = VK_NULL_HANDLE;
@@ -92,6 +94,9 @@ namespace Core
 		std::vector<VkBuffer> m_UniformBuffers;
 		std::vector<VkDeviceMemory> m_UniformBufferMemory;
 		std::vector<void*> m_UniformBuffersMapped;
+
+		VkDescriptorPool m_DescriptorPool;
+		std::vector<VkDescriptorSet> m_DescriptorSets;
 
 		bool m_FramebufferResized = false;
 
@@ -444,5 +449,9 @@ namespace Core
 		void CreateUniformBuffers();
 
 		void UpdateUniformBuffer(uint32_t _CurrentImage);
+
+		void CreateDescriptorPool();
+
+		void CreateDescriptorSets();
 	};
 }

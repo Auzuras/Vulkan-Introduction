@@ -317,10 +317,19 @@ namespace Math
 		float s = 1.0f / (_aspect * tanf(Utils::DegToRad(_fov) * 0.5f));
 		float s2 = 1.0f / tanf(Utils::DegToRad(_fov) * 0.5f);
 
+		// OPENGL Projection matrix
+		//return Matrix4({
+		//	s, 0.f, 0.f, 0.f,
+		//	0.f, s2, 0.f, 0.f,
+		//	0.f, 0.f, -(_far) / (_far - _near), -(_far * _near) / (_far - _near),
+		//	0.f, 0.f, -1.f, 0.f
+		//	});
+
+		// VULKAN Projection matrix
 		return Matrix4({
 			s, 0.f, 0.f, 0.f,
 			0.f, s2, 0.f, 0.f,
-			0.f, 0.f, -(_far) / (_far - _near), -(_far * _near) / (_far - _near),
+			0.f, 0.f, (_far) / (_far - _near), -(_near) * ((_far) / (_far - _near)),
 			0.f, 0.f, -1.f, 0.f
 			});
 
@@ -331,7 +340,7 @@ namespace Math
 		return Matrix4({
 			2.f / (_right - _left), 0.f, 0.f, -(_right + _left) / (_right - _left),
 			0.f, 2.f / (_top - _bottom), 0.f,-(_top + _bottom) / (_top - _bottom),
-			0.f, 0.f, -2.f / (_far - _near), -(_far + _near) / (_far - _near),
+			0.f, 0.f, -2.f / (_far - _near), -(_near) * ((_far) / (_far - _near)),
 			0.f, 0.f, 0.f, 1.f
 			});
 	}

@@ -27,6 +27,8 @@ namespace Core
 		CreateVertexBuffer();
 		CreateIndexBuffer();
 		CreateUniformBuffers();
+		CreateDescriptorPool();
+		CreateDescriptorSets();
 		CreateCommandBuffers();
 		CreateSyncObjects();
 
@@ -112,11 +114,18 @@ namespace Core
 
 		CleanSwapChain();
 
+		vkDestroyPipeline(m_LogicalDevice, m_GraphicsPipeline, nullptr);
+		vkDestroyPipelineLayout(m_LogicalDevice, m_PipelineLayout, nullptr);
+		vkDestroyRenderPass(m_LogicalDevice, m_RenderPass, nullptr);
+
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
 		{
 			vkDestroyBuffer(m_LogicalDevice, m_UniformBuffers[i], nullptr);
 			vkFreeMemory(m_LogicalDevice, m_UniformBufferMemory[i], nullptr);
 		}
+
+		vkDestroyDescriptorPool(m_LogicalDevice, m_DescriptorPool, nullptr);
+		vkDestroyDescriptorSetLayout(m_LogicalDevice, m_DescriptorSetLayout, nullptr);
 
 		vkDestroyDescriptorSetLayout(m_LogicalDevice, m_DescriptorSetLayout, nullptr);
 
@@ -125,10 +134,6 @@ namespace Core
 
 		vkDestroyBuffer(m_LogicalDevice, m_VertexBuffer, nullptr);
 		vkFreeMemory(m_LogicalDevice, m_VertexBufferMemory, nullptr);
-
-		vkDestroyPipeline(m_LogicalDevice, m_GraphicsPipeline, nullptr);
-		vkDestroyPipelineLayout(m_LogicalDevice, m_PipelineLayout, nullptr);
-		vkDestroyRenderPass(m_LogicalDevice, m_RenderPass, nullptr);
 
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
 		{
@@ -708,7 +713,7 @@ namespace Core
 		rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
 		rasterizer.lineWidth = 1.f;
 		rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-		rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
+		rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 		rasterizer.depthBiasEnable = VK_FALSE;
 		rasterizer.depthBiasConstantFactor = 0.f;
 		rasterizer.depthBiasClamp = 0.f;
@@ -746,8 +751,8 @@ namespace Core
 
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		pipelineLayoutInfo.setLayoutCount = 0;
-		pipelineLayoutInfo.pSetLayouts = nullptr;
+		pipelineLayoutInfo.setLayoutCount = 1;
+		pipelineLayoutInfo.pSetLayouts = &m_DescriptorSetLayout;
 		pipelineLayoutInfo.pushConstantRangeCount = 0;
 		pipelineLayoutInfo.pPushConstantRanges = nullptr;
 
@@ -998,6 +1003,8 @@ namespace Core
 		vkCmdBindVertexBuffers(_CommandBuffer, 0, 1, vertexBuffers, offsets);
 
 		vkCmdBindIndexBuffer(_CommandBuffer, m_IndexBuffer, 0, VK_INDEX_TYPE_UINT16);
+
+		vkCmdBindDescriptorSets(_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, 0, 1, &m_DescriptorSets[m_CurrentFrame], 0, nullptr);
 
 		vkCmdDrawIndexed(_CommandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
 
@@ -1309,13 +1316,75 @@ namespace Core
 		UniformMVP mvp{};
 
 		Math::Vector3 pos = Math::Vector3::zero;
-		Math::Vector3 rot = Math::Vector3::zero;
+		Math::Vector3 rot = Math::Vector3(0.f, iRandomRotation += 0.005f, 0.f);
 		Math::Vector3 scale = Math::Vector3::one;
 
-		mvp.model = Math::Matrix4::TRS(pos, rot, scale);
-		mvp.view = Math::Matrix4::ViewMatrix(Math::Vector3(0.f, 0.f, -5.f), Math::Vector3::zero, Math::Vector3::up);
-		mvp.projection = Math::Matrix4::ProjectionPerspectiveMatrix(0.01f, 100.f, (float)(m_SwapChainExtent.width / m_SwapChainExtent.height), 45.f);
+		mvp.model = Math::Matrix4::TRS(pos, rot, scale).Transpose();
+		mvp.view = Math::Matrix4::ViewMatrix(Math::Vector3(0.f, 0.f, -5.f), Math::Vector3::zero, Math::Vector3::up).Transpose();
+		mvp.projection = Math::Matrix4::ProjectionPerspectiveMatrix(0.01f, 100.f, (float)(m_SwapChainExtent.width / m_SwapChainExtent.height), 45.f).Transpose();
+
 
 		memcpy(m_UniformBuffersMapped[_CurrentImage], &mvp, sizeof(mvp));
+	}
+
+	void VulkanWrapper::CreateDescriptorPool()
+	{
+		VkDescriptorPoolSize poolSize{};
+		poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		poolSize.descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+
+		VkDescriptorPoolCreateInfo poolInfo{};
+		poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+		poolInfo.poolSizeCount = 1;
+		poolInfo.pPoolSizes = &poolSize;
+		poolInfo.maxSets = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+
+		VkResult result = vkCreateDescriptorPool(m_LogicalDevice, &poolInfo, nullptr, &m_DescriptorPool);
+
+		if (result != VK_SUCCESS)
+		{
+			DEBUG_ERROR("Failed to create descriptor pool, Error Code: %d", result);
+		}
+	}
+
+	void VulkanWrapper::CreateDescriptorSets()
+	{
+		std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, m_DescriptorSetLayout);
+		
+		VkDescriptorSetAllocateInfo allocInfo{};
+		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+		allocInfo.descriptorPool = m_DescriptorPool;
+		allocInfo.descriptorSetCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+		allocInfo.pSetLayouts = layouts.data();
+
+		m_DescriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
+
+		VkResult result = vkAllocateDescriptorSets(m_LogicalDevice, &allocInfo, m_DescriptorSets.data());
+
+		if (result != VK_SUCCESS)
+		{
+			DEBUG_ERROR("Failed to allocate descriptor sets, Error Code: %d", result);
+		}
+
+		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+		{
+			VkDescriptorBufferInfo bufferInfo{};
+			bufferInfo.buffer = m_UniformBuffers[i];
+			bufferInfo.offset = 0;
+			bufferInfo.range = sizeof(UniformMVP);
+
+			VkWriteDescriptorSet descriptorWrite{};
+			descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrite.dstSet = m_DescriptorSets[i];
+			descriptorWrite.dstBinding = 0;
+			descriptorWrite.dstArrayElement = 0;
+			descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			descriptorWrite.descriptorCount = 1;
+			descriptorWrite.pBufferInfo = &bufferInfo;
+			descriptorWrite.pImageInfo = nullptr;
+			descriptorWrite.pTexelBufferView = nullptr;
+
+			vkUpdateDescriptorSets(m_LogicalDevice, 1, &descriptorWrite, 0, nullptr);
+		}
 	}
 }
