@@ -125,7 +125,6 @@ namespace Core
 		}
 
 		vkDestroyDescriptorPool(m_LogicalDevice, m_DescriptorPool, nullptr);
-		vkDestroyDescriptorSetLayout(m_LogicalDevice, m_DescriptorSetLayout, nullptr);
 
 		vkDestroyDescriptorSetLayout(m_LogicalDevice, m_DescriptorSetLayout, nullptr);
 
@@ -1038,8 +1037,6 @@ namespace Core
 		UpdateUniformBuffer(m_CurrentFrame);
 
 		vkResetFences(m_LogicalDevice, 1, &m_InFlightFences[m_CurrentFrame]);
-
-		vkAcquireNextImageKHR(m_LogicalDevice, m_SwapChain, UINT64_MAX, m_ImageAvailableSemaphores[m_CurrentFrame], VK_NULL_HANDLE, &imageIndex);
 
 		vkResetCommandBuffer(m_CommandBuffers[m_CurrentFrame], 0);
 		RecordCommandBuffer(m_CommandBuffers[m_CurrentFrame], imageIndex);
