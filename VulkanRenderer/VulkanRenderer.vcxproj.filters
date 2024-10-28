@@ -45,6 +45,9 @@
     <ClCompile Include="Code\src\Core\Debug\Log.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Code\src\Core\RHI\Vertex.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\include\Core\Maths\Matrices\Matrix2.h">
@@ -84,6 +87,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Code\include\Core\Debug\Log.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\include\Core\RHI\Vertex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -145,6 +145,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Code\src\Core\Debug\Log.cpp" />
+    <ClCompile Include="Code\src\Core\RHI\Vertex.cpp" />
     <ClCompile Include="Code\src\Core\RHI\VulkanWrapper.cpp" />
     <ClCompile Include="Code\src\Core\Application.cpp" />
     <ClCompile Include="Code\src\Core\Maths\Matrices\Matrix2.cpp" />
@@ -166,6 +167,7 @@
     <ClInclude Include="Code\include\Core\Maths\Vectors\Vector3.h" />
     <ClInclude Include="Code\include\Core\Maths\Vectors\Vector4.h" />
     <ClInclude Include="Code\include\Core\RHI\RHI.h" />
+    <ClInclude Include="Code\include\Core\RHI\Vertex.h" />
     <ClInclude Include="Code\include\Core\RHI\VulkanWrapper.h" />
     <ClInclude Include="Externals\GLFW\include\GLFW\glfw3.h" />
     <ClInclude Include="Externals\GLFW\include\GLFW\glfw3native.h" />

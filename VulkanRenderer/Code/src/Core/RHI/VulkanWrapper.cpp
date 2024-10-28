@@ -23,6 +23,7 @@ namespace Core
 		CreateGraphicsPipeline();
 		CreateFramebuffers();
 		CreateCommandPool();
+		CreateVertexBuffer();
 		CreateCommandBuffers();
 		CreateSyncObjects();
 
@@ -107,6 +108,9 @@ namespace Core
 		vkDeviceWaitIdle(m_LogicalDevice);
 
 		CleanSwapChain();
+
+		vkDestroyBuffer(m_LogicalDevice, m_VertexBuffer, nullptr);
+		vkFreeMemory(m_LogicalDevice, m_VertexBufferMemory, nullptr);
 
 		vkDestroyPipeline(m_LogicalDevice, m_GraphicsPipeline, nullptr);
 		vkDestroyPipelineLayout(m_LogicalDevice, m_PipelineLayout, nullptr);
@@ -653,12 +657,15 @@ namespace Core
 
 		VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
 
+		VkVertexInputBindingDescription bindingDescription = Core::Vertex::GetBindingDescription();
+		std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions = Core::Vertex::GetAttributeDescriptions();
+
 		VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
 		vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-		vertexInputInfo.vertexBindingDescriptionCount = 0;
-		vertexInputInfo.pVertexBindingDescriptions = nullptr;
-		vertexInputInfo.vertexAttributeDescriptionCount = 0;
-		vertexInputInfo.pVertexAttributeDescriptions = nullptr;
+		vertexInputInfo.vertexBindingDescriptionCount = 1;
+		vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+		vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
+		vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
 		VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
 		inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -969,7 +976,13 @@ namespace Core
 
 		vkCmdSetScissor(_CommandBuffer, 0, 1, &scissor);
 
-		vkCmdDraw(_CommandBuffer, 3, 1, 0, 0);
+		vkCmdBindPipeline(_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_GraphicsPipeline);
+
+		VkBuffer vertexBuffers[] = { m_VertexBuffer };
+		VkDeviceSize offsets[] = { 0 };
+		vkCmdBindVertexBuffers(_CommandBuffer, 0, 1, vertexBuffers, offsets);
+
+		vkCmdDraw(_CommandBuffer, static_cast<uint32_t>(vertices.size()), 1, 0, 0);
 
 		vkCmdEndRenderPass(_CommandBuffer);
 
@@ -1099,5 +1112,60 @@ namespace Core
 	{
 		VulkanWrapper* vkWrapper = reinterpret_cast<VulkanWrapper*>(glfwGetWindowUserPointer(_Window));
 		vkWrapper->m_FramebufferResized = true;
+	}
+
+	void VulkanWrapper::CreateVertexBuffer()
+	{
+		VkBufferCreateInfo bufferInfo{};
+		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+		bufferInfo.size = sizeof(vertices[0]) * vertices.size();
+		bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+		VkResult result = vkCreateBuffer(m_LogicalDevice, &bufferInfo, nullptr, &m_VertexBuffer);
+
+		if (result != VK_SUCCESS)
+		{
+			DEBUG_ERROR("Failed to create vertex buffer, Error Code %d", result);
+		}
+
+		VkMemoryRequirements memRequirements;
+		vkGetBufferMemoryRequirements(m_LogicalDevice, m_VertexBuffer, &memRequirements);
+
+		VkMemoryAllocateInfo allocInfo{};
+		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+		allocInfo.allocationSize = memRequirements.size;
+		allocInfo.memoryTypeIndex = FindMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+		result = vkAllocateMemory(m_LogicalDevice, &allocInfo, nullptr, &m_VertexBufferMemory);
+
+		if (result != VK_SUCCESS)
+		{
+			DEBUG_ERROR("Failed to allocate vertex buffer memory, Error Code: %d", result);
+		}
+
+		vkBindBufferMemory(m_LogicalDevice, m_VertexBuffer, m_VertexBufferMemory, 0);
+
+		void* data;
+		vkMapMemory(m_LogicalDevice, m_VertexBufferMemory, 0, bufferInfo.size, 0, &data);
+		memcpy(data, vertices.data(), (size_t)bufferInfo.size);
+		vkUnmapMemory(m_LogicalDevice, m_VertexBufferMemory);
+	}
+
+	uint32_t VulkanWrapper::FindMemoryType(uint32_t _TypeFilter, VkMemoryPropertyFlags _Properties)
+	{
+		VkPhysicalDeviceMemoryProperties memProperties;
+		vkGetPhysicalDeviceMemoryProperties(m_PhysicalDevice, &memProperties);
+		
+		for (uint32_t i = 0; i < memProperties.memoryTypeCount; ++i)
+		{
+			if (_TypeFilter & (1 << i) && (memProperties.memoryTypes[i].propertyFlags & _Properties) == _Properties)
+			{
+				return i;
+			}
+		}
+
+		DEBUG_ERROR("Failed to find suitable memory type");
+		return 0;
 	}
 }

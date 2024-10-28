@@ -9,10 +9,17 @@
 #include <optional>
 #include <string>
 #include <filesystem>
+#include "RHI/Vertex.h"
 
 namespace Core
 {
 	const int MAX_FRAMES_IN_FLIGHT = 2;
+
+	const std::vector<Core::Vertex> vertices = {
+	{{0.0f, -0.5f}, {1.0f, 0.0f, 1.0f}},
+	{{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+	{{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+	};
 
 	struct QueueFamilyIndices
 	{
@@ -62,6 +69,9 @@ namespace Core
 		std::vector<VkSemaphore> m_ImageAvailableSemaphores;
 		std::vector<VkSemaphore> m_RenderFinishedSemaphores;
 		std::vector<VkFence> m_InFlightFences;
+
+		VkBuffer m_VertexBuffer;
+		VkDeviceMemory m_VertexBufferMemory;
 
 		bool m_FramebufferResized = false;
 
@@ -375,5 +385,9 @@ namespace Core
 		void CreateSyncObjects();
 
 		static void FrameBufferResizeCallback(GLFWwindow* _Window, int _Width, int _Height);
+
+		void CreateVertexBuffer();
+
+		uint32_t FindMemoryType(uint32_t _TypeFilter, VkMemoryPropertyFlags _Properties);
 	};
 }
