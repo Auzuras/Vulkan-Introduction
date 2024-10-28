@@ -15,10 +15,15 @@ namespace Core
 {
 	const int MAX_FRAMES_IN_FLIGHT = 2;
 
-	const std::vector<Core::Vertex> vertices = {
-	{{0.0f, -0.5f}, {1.0f, 0.0f, 1.0f}},
-	{{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
-	{{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+	const std::vector<Vertex> vertices = {
+		{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+		{{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+		{{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+		{{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
+	};
+
+	const std::vector<uint16_t> indices = {
+	0, 1, 2, 2, 3, 0
 	};
 
 	struct QueueFamilyIndices
@@ -72,6 +77,8 @@ namespace Core
 
 		VkBuffer m_VertexBuffer;
 		VkDeviceMemory m_VertexBufferMemory;
+		VkBuffer m_IndexBuffer;
+		VkDeviceMemory m_IndexBufferMemory;
 
 		bool m_FramebufferResized = false;
 
@@ -384,10 +391,39 @@ namespace Core
 		/// </summary>
 		void CreateSyncObjects();
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="_Window"></param>
+		/// <param name="_Width"></param>
+		/// <param name="_Height"></param>
 		static void FrameBufferResizeCallback(GLFWwindow* _Window, int _Width, int _Height);
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="_Size"></param>
+		/// <param name="_Usage"></param>
+		/// <param name="_Properties"></param>
+		/// <param name="_Buffer"></param>
+		/// <param name="_BufferMemory"></param>
+		void CreateBuffer(VkDeviceSize _Size, VkBufferUsageFlags _Usage, VkMemoryPropertyFlags _Properties, VkBuffer& _Buffer, VkDeviceMemory& _BufferMemory);
+
+		/// <summary>
+		/// 
+		/// </summary>
 		void CreateVertexBuffer();
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="_TypeFilter"></param>
+		/// <param name="_Properties"></param>
+		/// <returns></returns>
 		uint32_t FindMemoryType(uint32_t _TypeFilter, VkMemoryPropertyFlags _Properties);
+
+		void CopyBuffer(VkBuffer _SourceBuffer, VkBuffer _DestinationBuffer, VkDeviceSize _Size);
+
+		void CreateIndexBuffer();
 	};
 }
