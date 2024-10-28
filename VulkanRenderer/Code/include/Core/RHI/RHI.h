@@ -27,7 +27,7 @@ namespace Core
 		GLFWwindow* window = nullptr;
 
 		RHI() = default;
-		~RHI() = default;
+		virtual ~RHI() = default;
 
 		///////////////////////////////////////////////////////////////////////
 

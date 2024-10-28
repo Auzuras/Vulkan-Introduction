@@ -118,8 +118,8 @@ namespace Core
 
 
 	public:
-		VulkanWrapper() = default;
-		~VulkanWrapper() = default;
+		VulkanWrapper();
+		~VulkanWrapper() override;
 
 		///////////////////////////////////////////////////////////////////////
 

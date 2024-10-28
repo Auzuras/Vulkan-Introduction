@@ -58,6 +58,7 @@ namespace Core
 		}
 
 		delete m_RHI;
+		m_RHI = nullptr;
 
 		Debug::Log::CloseFile();
 

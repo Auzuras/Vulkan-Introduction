@@ -5,6 +5,25 @@
 
 namespace Core
 {
+	VulkanWrapper::VulkanWrapper()
+	{
+	}
+
+	VulkanWrapper::~VulkanWrapper()
+	{
+		m_SwapChainImages.shrink_to_fit();
+		m_SwapChainImageViews.shrink_to_fit();
+		m_SwapChainFramebuffers.shrink_to_fit();
+		m_CommandBuffers.shrink_to_fit();
+		m_ImageAvailableSemaphores.shrink_to_fit();
+		m_RenderFinishedSemaphores.shrink_to_fit();
+		m_InFlightFences.shrink_to_fit();
+		m_UniformBuffers.shrink_to_fit();
+		m_UniformBufferMemory.shrink_to_fit();
+		m_UniformBuffersMapped.shrink_to_fit();
+		m_DescriptorSets.shrink_to_fit();
+	}
+
 	const bool VulkanWrapper::Initialize(GLFWwindow* _Window)
 	{
 		if (!CreateVulkanInstance())
