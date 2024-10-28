@@ -440,5 +440,9 @@ namespace Core
 		void CreateIndexBuffer();
 
 		void CreateDescriptorSetLayout();
+
+		void CreateUniformBuffers();
+
+		void UpdateUniformBuffer(uint32_t _CurrentImage);
 	};
 }

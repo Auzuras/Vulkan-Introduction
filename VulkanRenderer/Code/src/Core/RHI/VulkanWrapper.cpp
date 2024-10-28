@@ -26,6 +26,7 @@ namespace Core
 		CreateCommandPool();
 		CreateVertexBuffer();
 		CreateIndexBuffer();
+		CreateUniformBuffers();
 		CreateCommandBuffers();
 		CreateSyncObjects();
 
@@ -110,6 +111,12 @@ namespace Core
 		vkDeviceWaitIdle(m_LogicalDevice);
 
 		CleanSwapChain();
+
+		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+		{
+			vkDestroyBuffer(m_LogicalDevice, m_UniformBuffers[i], nullptr);
+			vkFreeMemory(m_LogicalDevice, m_UniformBufferMemory[i], nullptr);
+		}
 
 		vkDestroyDescriptorSetLayout(m_LogicalDevice, m_DescriptorSetLayout, nullptr);
 
@@ -1021,6 +1028,8 @@ namespace Core
 			DEBUG_ERROR("Failed to acquire swap chain image, Error Code: %d", result);
 		}
 
+		UpdateUniformBuffer(m_CurrentFrame);
+
 		vkResetFences(m_LogicalDevice, 1, &m_InFlightFences[m_CurrentFrame]);
 
 		vkAcquireNextImageKHR(m_LogicalDevice, m_SwapChain, UINT64_MAX, m_ImageAvailableSemaphores[m_CurrentFrame], VK_NULL_HANDLE, &imageIndex);
@@ -1278,5 +1287,35 @@ namespace Core
 		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 		pipelineLayoutInfo.setLayoutCount = 1;
 		pipelineLayoutInfo.pSetLayouts = &m_DescriptorSetLayout;
+	}
+
+	void VulkanWrapper::CreateUniformBuffers()
+	{
+		VkDeviceSize bufferSize = sizeof(UniformMVP);
+
+		m_UniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+		m_UniformBufferMemory.resize(MAX_FRAMES_IN_FLIGHT);
+		m_UniformBuffersMapped.resize(MAX_FRAMES_IN_FLIGHT);
+
+		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+		{
+			CreateBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, m_UniformBuffers[i], m_UniformBufferMemory[i]);
+			vkMapMemory(m_LogicalDevice, m_UniformBufferMemory[i], 0, bufferSize, 0, &m_UniformBuffersMapped[i]);
+		}
+	}
+
+	void VulkanWrapper::UpdateUniformBuffer(uint32_t _CurrentImage)
+	{
+		UniformMVP mvp{};
+
+		Math::Vector3 pos = Math::Vector3::zero;
+		Math::Vector3 rot = Math::Vector3::zero;
+		Math::Vector3 scale = Math::Vector3::one;
+
+		mvp.model = Math::Matrix4::TRS(pos, rot, scale);
+		mvp.view = Math::Matrix4::ViewMatrix(Math::Vector3(0.f, 0.f, -5.f), Math::Vector3::zero, Math::Vector3::up);
+		mvp.projection = Math::Matrix4::ProjectionPerspectiveMatrix(0.01f, 100.f, (float)(m_SwapChainExtent.width / m_SwapChainExtent.height), 45.f);
+
+		memcpy(m_UniformBuffersMapped[_CurrentImage], &mvp, sizeof(mvp));
 	}
 }

@@ -295,6 +295,53 @@ namespace Math
 			});
 	}
 
+	Matrix4 Matrix4::ViewMatrix(Vector3 _eye, Vector3 _lookAt, Vector3 _up)
+	{
+		Math::Vector3 zAxis = (_eye - _lookAt).Normalize();
+		Math::Vector3 xAxis = _up.CrossProduct(zAxis);
+		xAxis = xAxis.Normalize();
+		Math::Vector3 yAxis = zAxis.CrossProduct(xAxis);
+		yAxis = yAxis.Normalize();
+
+		return Matrix4({
+			xAxis[0], xAxis[1], xAxis[2], -xAxis.DotProduct(_eye),
+			yAxis[0], yAxis[1], yAxis[2], -yAxis.DotProduct(_eye),
+			zAxis[0], zAxis[1], zAxis[2], -zAxis.DotProduct(_eye),
+			0.f, 0.f, 0.f, 1.f
+			});
+	}
+
+
+	Matrix4 Matrix4::ProjectionPerspectiveMatrix(const float _near, const float _far, const float _aspect, const float _fov)
+	{
+		float s = 1.0f / (_aspect * tanf(Utils::DegToRad(_fov) * 0.5f));
+		float s2 = 1.0f / tanf(Utils::DegToRad(_fov) * 0.5f);
+
+		return Matrix4({
+			s, 0.f, 0.f, 0.f,
+			0.f, s2, 0.f, 0.f,
+			0.f, 0.f, -(_far) / (_far - _near), -(_far * _near) / (_far - _near),
+			0.f, 0.f, -1.f, 0.f
+			});
+
+	}
+
+	Matrix4 Matrix4::ProjectionOrthographicMatrix(const float _near, const float _far, const float _top, const float _bottom, const float _right, const float _left)
+	{
+		return Matrix4({
+			2.f / (_right - _left), 0.f, 0.f, -(_right + _left) / (_right - _left),
+			0.f, 2.f / (_top - _bottom), 0.f,-(_top + _bottom) / (_top - _bottom),
+			0.f, 0.f, -2.f / (_far - _near), -(_far + _near) / (_far - _near),
+			0.f, 0.f, 0.f, 1.f
+			});
+	}
+
+
+	float* Matrix4::Value()
+	{
+		return &m_Values[0][0];
+	}
+
 	Matrix4 Matrix4::operator+(const Matrix4& _matrix2)
 	{
 		Matrix4 result(0.f);

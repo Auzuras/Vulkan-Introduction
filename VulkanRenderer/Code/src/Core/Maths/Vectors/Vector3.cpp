@@ -9,6 +9,12 @@ namespace Math
 						
 	const Vector3 Vector3::one(1.f);
 
+	const Vector3 Vector3::right(1.f, 0.f, 0.f);
+
+	const Vector3 Vector3::up(0.f, 1.f, 0.f);
+
+	const Vector3 Vector3::forward(0.f, 0.f, 1.f);
+
 	Vector3::Vector3(float _x, float _y, float _z)
 		:m_X(_x), m_Y(_y), m_Z(_z)
 	{}

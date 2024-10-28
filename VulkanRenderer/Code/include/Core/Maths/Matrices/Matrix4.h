@@ -127,50 +127,88 @@ namespace Math
 		/// <param name="_yScale"> : Y parameter for scaling </param>
 		/// <param name="_zScale"> : Z parameter for scaling </param>
 		/// <returns></returns>
-		Matrix4 TRS(const float _xTranslation, const float _yTranslation, const float _zTranslation, const float _xAngle, const float _yAngle, const float _zAngle, const float _xScale, const float _yScale, const float _zScale);
+		static Matrix4 TRS(const float _xTranslation, const float _yTranslation, const float _zTranslation, const float _xAngle, const float _yAngle, const float _zAngle, const float _xScale, const float _yScale, const float _zScale);
 
 		/// <summary> Returns the TRS matrix </summary>
 		/// <param name="_translation"> : Vector3 for translation </param>
 		/// <param name="_rotation"> : Vector3 for rotation (represent the rotation on the angle x, y, z) </param>
 		/// <param name="_scaling"> : Vector3 for scaling </param>
 		/// <returns></returns>
-		Matrix4 TRS(Vector3& _translation, Vector3& _rotation, Vector3& _scaling);
+		static Matrix4 TRS(Vector3& _translation, Vector3& _rotation, Vector3& _scaling);
 
 		/// <summary> Returns the translation matrix </summary>
 		/// <param name="_xScale"> : X parameter for translation </param>
 		/// <param name="_yScale"> : Y parameter for translation </param>
 		/// <param name="_zScale"> : Z parameter for translation </param>
 		/// <returns></returns>
-		Matrix4 Translate(const float _xTranslation, const float _yTranslation, const float _zTranslation);
+		static Matrix4 Translate(const float _xTranslation, const float _yTranslation, const float _zTranslation);
 
 		/// <summary> Returns the global rotation matrix </summary>
 		/// <param name="_yScale"> : Y parameter for rotation </param>
 		/// <param name="_zScale"> : Z parameter for rotation </param>
 		/// <param name="_xScale"> : X parameter for rotation </param>
 		/// <returns></returns>
-		Matrix4 GlobalRotation(const float _xAngle, const float _yAngle, const float _zAngle);
+		static Matrix4 GlobalRotation(const float _xAngle, const float _yAngle, const float _zAngle);
 
 		/// <summary> Returns the X rotation matrix </summary>
 		/// <param name="_angle"> : Angle you want in the matrix </param>
 		/// <returns></returns>
-		Matrix4 XRotation(const float _angle);
+		static Matrix4 XRotation(const float _angle);
 
 		/// <summary> Returns the Y rotation matrix </summary>
 		/// <param name="_angle"> : Angle you want in the matrix </param>
 		/// <returns></returns>
-		Matrix4 YRotation(const float _angle);
+		static Matrix4 YRotation(const float _angle);
 
 		/// <summary> Returns the Z rotation </summary>
 		/// <param name="_angle"> : Angle you want in the matrix </param>
 		/// <returns></returns>
-		Matrix4 ZRotation(const float _angle);
+		static Matrix4 ZRotation(const float _angle);
 
 		/// <summary> Returns the scale matrix </summary>
 		/// <param name="_xScale"> : X parameter for scaling </param>
 		/// <param name="_yScale"> : Y parameter for scaling </param>
 		/// <param name="_zScale"> : Z parameter for scaling </param>
 		/// <returns></returns>
-		Matrix4 Scale(const float _xScale, const float _yScale, const float _zScale);
+		static Matrix4 Scale(const float _xScale, const float _yScale, const float _zScale);
+
+		/// <summary>
+		/// Calculates the view matrix
+		/// </summary>
+		/// <param name="_eye"> : position of the camera </param>
+		/// <param name="_lookAt"> : </param>
+		/// <returns></returns>
+		static Matrix4 ViewMatrix(Vector3 _eye, Vector3 _lookAt, Vector3 _up);
+
+		/// <summary>
+		/// Calculates the projection matrix
+		/// </summary>
+		/// <param name="_near"> : near plane </param>
+		/// <param name="_far"> : far plane </param>
+		/// <param name="_aspect"> : aspect ratio </param>
+		/// <param name="_fov"> : field of view </param>
+		/// <param name="_isOrthographic"> : choose between orthographic or perspective projection </param>
+		/// <returns></returns>
+		static Matrix4 ProjectionPerspectiveMatrix(const float _near, const float _far, const float _aspect, const float _fov);
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="_near"></param>
+		/// <param name="_far"></param>
+		/// <param name="_top"></param>
+		/// <param name="_bottom"></param>
+		/// <param name="_right"></param>
+		/// <param name="_left"></param>
+		/// <returns></returns>
+		static Matrix4 ProjectionOrthographicMatrix(const float _near, const float _far, const float _top, const float _bottom, const float _right, const float _left);
+
+		/// <summary>
+		/// Returns the pointer of the first element from the matrix
+		/// </summary>
+		/// <returns></returns>
+		float* Value();
+
 
 		///////////////////////////////////////////////////////////////////////
 
