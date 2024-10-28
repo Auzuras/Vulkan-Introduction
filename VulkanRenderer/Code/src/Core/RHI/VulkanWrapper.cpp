@@ -20,6 +20,7 @@ namespace Core
 		CreateSwapChain(_Window);
 		CreateImageViews();
 		CreateRenderPass();
+		CreateDescriptorSetLayout();
 		CreateGraphicsPipeline();
 		CreateFramebuffers();
 		CreateCommandPool();
@@ -109,6 +110,8 @@ namespace Core
 		vkDeviceWaitIdle(m_LogicalDevice);
 
 		CleanSwapChain();
+
+		vkDestroyDescriptorSetLayout(m_LogicalDevice, m_DescriptorSetLayout, nullptr);
 
 		vkDestroyBuffer(m_LogicalDevice, m_IndexBuffer, nullptr);
 		vkFreeMemory(m_LogicalDevice, m_IndexBufferMemory, nullptr);
@@ -1248,5 +1251,32 @@ namespace Core
 		vkDestroyBuffer(m_LogicalDevice, stagingBuffer, nullptr);
 		vkFreeMemory(m_LogicalDevice, stagingBufferMemory, nullptr);
 
+	}
+
+	void VulkanWrapper::CreateDescriptorSetLayout()
+	{
+		VkDescriptorSetLayoutBinding uboLayoutBinding{};
+		uboLayoutBinding.binding = 0;
+		uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		uboLayoutBinding.descriptorCount = 1;
+		uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+		uboLayoutBinding.pImmutableSamplers = nullptr;
+
+		VkDescriptorSetLayoutCreateInfo layoutInfo{};
+		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+		layoutInfo.bindingCount = 1;
+		layoutInfo.pBindings = &uboLayoutBinding;
+
+		VkResult result = vkCreateDescriptorSetLayout(m_LogicalDevice, &layoutInfo, nullptr, &m_DescriptorSetLayout);
+
+		if (result != VK_SUCCESS)
+		{
+			DEBUG_ERROR("Failed to create descriptor set layout, Error Code: %d", result);
+		}
+
+		VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
+		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+		pipelineLayoutInfo.setLayoutCount = 1;
+		pipelineLayoutInfo.pSetLayouts = &m_DescriptorSetLayout;
 	}
 }

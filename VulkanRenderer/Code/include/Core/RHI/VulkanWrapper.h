@@ -10,10 +10,18 @@
 #include <string>
 #include <filesystem>
 #include "RHI/Vertex.h"
+#include "Matrices/Matrix4.h"
 
 namespace Core
 {
 	const int MAX_FRAMES_IN_FLIGHT = 2;
+
+	struct UniformMVP
+	{
+		Math::Matrix4 model;
+		Math::Matrix4 view;
+		Math::Matrix4 projection;
+	};
 
 	const std::vector<Vertex> vertices = {
 		{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
@@ -60,6 +68,7 @@ namespace Core
 		VkFormat m_SwapChainImageFormat;
 		VkExtent2D m_SwapChainExtent;
 
+		VkDescriptorSetLayout m_DescriptorSetLayout;
 		VkPipelineLayout m_PipelineLayout;
 
 		VkRenderPass m_RenderPass;
@@ -79,6 +88,10 @@ namespace Core
 		VkDeviceMemory m_VertexBufferMemory;
 		VkBuffer m_IndexBuffer;
 		VkDeviceMemory m_IndexBufferMemory;
+
+		std::vector<VkBuffer> m_UniformBuffers;
+		std::vector<VkDeviceMemory> m_UniformBufferMemory;
+		std::vector<void*> m_UniformBuffersMapped;
 
 		bool m_FramebufferResized = false;
 
@@ -425,5 +438,7 @@ namespace Core
 		void CopyBuffer(VkBuffer _SourceBuffer, VkBuffer _DestinationBuffer, VkDeviceSize _Size);
 
 		void CreateIndexBuffer();
+
+		void CreateDescriptorSetLayout();
 	};
 }
