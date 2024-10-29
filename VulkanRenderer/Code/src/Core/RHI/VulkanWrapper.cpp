@@ -659,7 +659,7 @@ namespace Core
 
 		for (size_t i = 0; i < m_SwapChainImages.size(); ++i)
 		{
-			m_SwapChainImageViews[i] = CreateImageView(m_SwapChainImages[i], m_SwapChainImageFormat);
+			m_SwapChainImageViews[i] = CreateImageView(m_SwapChainImages[i], m_SwapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
 		}
 
 		return;
@@ -1349,7 +1349,7 @@ namespace Core
 		Math::Vector3 scale = Math::Vector3::one;
 
 		mvp.model = Math::Matrix4::TRS(pos, rot, scale).Transpose();
-		mvp.view = Math::Matrix4::ViewMatrix(Math::Vector3(0.f, 0.f, -5.f), Math::Vector3::zero, Math::Vector3::up).Transpose();
+		mvp.view = Math::Matrix4::ViewMatrix(Math::Vector3(5.f, 0.f, -2.f), Math::Vector3::zero, Math::Vector3::up).Transpose();
 		mvp.projection = Math::Matrix4::ProjectionPerspectiveMatrix(0.01f, 100.f, (float)(m_SwapChainExtent.width / m_SwapChainExtent.height), 45.f).Transpose();
 
 
@@ -1431,14 +1431,14 @@ namespace Core
 		}
 	}
 
-	VkImageView VulkanWrapper::CreateImageView(VkImage _Image, VkFormat _Format)
+	VkImageView VulkanWrapper::CreateImageView(VkImage _Image, VkFormat _Format, VkImageAspectFlags _AspectFlags)
 	{
 		VkImageViewCreateInfo viewInfo{};
 		viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 		viewInfo.image = _Image;
 		viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
 		viewInfo.format = _Format;
-		viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		viewInfo.subresourceRange.aspectMask = _AspectFlags;
 		viewInfo.subresourceRange.baseMipLevel = 0;
 		viewInfo.subresourceRange.levelCount = 1;
 		viewInfo.subresourceRange.baseArrayLayer = 0;
@@ -1604,7 +1604,7 @@ namespace Core
 	
 	void VulkanWrapper::CreateTextureImageView()
 	{
-		m_TextureImageView = CreateImageView(m_TextureImage, VK_FORMAT_R8G8B8A8_SRGB);
+		m_TextureImageView = CreateImageView(m_TextureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
 	}
 
 	void VulkanWrapper::CreateTextureSampler()
@@ -1638,5 +1638,45 @@ namespace Core
 			DEBUG_ERROR("Failed to create texture sampler, Error Code: %d", result);
 			return;
 		}
+	}
+
+	void VulkanWrapper::CreateDepthRessources()
+	{
+		VkFormat depthFormat = FindDepthFormat();
+
+		CreateImage(m_SwapChainExtent.width, m_SwapChainExtent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_DepthImage, m_DepthImageMemory);
+		m_DepthImageView = CreateImageView(m_DepthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
+
+		TransitionImageLayout(m_DepthImage, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+	}
+
+	VkFormat VulkanWrapper::FindSupportedFormat(const std::vector<VkFormat>& _Candidates, VkImageTiling _Tiling, VkFormatFeatureFlags _Features)
+	{
+		for (VkFormat format : _Candidates)
+		{
+			VkFormatProperties props;
+			vkGetPhysicalDeviceFormatProperties(m_PhysicalDevice, format, &props);
+
+			if (_Tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & _Features) == _Features)
+			{
+				return format;
+			}
+			else if (_Tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & _Features) == _Features)
+			{
+				return format;
+			}
+		}
+
+		DEBUG_ERROR("Failed to find supported format!");
+	}
+
+	VkFormat VulkanWrapper::FindDepthFormat()
+	{
+		return FindSupportedFormat({VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT}, VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
+	}
+
+	bool VulkanWrapper::HasStencilComponent(VkFormat _Format)
+	{
+		return _Format == VK_FORMAT_D32_SFLOAT_S8_UINT || _Format == VK_FORMAT_D24_UNORM_S8_UINT;
 	}
 }
