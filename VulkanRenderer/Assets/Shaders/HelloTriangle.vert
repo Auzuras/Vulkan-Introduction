@@ -16,7 +16,7 @@ layout(location = 1) out vec2 fragTextCoord;
 
 void main()
 {
-	gl_Position =  vec4(inPosition, 1.0) * ubo.projection * ubo.view * ubo.model;
+	gl_Position =  transpose(ubo.projection) * transpose(ubo.view) * transpose(ubo.model) * vec4(inPosition, 1.0);
     fragColor = inColor;
 	fragTextCoord = inTextCoord;
 }

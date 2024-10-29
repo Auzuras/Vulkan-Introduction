@@ -6,6 +6,11 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
+#define TINYOBJLOADER_IMPLEMENTATION
+#include <tiny_obj_loader.h>
+
+#include "Utils/Utils.h"
+
 namespace Core
 {
 	VulkanWrapper::VulkanWrapper()
@@ -50,6 +55,7 @@ namespace Core
 		CreateTextureImage();
 		CreateTextureImageView();
 		CreateTextureSampler();
+		LoadModel();
 		CreateVertexBuffer();
 		CreateIndexBuffer();
 		CreateUniformBuffers();
@@ -1048,7 +1054,7 @@ namespace Core
 
 		vkCmdBindVertexBuffers(_CommandBuffer, 0, 1, vertexBuffers, offsets);
 
-		vkCmdBindIndexBuffer(_CommandBuffer, m_IndexBuffer, 0, VK_INDEX_TYPE_UINT16);
+		vkCmdBindIndexBuffer(_CommandBuffer, m_IndexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
 		vkCmdBindDescriptorSets(_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, 0, 1, &m_DescriptorSets[m_CurrentFrame], 0, nullptr);
 
@@ -1380,12 +1386,12 @@ namespace Core
 		UniformMVP mvp{};
 
 		Math::Vector3 pos = Math::Vector3::zero;
-		Math::Vector3 rot = Math::Vector3::zero;// Math::Vector3(0.f, 0.f, iRandomRotation += 0.0005f);
+		Math::Vector3 rot = Math::Vector3(Math::Utils::DegToRad(90.f), 0.f, iRandomRotation += 0.0005f);
 		Math::Vector3 scale = Math::Vector3::one;
 
-		mvp.model = Math::Matrix4::TRS(pos, rot, scale).Transpose();
-		mvp.view = Math::Matrix4::ViewMatrix(Math::Vector3(2.f, 2.f, -2.f), Math::Vector3::zero, Math::Vector3::up).Transpose();
-		mvp.projection = Math::Matrix4::ProjectionPerspectiveMatrix(0.01f, 100.f, (float)(m_SwapChainExtent.width / m_SwapChainExtent.height), 45.f).Transpose();
+		mvp.model = Math::Matrix4::TRS(pos, rot, scale);
+		mvp.view = Math::Matrix4::ViewMatrix(Math::Vector3(-0.3f, 0.f, -2.f), Math::Vector3::zero, Math::Vector3::up);
+		mvp.projection = Math::Matrix4::ProjectionPerspectiveMatrix(0.01f, 100.f, (float)(m_SwapChainExtent.width / m_SwapChainExtent.height), 45.f);
 
 		memcpy(m_UniformBuffersMapped[_CurrentImage], &mvp, sizeof(mvp));
 	}
@@ -1493,8 +1499,9 @@ namespace Core
 	void VulkanWrapper::CreateTextureImage()
 	{
 		int textWidth, textHeight, textChannels;
+		stbi_set_flip_vertically_on_load(true);
 
-		stbi_uc* texture = stbi_load("Assets/Textures/texture.jpg", &textWidth, &textHeight, &textChannels, STBI_rgb_alpha);
+		stbi_uc* texture = stbi_load(TEXTURE_PATH.c_str(), &textWidth, &textHeight, &textChannels, STBI_rgb_alpha);
 
 		VkDeviceSize imageSize = textWidth * textHeight * 4;
 
@@ -1626,7 +1633,7 @@ namespace Core
 			DEBUG_ERROR("Unsupported layout transition !");
 		}
 
-		vkCmdPipelineBarrier(commandBuffer, 0, 0, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+		vkCmdPipelineBarrier(commandBuffer, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
 
 		EndSingleTimeCommands(commandBuffer);
 	}
@@ -1729,5 +1736,42 @@ namespace Core
 	bool VulkanWrapper::HasStencilComponent(VkFormat _Format)
 	{
 		return _Format == VK_FORMAT_D32_SFLOAT_S8_UINT || _Format == VK_FORMAT_D24_UNORM_S8_UINT;
+	}
+
+	void VulkanWrapper::LoadModel()
+	{
+		tinyobj::attrib_t attrib;
+		std::vector<tinyobj::shape_t> shapes;
+		std::vector<tinyobj::material_t> materials;
+		std::string warn, error;
+
+		if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &error, MODEL_PATH.c_str()))
+		{
+			DEBUG_ERROR("Failed to load model!");
+		}
+
+		for (const tinyobj::shape_t& shape : shapes)
+		{
+			for (const tinyobj::index_t& index : shape.mesh.indices)
+			{
+				Vertex vertex{};
+
+				vertex.position = {
+					attrib.vertices[3 * index.vertex_index + 0],
+					attrib.vertices[3 * index.vertex_index + 1],
+					attrib.vertices[3 * index.vertex_index + 2]
+				};
+
+				vertex.textCoord = {
+					attrib.texcoords[2 * index.texcoord_index + 0],
+					attrib.texcoords[2 * index.texcoord_index + 1]
+				};
+
+				vertex.color = { 1.f, 1.f, 1.f };
+
+				vertices.push_back(vertex);
+				indices.push_back(indices.size());
+			}
+		}
 	}
 }

@@ -8,11 +8,17 @@ namespace Math
 	class Vector3
 	{
 	private:
+
+
+
+
+	public:
+
 		float m_X;
 		float m_Y;
 		float m_Z;
 
-	public:
+
 		Vector3() = default;
 
 		/// <summary> Creates a vector3 </summary>

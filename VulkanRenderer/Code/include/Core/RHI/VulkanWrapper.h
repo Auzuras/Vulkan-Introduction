@@ -16,28 +16,14 @@ namespace Core
 {
 	const int MAX_FRAMES_IN_FLIGHT = 2;
 
+	const std::string MODEL_PATH = "Assets/Meshes/viking_room.obj";
+	const std::string TEXTURE_PATH = "Assets/Textures/viking_room.png";
+
 	struct UniformMVP
 	{
 		 alignas(16) Math::Matrix4 model;
 		 alignas(16) Math::Matrix4 view;
 		 alignas(16) Math::Matrix4 projection;
-	};
-
-	const std::vector<Vertex> vertices = {
-	{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-	{{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-	{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
-	{{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
-
-	{{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-	{{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-	{{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
-	{{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}
-	};
-
-	const std::vector<uint16_t> indices = {
-		0, 1, 2, 2, 3, 0,
-		4, 5, 6, 6, 7, 4
 	};
 
 	struct QueueFamilyIndices
@@ -58,6 +44,9 @@ namespace Core
 	class VulkanWrapper : public RHI
 	{
 	private:
+		std::vector<Vertex> vertices;
+		std::vector<uint32_t> indices;
+
 		float iRandomRotation = 0.f;
 
 		VkInstance m_VulkanInstance;
@@ -487,10 +476,24 @@ namespace Core
 		void CreateTextureImageView();
 		void CreateTextureSampler();
 
+		///////////////////////////////////////////////////////////////////////
+
+		/// Depth related methods
+
+		///////////////////////////////////////////////////////////////////////
+
 		void CreateDepthRessources();
 
 		VkFormat FindSupportedFormat(const std::vector<VkFormat>& _Candidates, VkImageTiling _Tiling, VkFormatFeatureFlags _Features);
 		VkFormat FindDepthFormat();
 		bool HasStencilComponent(VkFormat _Format);
+
+		///////////////////////////////////////////////////////////////////////
+
+		/// Model related methods
+
+		///////////////////////////////////////////////////////////////////////
+
+		void LoadModel();
 	};
 }

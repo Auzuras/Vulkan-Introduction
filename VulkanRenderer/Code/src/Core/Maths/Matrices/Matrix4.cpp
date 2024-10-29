@@ -304,9 +304,9 @@ namespace Math
 		yAxis = yAxis.Normalize();
 
 		return Matrix4({
-			xAxis[0], xAxis[1], xAxis[2], -xAxis.DotProduct(_eye),
-			yAxis[0], yAxis[1], yAxis[2], -yAxis.DotProduct(_eye),
-			zAxis[0], zAxis[1], zAxis[2], -zAxis.DotProduct(_eye),
+			xAxis[0], xAxis[1], xAxis[2], -_eye.m_X,
+			yAxis[0], yAxis[1], yAxis[2], -_eye.m_Y,
+			zAxis[0], zAxis[1], zAxis[2], -_eye.m_Z,
 			0.f, 0.f, 0.f, 1.f
 			});
 	}
@@ -314,8 +314,9 @@ namespace Math
 
 	Matrix4 Matrix4::ProjectionPerspectiveMatrix(const float _near, const float _far, const float _aspect, const float _fov)
 	{
-		float s = 1.0f / (_aspect * tanf(Utils::DegToRad(_fov) * 0.5f));
-		float s2 = 1.0f / tanf(Utils::DegToRad(_fov) * 0.5f);
+		float tanHalfFov = tanf(Utils::DegToRad(_fov) * 0.5f);
+		float s = 1.0f / (_aspect * tanHalfFov);
+		float s2 = 1.0f / tanHalfFov;
 
 		// OPENGL Projection matrix
 		//return Matrix4({
@@ -329,8 +330,8 @@ namespace Math
 		return Matrix4({
 			s, 0.f, 0.f, 0.f,
 			0.f, s2, 0.f, 0.f,
-			0.f, 0.f, (_far) / (_far - _near), -(_near) * ((_far) / (_far - _near)),
-			0.f, 0.f, -1.f, 0.f
+			0.f, 0.f, _far / (_far - _near), -(_far * _near) / (_far - _near),
+			0.f, 0.f, 1.f, 0.f
 			});
 
 	}
