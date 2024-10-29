@@ -24,10 +24,10 @@ namespace Core
 	};
 
 	const std::vector<Vertex> vertices = {
-		{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-		{{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-		{{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
-		{{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
+		{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
+		{{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+		{{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+		{{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
 	};
 
 	const std::vector<uint16_t> indices = {
@@ -97,6 +97,12 @@ namespace Core
 
 		VkDescriptorPool m_DescriptorPool;
 		std::vector<VkDescriptorSet> m_DescriptorSets;
+
+		VkImage m_TextureImage;
+		VkDeviceMemory m_TextureImageMemory;
+
+		VkImageView m_TextureImageView;
+		VkSampler m_TextureSampler;
 
 		bool m_FramebufferResized = false;
 
@@ -393,6 +399,9 @@ namespace Core
 		/// <param name="_ImageIndex"></param>
 		void RecordCommandBuffer(VkCommandBuffer _CommandBuffer, uint32_t _ImageIndex);
 
+		VkCommandBuffer BeginSingleTimeCommands();
+		void EndSingleTimeCommands(VkCommandBuffer _CommandBuffer);
+
 		///////////////////////////////////////////////////////////////////////
 
 		/// Draw related methods
@@ -453,5 +462,19 @@ namespace Core
 		void CreateDescriptorPool();
 
 		void CreateDescriptorSets();
+
+		///////////////////////////////////////////////////////////////////////
+
+		/// Texture related methods
+
+		///////////////////////////////////////////////////////////////////////
+
+		VkImageView CreateImageView(VkImage _Image, VkFormat _Format);
+		void CreateTextureImage();
+		void CreateImage(uint32_t _Width, uint32_t _Height, VkFormat _Format, VkImageTiling _Tiling, VkImageUsageFlags _Usage, VkMemoryPropertyFlags _Properties, VkImage& _Image, VkDeviceMemory& _ImageMemory);
+		void TransitionImageLayout(VkImage _Image, VkFormat _Format, VkImageLayout _OldLayout, VkImageLayout _NewLayout);
+		void CopyBufferToImage(VkBuffer _Buffer, VkImage _Image, uint32_t _Width, uint32_t _Height);
+		void CreateTextureImageView();
+		void CreateTextureSampler();
 	};
 }

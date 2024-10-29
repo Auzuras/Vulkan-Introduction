@@ -15,8 +15,9 @@ namespace Core
 	{
 		Math::Vector2 position;
 		Math::Vector3 color;
+		Math::Vector2 textCoord;
 
 		static VkVertexInputBindingDescription GetBindingDescription();
-		static std::array<VkVertexInputAttributeDescription, 2> GetAttributeDescriptions();
+		static std::array<VkVertexInputAttributeDescription, 3> GetAttributeDescriptions();
 	};
 }

@@ -92,6 +92,9 @@
     <ClInclude Include="Code\include\Core\RHI\Vertex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Externals\STB_IMAGE\include\stb_image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Shaders\HelloTriangle.vert" />
