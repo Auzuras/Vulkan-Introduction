@@ -34,6 +34,8 @@ namespace Core
 
 	const bool VulkanWrapper::Initialize(GLFWwindow* _Window)
 	{
+		
+
 		if (!CreateVulkanInstance())
 			return false;
 

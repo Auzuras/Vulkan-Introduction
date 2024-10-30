@@ -2,8 +2,8 @@
 
 namespace Core
 {
-	Application::Application(const uint32_t _Width, const uint32_t _Height, const char* _WindowName, RHIType _RHIType)
-		:m_Width(_Width), m_Height(_Height), m_WindowName(_WindowName), m_RHIType(_RHIType)
+	Application::Application(const uint32_t _Width, const uint32_t _Height, const char* _WindowName)
+		:m_Width(_Width), m_Height(_Height), m_WindowName(_WindowName)
 	{}
 
 	Application::Application(const uint32_t _Width, const uint32_t _Height)
@@ -22,9 +22,12 @@ namespace Core
 		switch (m_RHIType)
 		{
 		case Core::OPENGL:
+			m_RHI = new Core::OpenGLWRapper;
+#undef VULKAN_WRAPPER
 			break;
 		case Core::VULKAN: default:
 			m_RHI = new Core::VulkanWrapper;
+#undef OPENGL_WRAPPER
 			break;
 		case Core::DIRECTX:
 			break;

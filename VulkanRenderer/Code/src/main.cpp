@@ -3,6 +3,7 @@
 #endif
 
 #include "Application.h"
+#include "Object.h"
 
 // Selects GPU
 extern "C"
@@ -18,13 +19,15 @@ int main()
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	//_CrtSetBreakAlloc(1356);
 #endif
-
-	Core::Application application(800, 600, "Vulkan Renderer", Core::RHIType::VULKAN);
+	Core::Application application(800, 600, "Vulkan Renderer");
 
 	if (!application.Initialize())
 	{
 		return -1;
 	}
+	
+	LowRenderer::Object test;
+	test.transform.GetPosition().Print();
 
 	while (!glfwWindowShouldClose(application.GetWindow()))
 	{

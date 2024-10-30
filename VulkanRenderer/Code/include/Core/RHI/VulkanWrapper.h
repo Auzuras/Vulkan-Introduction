@@ -12,6 +12,8 @@
 #include "RHI/Vertex.h"
 #include "Matrices/Matrix4.h"
 
+#define VULKAN_WRAPPER
+
 namespace Core
 {
 	const int MAX_FRAMES_IN_FLIGHT = 2;
@@ -120,7 +122,6 @@ namespace Core
 #else
 		const bool m_EnableValidationLayers = true;
 #endif
-
 
 	public:
 		VulkanWrapper();

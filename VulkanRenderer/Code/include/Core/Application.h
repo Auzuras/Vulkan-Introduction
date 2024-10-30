@@ -2,6 +2,7 @@
 
 #include "RHI/RHI.h"
 #include "RHI/VulkanWrapper.h"
+#include "RHI/OpenGLWrapper.h"
 
 namespace Core
 {
@@ -15,7 +16,7 @@ namespace Core
 		GLFWwindow* m_Window = nullptr;
 		static inline Core::RHI* m_RHI = nullptr;
 
-		RHIType m_RHIType = RHIType::VULKAN;
+		static inline RHIType m_RHIType = RHIType::VULKAN;
 
 	public:
 
@@ -37,7 +38,7 @@ namespace Core
 		/// <param name="_Height">: Height of the window </param>
 		/// <param name="_WindowName">: Name of the window </param>
 		/// <param name="_RHIType">: Type of renderer </param>
-		Application(const uint32_t _Width, const uint32_t _Height, const char* _WindowName, RHIType _RHIType);
+		Application(const uint32_t _Width, const uint32_t _Height, const char* _WindowName);
 
 		/// <summary>
 		/// Application constructor
