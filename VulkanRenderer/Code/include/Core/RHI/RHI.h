@@ -16,6 +16,13 @@ namespace Core
 		FRAGMENT
 	};
 
+	enum RHIType
+	{
+		OPENGL,
+		VULKAN,
+		DIRECTX
+	};
+
 	/// <summary>
 	/// RHI class -
 	/// Renderer Hardware Interface class -

@@ -5,13 +5,6 @@
 
 namespace Core
 {
-	enum RHIType
-	{
-		OPENGL,
-		VULKAN,
-		DIRECTX
-	};
-
 	class Application
 	{
 	private:
