@@ -12,8 +12,6 @@
 #include "RHI/Vertex.h"
 #include "Matrices/Matrix4.h"
 
-#define VULKAN_WRAPPER
-
 namespace Core
 {
 	const int MAX_FRAMES_IN_FLIGHT = 2;
@@ -124,7 +122,7 @@ namespace Core
 #endif
 
 	public:
-		VulkanWrapper();
+		VulkanWrapper() = default;
 		~VulkanWrapper() override;
 
 		///////////////////////////////////////////////////////////////////////
@@ -136,7 +134,7 @@ namespace Core
 		const bool Initialize(GLFWwindow* _Window) override;
 
 		/// <summary>
-		/// Creates a vulkan instance
+		/// Creates a vulkan instance that links the application with the API
 		/// </summary>
 		const bool CreateVulkanInstance();
 
@@ -146,6 +144,11 @@ namespace Core
 		/// <returns></returns>
 		const bool SetupDebugMessenger();
 
+
+		/// <summary>
+		/// Terminates - Cleans all the informations stored in the Vulkan RHI
+		/// </summary>
+		/// <returns></returns>
 		const bool Terminate() override;
 
 		///////////////////////////////////////////////////////////////////////
@@ -308,8 +311,15 @@ namespace Core
 		/// <param name="_Window"></param>
 		void CreateSwapChain(GLFWwindow* _Window);
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="_Window"></param>
 		void RecreateSwapChain(GLFWwindow* _Window);
 
+		/// <summary>
+		/// 
+		/// </summary>
 		void CleanSwapChain();
 
 		///////////////////////////////////////////////////////////////////////
@@ -399,7 +409,16 @@ namespace Core
 		/// <param name="_ImageIndex"></param>
 		void RecordCommandBuffer(VkCommandBuffer _CommandBuffer, uint32_t _ImageIndex);
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
 		VkCommandBuffer BeginSingleTimeCommands();
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="_CommandBuffer"></param>
 		void EndSingleTimeCommands(VkCommandBuffer _CommandBuffer);
 
 		///////////////////////////////////////////////////////////////////////
@@ -449,18 +468,43 @@ namespace Core
 		/// <returns></returns>
 		uint32_t FindMemoryType(uint32_t _TypeFilter, VkMemoryPropertyFlags _Properties);
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="_SourceBuffer"></param>
+		/// <param name="_DestinationBuffer"></param>
+		/// <param name="_Size"></param>
 		void CopyBuffer(VkBuffer _SourceBuffer, VkBuffer _DestinationBuffer, VkDeviceSize _Size);
 
+		/// <summary>
+		/// 
+		/// </summary>
 		void CreateIndexBuffer();
 
+		/// <summary>
+		/// 
+		/// </summary>
 		void CreateDescriptorSetLayout();
 
+		/// <summary>
+		/// 
+		/// </summary>
 		void CreateUniformBuffers();
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="_CurrentImage"></param>
 		void UpdateUniformBuffer(uint32_t _CurrentImage);
 
+		/// <summary>
+		/// 
+		/// </summary>
 		void CreateDescriptorPool();
 
+		/// <summary>
+		/// 
+		/// </summary>
 		void CreateDescriptorSets();
 
 		///////////////////////////////////////////////////////////////////////
@@ -469,12 +513,59 @@ namespace Core
 
 		///////////////////////////////////////////////////////////////////////
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="_Image"></param>
+		/// <param name="_Format"></param>
+		/// <param name="_AspectFlags"></param>
+		/// <returns></returns>
 		VkImageView CreateImageView(VkImage _Image, VkFormat _Format, VkImageAspectFlags _AspectFlags);
+
+		/// <summary>
+		/// 
+		/// </summary>
 		void CreateTextureImage();
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="_Width"></param>
+		/// <param name="_Height"></param>
+		/// <param name="_Format"></param>
+		/// <param name="_Tiling"></param>
+		/// <param name="_Usage"></param>
+		/// <param name="_Properties"></param>
+		/// <param name="_Image"></param>
+		/// <param name="_ImageMemory"></param>
 		void CreateImage(uint32_t _Width, uint32_t _Height, VkFormat _Format, VkImageTiling _Tiling, VkImageUsageFlags _Usage, VkMemoryPropertyFlags _Properties, VkImage& _Image, VkDeviceMemory& _ImageMemory);
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="_Image"></param>
+		/// <param name="_Format"></param>
+		/// <param name="_OldLayout"></param>
+		/// <param name="_NewLayout"></param>
 		void TransitionImageLayout(VkImage _Image, VkFormat _Format, VkImageLayout _OldLayout, VkImageLayout _NewLayout);
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="_Buffer"></param>
+		/// <param name="_Image"></param>
+		/// <param name="_Width"></param>
+		/// <param name="_Height"></param>
 		void CopyBufferToImage(VkBuffer _Buffer, VkImage _Image, uint32_t _Width, uint32_t _Height);
+
+		/// <summary>
+		/// 
+		/// </summary>
 		void CreateTextureImageView();
+
+		/// <summary>
+		/// 
+		/// </summary>
 		void CreateTextureSampler();
 
 		///////////////////////////////////////////////////////////////////////
@@ -483,10 +574,31 @@ namespace Core
 
 		///////////////////////////////////////////////////////////////////////
 
+		/// <summary>
+		/// 
+		/// </summary>
 		void CreateDepthRessources();
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="_Candidates"></param>
+		/// <param name="_Tiling"></param>
+		/// <param name="_Features"></param>
+		/// <returns></returns>
 		VkFormat FindSupportedFormat(const std::vector<VkFormat>& _Candidates, VkImageTiling _Tiling, VkFormatFeatureFlags _Features);
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
 		VkFormat FindDepthFormat();
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="_Format"></param>
+		/// <returns></returns>
 		bool HasStencilComponent(VkFormat _Format);
 
 		///////////////////////////////////////////////////////////////////////
@@ -495,6 +607,9 @@ namespace Core
 
 		///////////////////////////////////////////////////////////////////////
 
+		/// <summary>
+		/// 
+		/// </summary>
 		void LoadModel();
 	};
 }

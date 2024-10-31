@@ -13,29 +13,11 @@
 
 namespace Core
 {
-	VulkanWrapper::VulkanWrapper()
-	{
-	}
-
 	VulkanWrapper::~VulkanWrapper()
-	{
-		m_SwapChainImages.shrink_to_fit();
-		m_SwapChainImageViews.shrink_to_fit();
-		m_SwapChainFramebuffers.shrink_to_fit();
-		m_CommandBuffers.shrink_to_fit();
-		m_ImageAvailableSemaphores.shrink_to_fit();
-		m_RenderFinishedSemaphores.shrink_to_fit();
-		m_InFlightFences.shrink_to_fit();
-		m_UniformBuffers.shrink_to_fit();
-		m_UniformBufferMemory.shrink_to_fit();
-		m_UniformBuffersMapped.shrink_to_fit();
-		m_DescriptorSets.shrink_to_fit();
-	}
+	{}
 
 	const bool VulkanWrapper::Initialize(GLFWwindow* _Window)
 	{
-		
-
 		if (!CreateVulkanInstance())
 			return false;
 
@@ -298,6 +280,11 @@ namespace Core
 		if (m_EnableValidationLayers)
 		{
 			extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+		}
+		
+		for (int i = 0; i < extensions.size(); ++i)
+		{
+			DEBUG_LOG("Required extension: %s", extensions[i])
 		}
 
 		return extensions;
@@ -1772,7 +1759,7 @@ namespace Core
 				vertex.color = { 1.f, 1.f, 1.f };
 
 				vertices.push_back(vertex);
-				indices.push_back(indices.size());
+				indices.push_back(static_cast<uint32_t>(indices.size()));
 			}
 		}
 	}

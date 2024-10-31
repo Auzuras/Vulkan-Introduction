@@ -2,8 +2,6 @@
 
 #include "RHI/RHI.h"
 
-#define OPENGL_WRAPPER
-
 namespace Core
 {
 	class OpenGLWRapper : public RHI
