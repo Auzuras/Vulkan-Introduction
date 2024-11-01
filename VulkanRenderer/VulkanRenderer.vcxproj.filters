@@ -63,6 +63,9 @@
     <ClCompile Include="Code\src\Core\RHI\OpenGLWrapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Code\src\Resources\Model.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\include\Core\Maths\Matrices\Matrix2.h">
@@ -126,6 +129,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Code\include\Core\RHI\OpenGLWrapper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\include\Resources\IResource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\include\Resources\Model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

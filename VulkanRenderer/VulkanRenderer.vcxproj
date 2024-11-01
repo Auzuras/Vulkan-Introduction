@@ -113,7 +113,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>Externals/GLFW/include;C:/VulkanSDK/1.3.296.0/Include;Code/include/Core/Maths;Code/include/Core;Externals/STB_IMAGE/include;Externals/TINY_OBJ_LOADER/include;Code/include/LowRenderer;Code/include/Physics;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Externals/GLFW/include;C:/VulkanSDK/1.3.296.0/Include;Code/include/Core/Maths;Code/include/Core;Externals/STB_IMAGE/include;Externals/TINY_OBJ_LOADER/include;Code/include/LowRenderer;Code/include/Physics;Code/include/Resources;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -160,6 +160,7 @@
     <ClCompile Include="Code\src\LowRenderer\Object.cpp" />
     <ClCompile Include="Code\src\main.cpp" />
     <ClCompile Include="Code\src\Physics\Transform.cpp" />
+    <ClCompile Include="Code\src\Resources\Model.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\include\Core\Application.h" />
@@ -179,6 +180,8 @@
     <ClInclude Include="Code\include\LowRenderer\Camera.h" />
     <ClInclude Include="Code\include\LowRenderer\Object.h" />
     <ClInclude Include="Code\include\Physics\Transform.h" />
+    <ClInclude Include="Code\include\Resources\IResource.h" />
+    <ClInclude Include="Code\include\Resources\Model.h" />
     <ClInclude Include="Externals\GLFW\include\GLFW\glfw3.h" />
     <ClInclude Include="Externals\GLFW\include\GLFW\glfw3native.h" />
     <ClInclude Include="Externals\STB_IMAGE\include\stb_image.h" />

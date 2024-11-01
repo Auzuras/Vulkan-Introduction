@@ -16,7 +16,7 @@
 // TODO: Change the vs console output
 #define DEBUG_LOG(_Format, ...) \
 { \
-	Debug::Log::DebugPrint(_Format, __VA_ARGS__);\
+	Core::Debug::Log::DebugPrint(_Format, __VA_ARGS__);\
 	std::ostringstream _output; \
 	_output << __FILE_NAME__ << "(" << __LINE__ << ") [Log]: " << _Format << '\n';\
 	OutputDebugStringA(_output.str().c_str());\
@@ -25,7 +25,7 @@
 // TODO: Change the vs console output
 #define DEBUG_WARN(_Format, ...) \
 { \
-	Debug::Log::DebugWarn(_Format, __VA_ARGS__);\
+	Core::Debug::Log::DebugWarn(_Format, __VA_ARGS__);\
 	std::ostringstream _output; \
 	_output << __FILE_NAME__ << "(" << __LINE__ << ") [Warning]: " << _Format << '\n';\
 	OutputDebugStringA(_output.str().c_str());\
@@ -34,7 +34,7 @@
 // TODO: Change the vs console output
 #define DEBUG_ERROR(_Format, ...) \
 { \
-	Debug::Log::DebugError(_Format, __VA_ARGS__);\
+	Core::Debug::Log::DebugError(_Format, __VA_ARGS__);\
 	std::ostringstream _output; \
 	_output << __FILE_NAME__ << "(" << __LINE__ << ") [Error]: " << _Format << '\n';\
 	OutputDebugStringA(_output.str().c_str());\

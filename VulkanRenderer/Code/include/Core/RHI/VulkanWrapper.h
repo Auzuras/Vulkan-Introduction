@@ -131,6 +131,11 @@ namespace Core
 
 		///////////////////////////////////////////////////////////////////////
 
+		/// <summary>
+		/// Initialize the Vulkan RHI
+		/// </summary>
+		/// <param name="_Window">: current window </param>
+		/// <returns></returns>
 		const bool Initialize(GLFWwindow* _Window) override;
 
 		/// <summary>
@@ -139,7 +144,7 @@ namespace Core
 		const bool CreateVulkanInstance();
 
 		/// <summary>
-		/// 
+		/// Setup debugger tool for validation layers
 		/// </summary>
 		/// <returns></returns>
 		const bool SetupDebugMessenger();
@@ -164,12 +169,12 @@ namespace Core
 		const bool CheckValidationLayerSupport();
 
 		/// <summary>
-		/// 
+		/// Callback method called when a validation layer should be print
 		/// </summary>
-		/// <param name="_MessageSeverity"></param>
-		/// <param name="_MessageType"></param>
-		/// <param name="_CallbackData"></param>
-		/// <param name="_UserData"></param>
+		/// <param name="_MessageSeverity">: Type of severity of the message, LOG, WARN, EROOR </param>
+		/// <param name="_MessageType">: Type of the message </param>
+		/// <param name="_CallbackData">: Data of the message </param>
+		/// <param name="_UserData">: More data from the user </param>
 		/// <returns></returns>
 		static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallBack(VkDebugUtilsMessageSeverityFlagBitsEXT _MessageSeverity, VkDebugUtilsMessageTypeFlagsEXT _MessageType, const VkDebugUtilsMessengerCallbackDataEXT* _CallbackData, void* _UserData);
 
