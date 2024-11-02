@@ -861,6 +861,66 @@ namespace Core
 		return shaderModule;
 	}
 
+	void VulkanWrapper::CompileShader(std::filesystem::path _ShaderPath, ShaderType _ShaderType)
+	{
+		shaderc::Compiler compiler;
+
+		// TODO: Move shader reading in the resource loader
+
+		std::ifstream shaderFile(_ShaderPath);
+		std::string line = "";
+		std::string shaderCode = "";
+
+		if (!shaderFile.is_open())
+		{
+			DEBUG_ERROR("Failed to open shader");
+		}
+
+		while (std::getline(shaderFile, line))
+			shaderCode += line + "\n";
+
+		shaderFile.close();
+
+		CompilationInfos infos;
+		infos.fileName = _ShaderPath.filename().string().c_str();
+		
+		switch (_ShaderType)
+		{
+		case VERTEX: default:
+			infos.shaderKind = shaderc_vertex_shader;
+			break;
+		case FRAGMENT:
+			infos.shaderKind = shaderc_fragment_shader;
+			break;
+		}
+
+		infos.sourceCode = &shaderCode;
+
+		shaderc::PreprocessedSourceCompilationResult result = compiler.PreprocessGlsl(*infos.sourceCode, infos.shaderKind, infos.fileName, infos.options);
+
+		if (result.GetCompilationStatus() != shaderc_compilation_status_success)
+		{
+			DEBUG_ERROR("Failed to preprocessed shader, %s", result.GetErrorMessage())
+		}
+
+		const char* src = result.cbegin();
+		size_t newSize = result.cend() - src;
+		infos.sourceCode->resize(newSize);
+		memcpy(infos.sourceCode, src, newSize);
+
+		shaderc::AssemblyCompilationResult sResult = compiler.CompileGlslToSpvAssembly(*infos.sourceCode, infos.shaderKind, infos.fileName, infos.options);
+
+		if (sResult.GetCompilationStatus() != shaderc_compilation_status_success)
+		{
+			DEBUG_ERROR("Failed to compiled in assembly shader, %s", sResult.GetErrorMessage())
+		}
+
+		src = sResult.cbegin();
+		newSize = sResult.cend() - src;
+		infos.sourceCode->resize(newSize);
+		memcpy(infos.sourceCode, src, newSize);
+	}
+
 	void VulkanWrapper::CreateRenderPass()
 	{
 		VkAttachmentDescription colorAttachment{};
@@ -1010,7 +1070,7 @@ namespace Core
 		renderPassInfo.renderArea.extent = m_SwapChainExtent;
 
 		std::array<VkClearValue, 2> clearValues{};
-		clearValues[0].color = {{0.f, 0.f, 0.f, 1.f}};
+		clearValues[0].color = {{0.2f, 0.2f, 1.f, 1.f}};
 		clearValues[1].depthStencil = { 1.f, 0 };
 
 		renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());

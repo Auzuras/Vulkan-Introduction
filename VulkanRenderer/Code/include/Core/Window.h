@@ -72,6 +72,12 @@ namespace Core
 		void SetWindowName(const char* _WindowName);
 
 		/// <summary>
+		/// Returns the window extensions to initialize some APIs
+		/// </summary>
+		/// <returns></returns>
+		const char** GetWindowExtensions();
+
+		/// <summary>
 		/// Initializes window according to the current RHI
 		/// </summary>
 		/// <param name="_Type"></param>

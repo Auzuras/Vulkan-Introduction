@@ -12,12 +12,22 @@
 #include "RHI/Vertex.h"
 #include "Matrices/Matrix4.h"
 
+#include <shaderc/shaderc.hpp>
+
 namespace Core
 {
 	const int MAX_FRAMES_IN_FLIGHT = 2;
 
 	const std::string MODEL_PATH = "Assets/Meshes/viking_room.obj";
 	const std::string TEXTURE_PATH = "Assets/Textures/viking_room.png";
+
+	struct CompilationInfos
+	{
+		const char* fileName;
+		shaderc_shader_kind shaderKind;
+		std::string* sourceCode;
+		shaderc::CompileOptions options;
+	};
 
 	struct UniformMVP
 	{
@@ -83,6 +93,7 @@ namespace Core
 
 		VkBuffer m_VertexBuffer;
 		VkDeviceMemory m_VertexBufferMemory;
+
 		VkBuffer m_IndexBuffer;
 		VkDeviceMemory m_IndexBufferMemory;
 
@@ -368,6 +379,8 @@ namespace Core
 		/// <param name="_ShaderSourceCode"></param>
 		/// <returns></returns>
 		VkShaderModule CreateShaderModule(const std::vector<char>& _ShaderSourceCode);
+
+		void CompileShader(std::filesystem::path _ShaderPath, ShaderType _ShaderType);
 
 		///////////////////////////////////////////////////////////////////////
 

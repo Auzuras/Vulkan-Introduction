@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Window.h"
 #include "RHI/RHI.h"
 #include "RHI/VulkanWrapper.h"
 #include "RHI/OpenGLWrapper.h"
@@ -9,6 +10,7 @@ namespace Core
 	class Application
 	{
 	private:
+		Window m_WindowDos;
 		const uint32_t m_Width = 800;
 		const uint32_t m_Height = 600;
 		const char* m_WindowName = "DefaultName";

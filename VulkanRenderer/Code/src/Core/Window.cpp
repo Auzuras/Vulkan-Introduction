@@ -51,6 +51,16 @@ namespace Core
 		m_WindowName = _WindowName;
 	}
 
+	const char** Window::GetWindowExtensions()
+	{
+		const char** glfwExtensions;
+		uint32_t glfwExtensionCount = 0;
+
+		glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+
+		return glfwExtensions;
+	}
+
 	const bool Window::Initialize(RHIType _Type)
 	{
 		glfwInit();

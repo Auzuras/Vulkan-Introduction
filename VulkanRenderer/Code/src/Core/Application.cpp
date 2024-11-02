@@ -12,8 +12,6 @@ namespace Core
 
 	const bool Application::Initialize()
 	{
-		// TODO: Wrapper class for window
-
 		glfwInit();
 
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -32,6 +30,8 @@ namespace Core
 		case Core::DIRECTX:
 			break;
 		}
+
+		//m_WindowDos.Initialize(m_RHIType);
 
 		Debug::Log::OpenFile("Logs/LogFile.log");
 
@@ -64,6 +64,8 @@ namespace Core
 		m_RHI = nullptr;
 
 		Debug::Log::CloseFile();
+
+		//m_WindowDos.Terminate();
 
 		glfwDestroyWindow(m_Window);
 		glfwTerminate();
