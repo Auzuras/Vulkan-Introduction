@@ -190,12 +190,12 @@ namespace Core
 		static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallBack(VkDebugUtilsMessageSeverityFlagBitsEXT _MessageSeverity, VkDebugUtilsMessageTypeFlagsEXT _MessageType, const VkDebugUtilsMessengerCallbackDataEXT* _CallbackData, void* _UserData);
 
 		/// <summary>
-		/// 
+		/// Creates the debug messenger for validation layers
 		/// </summary>
-		/// <param name="_Instance"></param>
-		/// <param name="_CreateInfo"></param>
-		/// <param name="_Allocator"></param>
-		/// <param name="_DebugMessenger"></param>
+		/// <param name="_Instance">: Vulkan instance </param>
+		/// <param name="_CreateInfo">: Creation information structure - Specifies all the informations for the debug messenger </param>
+		/// <param name="_Allocator">: Pointer to a structure for custom memory allocations </param>
+		/// <param name="_DebugMessenger">: Debug messenger you want to create </param>
 		/// <returns></returns>
 		VkResult CreateDebugUtilsMessengerEXT(VkInstance _Instance, const VkDebugUtilsMessengerCreateInfoEXT* _CreateInfo, const VkAllocationCallbacks* _Allocator, VkDebugUtilsMessengerEXT* _DebugMessenger);
 
@@ -204,7 +204,7 @@ namespace Core
 		/// </summary>
 		/// <param name="_Instance">: Vulkan instance of the program </param>
 		/// <param name="_DebugMessenger">: Debug messenger you want to destroy </param>
-		/// <param name="_Allocator"> : Callback method </param>
+		/// <param name="_Allocator">: Pointer to a structure for custom memory allocations </param>
 		void DestroyDebugUtilsMessengerEXT(VkInstance _Instance, VkDebugUtilsMessengerEXT _DebugMessenger, const VkAllocationCallbacks* _Allocator);
 
 		/// <summary>
@@ -220,7 +220,7 @@ namespace Core
 		///////////////////////////////////////////////////////////////////////
 
 		/// <summary>
-		/// 
+		/// Get all required extensions needed for the application (GLFW and Debug extensions)
 		/// </summary>
 		/// <returns></returns>
 		std::vector<const char*> GetRequiredExtensions();
@@ -232,14 +232,14 @@ namespace Core
 		///////////////////////////////////////////////////////////////////////
 		
 		/// <summary>
-		/// 
+		/// Selects a GPU of the computer in order to use it
 		/// </summary>
 		void PickPhysicalDevice();
 
 		/// <summary>
-		/// 
+		/// Checks if a GPU is able to handle the operations required for our application
 		/// </summary>
-		/// <param name="_Device"></param>
+		/// <param name="_Device">: Physical device that will be checked </param>
 		/// <returns></returns>
 		const bool IsDeviceSuitable(VkPhysicalDevice _Device);
 
@@ -250,9 +250,9 @@ namespace Core
 		///////////////////////////////////////////////////////////////////////
 
 		/// <summary>
-		/// 
+		/// Find all queue famillies suporting features required by the application (Graphics and presentation)
 		/// </summary>
-		/// <param name="_Device"></param>
+		/// <param name="_Device">: Physical device containing queue families </param>
 		/// <returns></returns>
 		QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice _Device);
 

@@ -73,21 +73,21 @@ namespace Core
 		createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 		createInfo.pApplicationInfo = &appInfo;
 
-		// Gets all extensions
-		// TODO: Move this outside of the vulkan initialization \/
-
+		// Gets all extensions and specifies it
 		std::vector<const char*> requiredExtensions = GetRequiredExtensions();
 		createInfo.enabledExtensionCount = static_cast<uint32_t>(requiredExtensions.size());
 		createInfo.ppEnabledExtensionNames = requiredExtensions.data();
-
-		//// /\
 		
+		// Specifies or not the validation layers used in the application
 		VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
 		if (m_EnableValidationLayers)
 		{
 			createInfo.enabledLayerCount = static_cast<uint32_t>(m_ValidationLayers.size());
 			createInfo.ppEnabledLayerNames = m_ValidationLayers.data();
 
+			// Allows to debug the creation and destruction of the instance
+			// Because the debug messenger will be created after the instance and destroyed before the instance
+			// By referencing a create info for the debugger debug the instance
 			PopulateDebugMessengerCreateInfo(debugCreateInfo);
 			createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debugCreateInfo;
 		}
@@ -247,8 +247,10 @@ namespace Core
 
 	VkResult VulkanWrapper::CreateDebugUtilsMessengerEXT(VkInstance _Instance, const VkDebugUtilsMessengerCreateInfoEXT* _CreateInfo, const VkAllocationCallbacks* _Allocator, VkDebugUtilsMessengerEXT* _DebugMessenger)
 	{
+		// Loads the Debug Messenger creation method - Because validation layers are an extension we need to load manually the method
 		auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(_Instance, "vkCreateDebugUtilsMessengerEXT");
 
+		// Use the method if not null
 		if (func != nullptr)
 		{
 			return func(_Instance, _CreateInfo, _Allocator, _DebugMessenger);
@@ -261,8 +263,10 @@ namespace Core
 
 	void VulkanWrapper::DestroyDebugUtilsMessengerEXT(VkInstance _Instance, VkDebugUtilsMessengerEXT _DebugMessenger, const VkAllocationCallbacks* _Allocator)
 	{
+		// Loads the Debug Messenger deletion method - Because validation layers are an extension we need to load manually the method
 		auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(_Instance, "vkDestroyDebugUtilsMessengerEXT");
 
+		// Use the method if not null
 		if (func != nullptr)
 		{
 			func(_Instance, _DebugMessenger, _Allocator);
@@ -278,6 +282,7 @@ namespace Core
 		// Specifies all the information for the debug messenger
 		_CreateInfo = {};
 		_CreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+		// Specifies what type/severity of messages we want the callback function to be called for
 		_CreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
 		_CreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
 		// Links the callback function to the debug messenger
@@ -286,6 +291,7 @@ namespace Core
 
 	std::vector<const char*> VulkanWrapper::GetRequiredExtensions()
 	{
+		// Gets GLFW extensions in order to link our window with vulkan
 		uint32_t glfwExtensionCount = 0;
 		const char** glfwExtensions;
 
@@ -293,14 +299,10 @@ namespace Core
 
 		std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
 
+		// Suplementary extension needed for debugging and validation layers
 		if (m_EnableValidationLayers)
 		{
 			extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-		}
-		
-		for (int i = 0; i < extensions.size(); ++i)
-		{
-			DEBUG_LOG("Required extension: %s", extensions[i])
 		}
 
 		return extensions;
@@ -308,6 +310,7 @@ namespace Core
 
 	void VulkanWrapper::PickPhysicalDevice()
 	{
+		// Gets the number of GPU
 		uint32_t deviceNbr = 0;
 		vkEnumeratePhysicalDevices(m_VulkanInstance, &deviceNbr, nullptr);
 
@@ -316,12 +319,11 @@ namespace Core
 			DEBUG_ERROR("Failed to find GPUs with Vulkan support");
 		}
 
-		vkEnumeratePhysicalDevices(m_VulkanInstance, &deviceNbr, nullptr);
-
+		// Gets all the GPU in a list
 		std::vector<VkPhysicalDevice> devices(deviceNbr);
 		vkEnumeratePhysicalDevices(m_VulkanInstance, &deviceNbr, devices.data());
 
-		// Can be change to choose a device according to a score
+		// Can be change to choose the best GPU according to a score
 		for (const VkPhysicalDevice& device : devices)
 		{
 			if (IsDeviceSuitable(device))
@@ -340,9 +342,13 @@ namespace Core
 
 	const bool VulkanWrapper::IsDeviceSuitable(VkPhysicalDevice _Device)
 	{
+		// For the basic properties (Name, Vulkan version supported, Driver version...)
 		VkPhysicalDeviceProperties deviceProperties;
+
+		// For optional properties (Compressed textures, 64bits floats, Multi viewport rendering...)
 		VkPhysicalDeviceFeatures deviceFeatures;
 
+		// Gets all the infomations
 		vkGetPhysicalDeviceProperties(_Device, &deviceProperties);
 		vkGetPhysicalDeviceFeatures(_Device, &deviceFeatures);
 
@@ -358,6 +364,7 @@ namespace Core
 			isSwapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
 		}
 
+		// Return the device if it is a discrete gpu (indeppendent GPU only) and if it supports geometry shader, graphic and presentation queues, extension, swap chains and anisotropy
 		return deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU
 			&& deviceFeatures.geometryShader
 			&& indices.isComplete
@@ -373,12 +380,14 @@ namespace Core
 		uint32_t queueFamilyNbr = 0;
 		vkGetPhysicalDeviceQueueFamilyProperties(_Device, &queueFamilyNbr, nullptr);
 
+		// Gets all queue families of the gpu
 		std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyNbr);
 		vkGetPhysicalDeviceQueueFamilyProperties(_Device, &queueFamilyNbr, queueFamilies.data());
 
 		int index = 0;
 		for (const VkQueueFamilyProperties& queueFamily : queueFamilies)
 		{
+			// Checks for a queue supporting graphic queues
 			if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
 			{
 				indices.graphicsFamily = index;
