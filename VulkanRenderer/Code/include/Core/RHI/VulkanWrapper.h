@@ -174,7 +174,7 @@ namespace Core
 		///////////////////////////////////////////////////////////////////////
 
 		/// <summary>
-		/// 
+		/// Checks if validation layers are supported with the SDK
 		/// </summary>
 		/// <returns></returns>
 		const bool CheckValidationLayerSupport();
@@ -200,17 +200,17 @@ namespace Core
 		VkResult CreateDebugUtilsMessengerEXT(VkInstance _Instance, const VkDebugUtilsMessengerCreateInfoEXT* _CreateInfo, const VkAllocationCallbacks* _Allocator, VkDebugUtilsMessengerEXT* _DebugMessenger);
 
 		/// <summary>
-		/// 
+		/// Destroys the debug messenger and the callback method
 		/// </summary>
-		/// <param name="_Instance"></param>
-		/// <param name="_DebugMessenger"></param>
-		/// <param name="_Allocator"></param>
+		/// <param name="_Instance">: Vulkan instance of the program </param>
+		/// <param name="_DebugMessenger">: Debug messenger you want to destroy </param>
+		/// <param name="_Allocator"> : Callback method </param>
 		void DestroyDebugUtilsMessengerEXT(VkInstance _Instance, VkDebugUtilsMessengerEXT _DebugMessenger, const VkAllocationCallbacks* _Allocator);
 
 		/// <summary>
-		/// 
+		/// Specifies all the information for the creation of the debug messenger
 		/// </summary>
-		/// <param name="_CreateInfo"></param>
+		/// <param name="_CreateInfo">: Create info structure of the debug messenger </param>
 		void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& _CreateInfo);
 
 		///////////////////////////////////////////////////////////////////////

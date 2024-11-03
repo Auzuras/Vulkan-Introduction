@@ -21,6 +21,7 @@ namespace Core
 		if (!CreateVulkanInstance())
 			return false;
 
+		// Define the window resize callback with swapchain recreation
 		glfwSetWindowUserPointer(_Window, this);
 		glfwSetFramebufferSizeCallback(_Window, FrameBufferResizeCallback);
 
@@ -53,11 +54,13 @@ namespace Core
 
 	const bool VulkanWrapper::CreateVulkanInstance()
 	{
+		// Checks if validation layers are available if requested
 		if (m_EnableValidationLayers && !CheckValidationLayerSupport())
 		{
 			DEBUG_WARN("Validation layers requested, but not available!");
 		}
 
+		// Create the app
 		VkApplicationInfo appInfo{};
 		appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
 		appInfo.pApplicationName = "Hello Triangle";
@@ -94,6 +97,7 @@ namespace Core
 			createInfo.pNext = nullptr;
 		}
 
+		// Creates the vulkan instance
 		VkResult result = vkCreateInstance(&createInfo, nullptr, &m_VulkanInstance);
 
 		if (result != VK_SUCCESS)
@@ -108,11 +112,16 @@ namespace Core
 	const bool VulkanWrapper::SetupDebugMessenger()
 	{
 		if (!m_EnableValidationLayers)
+		{
+			DEBUG_WARN("Debug messenger can't be created because validation layers are desactivated");
 			return false;
+		}
 
+		// Setups the DebugMessenger and the callback function
 		VkDebugUtilsMessengerCreateInfoEXT createInfo;
 		PopulateDebugMessengerCreateInfo(createInfo);
 
+		// Creates the debug messenger
 		VkResult result = CreateDebugUtilsMessengerEXT(m_VulkanInstance, &createInfo, nullptr, &m_DebugMessenger);
 
 		if (result != VK_SUCCESS)
@@ -126,6 +135,8 @@ namespace Core
 
 	const bool VulkanWrapper::Terminate()
 	{
+		// Destroys every objects created
+
 		vkDeviceWaitIdle(m_LogicalDevice);
 
 		CleanSwapChain();
@@ -182,18 +193,22 @@ namespace Core
 
 	const bool VulkanWrapper::CheckValidationLayerSupport()
 	{
+		// Gets the list of all layer supported
 		uint32_t layerNbr;
 		vkEnumerateInstanceLayerProperties(&layerNbr, nullptr);
 
 		std::vector<VkLayerProperties> availableLayers(layerNbr);
 		vkEnumerateInstanceLayerProperties(&layerNbr, availableLayers.data());
 
+		// Runs the loop for each layers we want to activate
 		for (const char* layerName : m_ValidationLayers)
 		{
 			bool layerFound = false;
 
+			// Checks if validation layers are present in all the layer supported
 			for (const auto& layerProperties : availableLayers)
 			{
+				// Checks the equality of to strings, here we stop the loop if validation layers are supported
 				if (strcmp(layerName, layerProperties.layerName) == 0)
 				{
 					layerFound = true;
@@ -213,6 +228,7 @@ namespace Core
 
 	VKAPI_ATTR VkBool32 VKAPI_CALL VulkanWrapper::DebugCallBack(VkDebugUtilsMessageSeverityFlagBitsEXT _MessageSeverity, VkDebugUtilsMessageTypeFlagsEXT _MessageType, const VkDebugUtilsMessengerCallbackDataEXT* _CallbackData, void* _UserData)
 	{
+		// Different message type according to its severity
 		switch (_MessageSeverity)
 		{
 		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT: case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT: default:
@@ -225,8 +241,6 @@ namespace Core
 			DEBUG_ERROR("VK Validation layer: %s", _CallbackData->pMessage);
 			break;
 		}
-
-		DEBUG_LOG("Validation layer: %s", _CallbackData->pMessage);
 
 		return VK_FALSE;
 	}
@@ -261,10 +275,12 @@ namespace Core
 
 	void VulkanWrapper::PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& _CreateInfo)
 	{
+		// Specifies all the information for the debug messenger
 		_CreateInfo = {};
 		_CreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
 		_CreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
 		_CreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+		// Links the callback function to the debug messenger
 		_CreateInfo.pfnUserCallback = DebugCallBack;
 	}
 
