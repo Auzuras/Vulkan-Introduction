@@ -693,14 +693,8 @@ namespace Core
 
 	void VulkanWrapper::CreateGraphicsPipeline()
 	{
-		std::vector<char> verShader = ReadShader("Assets/Shaders/vert.spv");
-		std::vector<char> fragShader = ReadShader("Assets/Shaders/frag.spv");
-
-
-		CompileShader("Assets/Shaders/HelloTriangle.vert", ShaderType::VERTEX);
-
-		VkShaderModule vertShaderModule = CreateShaderModule(verShader);
-		VkShaderModule fragShaderModule = CreateShaderModule(fragShader);
+		VkShaderModule vertShaderModule = CreateShaderModule(CompileShader("Assets/Shaders/HelloTriangle.vert", ShaderType::VERTEX));
+		VkShaderModule fragShaderModule = CreateShaderModule(CompileShader("Assets/Shaders/HelloTriangle.frag", ShaderType::FRAGMENT));
 
 		VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
 		vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -870,12 +864,12 @@ namespace Core
 		return buffer;
 	}
 
-	VkShaderModule VulkanWrapper::CreateShaderModule(const std::vector<char>& _ShaderSourceCode)
+	VkShaderModule VulkanWrapper::CreateShaderModule(const std::vector<uint32_t>& _ShaderSourceCode)
 	{
 		VkShaderModuleCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-		createInfo.codeSize = _ShaderSourceCode.size();
-		createInfo.pCode = reinterpret_cast<const uint32_t*>(_ShaderSourceCode.data());
+		createInfo.codeSize = _ShaderSourceCode.size() * sizeof(uint32_t);
+		createInfo.pCode = _ShaderSourceCode.data();
 
 		VkShaderModule shaderModule;
 
@@ -889,8 +883,9 @@ namespace Core
 		return shaderModule;
 	}
 
-	void VulkanWrapper::CompileShader(std::filesystem::path _ShaderPath, ShaderType _ShaderType)
+	std::vector<uint32_t> VulkanWrapper::CompileShader(std::filesystem::path _ShaderPath, ShaderType _ShaderType)
 	{
+		// Causes memory leaks, thx
 		shaderc::Compiler compiler;
 
 		// TODO: Move shader reading in the resource loader
@@ -909,7 +904,7 @@ namespace Core
 
 		shaderFile.close();
 
-		CompilationInfos infos;
+		CompilationInfos infos{};
 		infos.fileName = _ShaderPath.filename().string().c_str();
 		
 		switch (_ShaderType)
@@ -922,6 +917,8 @@ namespace Core
 			break;
 		}
 
+		//infos.options.SetOptimizationLevel(shaderc_optimization_level_performance);
+		//infos.options.SetTargetEnvironment(shaderc_target_env_vulkan, shaderc_env_version_vulkan_1_3);
 		infos.sourceCode = &shaderCode;
 
 		// First step - Preprocessing GLSL
@@ -935,7 +932,7 @@ namespace Core
 		const char* src = result.cbegin();
 		size_t newSize = result.cend() - src;
 		infos.sourceCode->resize(newSize);
-		memcpy(infos.sourceCode, src, newSize);
+		memcpy(infos.sourceCode->data(), src, newSize);
 
 		// Second step - SPIR-V Assembly compilation
 		shaderc::AssemblyCompilationResult sResult = compiler.CompileGlslToSpvAssembly(*infos.sourceCode, infos.shaderKind, infos.fileName, infos.options);
@@ -948,7 +945,7 @@ namespace Core
 		src = sResult.cbegin();
 		newSize = sResult.cend() - src;
 		infos.sourceCode->resize(newSize);
-		memcpy(infos.sourceCode, src, newSize);
+		memcpy(infos.sourceCode->data(), src, newSize);
 
 		// Third step - SPIR-V Binary compilation
 		shaderc::SpvCompilationResult tResult = compiler.AssembleToSpv(infos.sourceCode->data(), infos.sourceCode->size(), infos.options);
@@ -962,6 +959,8 @@ namespace Core
 		size_t wordCount = tResult.cend() - srcBinary;
 		std::vector<uint32_t> output(wordCount);
 		memcpy(output.data(), srcBinary, wordCount * sizeof(uint32_t));
+
+		return output;
 	}
 
 	void VulkanWrapper::CreateRenderPass()
@@ -1481,9 +1480,9 @@ namespace Core
 		Math::Vector3 rot = Math::Vector3(Math::Utils::DegToRad(90.f), 0.f, iRandomRotation += 0.0005f);
 		Math::Vector3 scale = Math::Vector3::one;
 
-		mvp.model = Math::Matrix4::TRS(pos, rot, scale);
-		mvp.view = Math::Matrix4::ViewMatrix(Math::Vector3(-0.3f, 0.f, -2.f), Math::Vector3::zero, Math::Vector3::up);
-		mvp.projection = Math::Matrix4::ProjectionPerspectiveMatrix(0.01f, 100.f, (float)(m_SwapChainExtent.width / m_SwapChainExtent.height), 45.f);
+		mvp.model = Math::Matrix4::TRS(pos, rot, scale).Transpose();
+		mvp.view = Math::Matrix4::ViewMatrix(Math::Vector3(-0.3f, 0.f, -2.f), Math::Vector3::zero, Math::Vector3::up).Transpose();
+		mvp.projection = Math::Matrix4::ProjectionPerspectiveMatrix(0.01f, 100.f, (float)(m_SwapChainExtent.width / m_SwapChainExtent.height), 45.f).Transpose();
 
 		memcpy(m_UniformBuffersMapped[_CurrentImage], &mvp, sizeof(mvp));
 	}

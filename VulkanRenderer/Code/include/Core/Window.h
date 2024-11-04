@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Debug/Log.h"
+
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
 
@@ -63,7 +65,7 @@ namespace Core
 		/// Returns window name
 		/// </summary>
 		/// <returns></returns>
-		const const char* GetWindowName() const;
+		const char* GetWindowName() const;
 
 		/// <summary>
 		/// Sets window name

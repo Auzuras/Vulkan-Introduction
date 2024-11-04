@@ -41,7 +41,7 @@ namespace Core
 		m_Height = _Height;
 	}
 
-	const const char* Window::GetWindowName() const
+	const char* Window::GetWindowName() const
 	{
 		return m_WindowName;
 	}
