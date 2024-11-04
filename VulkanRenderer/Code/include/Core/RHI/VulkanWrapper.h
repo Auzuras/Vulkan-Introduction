@@ -328,13 +328,13 @@ namespace Core
 		void CreateSwapChain(GLFWwindow* _Window);
 
 		/// <summary>
-		/// 
+		/// Recreates the Swap chain
 		/// </summary>
-		/// <param name="_Window"></param>
+		/// <param name="_Window">: Current window context </param>
 		void RecreateSwapChain(GLFWwindow* _Window);
 
 		/// <summary>
-		/// 
+		/// Destroys all data linked to the swap chain and the swap chain
 		/// </summary>
 		void CleanSwapChain();
 
@@ -433,15 +433,15 @@ namespace Core
 		void RecordCommandBuffer(VkCommandBuffer _CommandBuffer, uint32_t _ImageIndex);
 
 		/// <summary>
-		/// 
+		/// Creates a temporary command buffer for a single command
 		/// </summary>
 		/// <returns></returns>
 		VkCommandBuffer BeginSingleTimeCommands();
 
 		/// <summary>
-		/// 
+		/// Ends and destroy a temporary command buffer for a single command
 		/// </summary>
-		/// <param name="_CommandBuffer"></param>
+		/// <param name="_CommandBuffer">: Command buffer to destroy </param>
 		void EndSingleTimeCommands(VkCommandBuffer _CommandBuffer);
 
 		///////////////////////////////////////////////////////////////////////
@@ -461,72 +461,72 @@ namespace Core
 		void CreateSyncObjects();
 
 		/// <summary>
-		/// 
+		/// Method called when the window is resized manually
 		/// </summary>
-		/// <param name="_Window"></param>
-		/// <param name="_Width"></param>
-		/// <param name="_Height"></param>
+		/// <param name="_Window">: Current window context </param>
+		/// <param name="_Width">: Window width </param>
+		/// <param name="_Height">: Window height </param>
 		static void FrameBufferResizeCallback(GLFWwindow* _Window, int _Width, int _Height);
 
 		/// <summary>
-		/// 
+		/// Creates and allocate a buffer in memory
 		/// </summary>
-		/// <param name="_Size"></param>
-		/// <param name="_Usage"></param>
-		/// <param name="_Properties"></param>
-		/// <param name="_Buffer"></param>
-		/// <param name="_BufferMemory"></param>
+		/// <param name="_Size">: Size of the buffer </param>
+		/// <param name="_Usage">: Type of usage of the buffer </param>
+		/// <param name="_Properties">: Buffer properties </param>
+		/// <param name="_Buffer">: Buffer you want to create and store </param>
+		/// <param name="_BufferMemory">: Buffer memory you want to allocate </param>
 		void CreateBuffer(VkDeviceSize _Size, VkBufferUsageFlags _Usage, VkMemoryPropertyFlags _Properties, VkBuffer& _Buffer, VkDeviceMemory& _BufferMemory);
 
 		/// <summary>
-		/// 
+		/// Creates a vertex buffer
 		/// </summary>
 		void CreateVertexBuffer();
 
 		/// <summary>
-		/// 
+		/// Selects the best memory type for an allocation
 		/// </summary>
-		/// <param name="_TypeFilter"></param>
-		/// <param name="_Properties"></param>
+		/// <param name="_TypeFilter">: Type of memory needed by a buffer </param>
+		/// <param name="_Properties">: Properties needed for the buffer </param>
 		/// <returns></returns>
 		uint32_t FindMemoryType(uint32_t _TypeFilter, VkMemoryPropertyFlags _Properties);
 
 		/// <summary>
-		/// 
+		/// Copies a buffer from a source buffer to a destination buffer
 		/// </summary>
-		/// <param name="_SourceBuffer"></param>
-		/// <param name="_DestinationBuffer"></param>
-		/// <param name="_Size"></param>
+		/// <param name="_SourceBuffer">: First buffer you want to copy </param>
+		/// <param name="_DestinationBuffer">: Second buffer receiving the first one </param>
+		/// <param name="_Size">: Size of the buffer </param>
 		void CopyBuffer(VkBuffer _SourceBuffer, VkBuffer _DestinationBuffer, VkDeviceSize _Size);
 
 		/// <summary>
-		/// 
+		/// Creates an index buffer
 		/// </summary>
 		void CreateIndexBuffer();
 
 		/// <summary>
-		/// 
+		/// Creates all the descriptor set layout to describe the UBO or global variables
 		/// </summary>
 		void CreateDescriptorSetLayout();
 
 		/// <summary>
-		/// 
+		/// Creates an uniform buffer
 		/// </summary>
 		void CreateUniformBuffers();
 
 		/// <summary>
-		/// 
+		/// Updates the uniform buffer
 		/// </summary>
-		/// <param name="_CurrentImage"></param>
+		/// <param name="_CurrentImage">: Current image updated </param>
 		void UpdateUniformBuffer(uint32_t _CurrentImage);
 
 		/// <summary>
-		/// 
+		/// Creates all descriptor pool
 		/// </summary>
 		void CreateDescriptorPool();
 
 		/// <summary>
-		/// 
+		/// Creates all Descriptor Sets
 		/// </summary>
 		void CreateDescriptorSets();
 
@@ -631,7 +631,7 @@ namespace Core
 		///////////////////////////////////////////////////////////////////////
 
 		/// <summary>
-		/// 
+		/// Loads an OBJ 3D model
 		/// </summary>
 		void LoadModel();
 	};

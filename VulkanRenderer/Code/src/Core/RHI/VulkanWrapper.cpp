@@ -21,7 +21,8 @@ namespace Core
 		if (!CreateVulkanInstance())
 			return false;
 
-		// Define the window resize callback with swapchain recreation
+		// Defines the window resize callback with swapchain recreation
+		// Adds a custom pointer to our class to access it in any call back functions
 		glfwSetWindowUserPointer(_Window, this);
 		glfwSetFramebufferSizeCallback(_Window, FrameBufferResizeCallback);
 
@@ -706,19 +707,27 @@ namespace Core
 
 	void VulkanWrapper::RecreateSwapChain(GLFWwindow* _Window)
 	{
+		// Gets the current size of the window
 		int width = 0, height = 0;
 		glfwGetFramebufferSize(_Window, &width, &height);
 
+		// Loop executed when the window is minimized (when width and height = 0)
 		while (width == 0 || height == 0)
 		{
+			// Updates the size to get out when not minimized
 			glfwGetFramebufferSize(_Window, &width, &height);
+
+			// Pause all events
 			glfwWaitEvents();
 		}
 
+		// Waits the end of the utilisation of all resources to not access them when used
 		vkDeviceWaitIdle(m_LogicalDevice);
 
+		// Destroys the swap chain
 		CleanSwapChain();
 
+		// Recreates the swap chain
 		CreateSwapChain(_Window);
 		CreateSwapChainImageViews();
 		CreateDepthRessources();
@@ -727,6 +736,7 @@ namespace Core
 
 	void VulkanWrapper::CleanSwapChain()
 	{
+		// Destroys data linked to the swap chain
 		vkDestroyImageView(m_LogicalDevice, m_DepthImageView, nullptr);
 		vkDestroyImage(m_LogicalDevice, m_DepthImage, nullptr);
 		vkFreeMemory(m_LogicalDevice, m_DepthImageMemory, nullptr);
@@ -741,8 +751,8 @@ namespace Core
 			vkDestroyImageView(m_LogicalDevice, imageView, nullptr);
 		}
 
+		// Destroys the swap chain
 		vkDestroySwapchainKHR(m_LogicalDevice, m_SwapChain, nullptr);
-
 	}
 
 	void VulkanWrapper::CreateSwapChainImageViews()
@@ -787,6 +797,7 @@ namespace Core
 		// List of all the shaders of the pipeline
 		VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
 
+		// Gets the vertex binding and attribute descriptions
 		VkVertexInputBindingDescription bindingDescription = Core::Vertex::GetBindingDescription();
 		std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions = Core::Vertex::GetAttributeDescriptions();
 
@@ -896,7 +907,7 @@ namespace Core
 		// Describes all uniform buffers present in our pipeline
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		// Number of uniform buffers
+		// References the Descriptors set layout (UBO) or global variables
 		pipelineLayoutInfo.setLayoutCount = 1;
 		pipelineLayoutInfo.pSetLayouts = &m_DescriptorSetLayout;
 		pipelineLayoutInfo.pushConstantRangeCount = 0;
@@ -941,6 +952,8 @@ namespace Core
 		{
 			DEBUG_ERROR("Failed to create graphics pipeline, Error Code: %d", result);
 		}
+
+		// TODO: CHECK THIS /\ //
 
 		// Destroys the shader module because they are loaded on the GPU
 		vkDestroyShaderModule(m_LogicalDevice, fragShaderModule, nullptr);
@@ -1313,12 +1326,16 @@ namespace Core
 		VkBuffer vertexBuffers[] = { m_VertexBuffer };
 		VkDeviceSize offsets[] = { 0 };
 
+		// Binds the vertex buffer
 		vkCmdBindVertexBuffers(_CommandBuffer, 0, 1, vertexBuffers, offsets);
 
+		// Binds the index buffer
 		vkCmdBindIndexBuffer(_CommandBuffer, m_IndexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
+		// Binds descriptor sets (UBO)
 		vkCmdBindDescriptorSets(_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, 0, 1, &m_DescriptorSets[m_CurrentFrame], 0, nullptr);
 
+		// Draws the vertex buffer with indices
 		vkCmdDrawIndexed(_CommandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
 
 		// Finish the render pass
@@ -1335,19 +1352,23 @@ namespace Core
 
 	VkCommandBuffer VulkanWrapper::BeginSingleTimeCommands()
 	{
+		// Command buffer allocation infos
 		VkCommandBufferAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 		allocInfo.commandPool = m_CommandPool;
 		allocInfo.commandBufferCount = 1;
 
+		// Allocates the command buffer
 		VkCommandBuffer commandBuffer;
 		vkAllocateCommandBuffers(m_LogicalDevice, &allocInfo, &commandBuffer);
 
+		// Begin info specifing VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT which means the command buffer will be used for a single command
 		VkCommandBufferBeginInfo beginInfo{};
 		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
+		// Start recording the command
 		vkBeginCommandBuffer(commandBuffer, &beginInfo);
 
 		return commandBuffer;
@@ -1355,16 +1376,22 @@ namespace Core
 
 	void VulkanWrapper::EndSingleTimeCommands(VkCommandBuffer _CommandBuffer)
 	{
+		// Ends recording the command
 		vkEndCommandBuffer(_CommandBuffer);
 
+		// Submit infos
 		VkSubmitInfo submitInfo{};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 		submitInfo.commandBufferCount = 1;
 		submitInfo.pCommandBuffers = &_CommandBuffer;
 
+		// Sumbit the queue
 		vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+
+		// Wait for the actions to finish before destroying it
 		vkQueueWaitIdle(m_GraphicsQueue);
 
+		// Free and destroy the command buffer
 		vkFreeCommandBuffers(m_LogicalDevice, m_CommandPool, 1, &_CommandBuffer);
 	}
 
@@ -1393,10 +1420,10 @@ namespace Core
 			DEBUG_ERROR("Failed to acquire swap chain image, Error Code: %d", result);
 		}
 
+		// Updates the uniform buffer
 		UpdateUniformBuffer(m_CurrentFrame);
 
 		vkResetCommandBuffer(m_CommandBuffers[m_CurrentFrame], 0);
-
 		RecordCommandBuffer(m_CommandBuffers[m_CurrentFrame], imageIndex);
 
 		// Submit informations
@@ -1452,8 +1479,10 @@ namespace Core
 		// Present the image with the presentation queue
 		result = vkQueuePresentKHR(m_PresentQueue, &presentInfo);
 
+		// Checks if the swap chain is no more compatible or inadequate for presentation or if the window has been resized
 		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_FramebufferResized)
 		{
+			// Recreates the swap chain
 			m_FramebufferResized = false;
 			RecreateSwapChain(_Window);
 		}
@@ -1512,18 +1541,23 @@ namespace Core
 
 	void VulkanWrapper::FrameBufferResizeCallback(GLFWwindow* _Window, int _Width, int _Height)
 	{
+		// Gets the custom pointer and cast it to our class
 		VulkanWrapper* vkWrapper = reinterpret_cast<VulkanWrapper*>(glfwGetWindowUserPointer(_Window));
+
 		vkWrapper->m_FramebufferResized = true;
 	}
 
 	void VulkanWrapper::CreateBuffer(VkDeviceSize _Size, VkBufferUsageFlags _Usage, VkMemoryPropertyFlags _Properties, VkBuffer& _Buffer, VkDeviceMemory& _BufferMemory)
 	{
+		// Buffer infos
 		VkBufferCreateInfo bufferInfo{};
 		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 		bufferInfo.size = _Size;
 		bufferInfo.usage = _Usage;
+		// Same as for the image view we can choose to share the buffer between multiple queues or keep it for one which is the case here
 		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
+		// Creates the buffer
 		VkResult result = vkCreateBuffer(m_LogicalDevice, &bufferInfo, nullptr, &_Buffer);
 
 		if (result != VK_SUCCESS)
@@ -1531,14 +1565,17 @@ namespace Core
 			DEBUG_ERROR("Failed to create vertex buffer, Error Code %d", result);
 		}
 
+		// Get the memory requirements to allocate the memory
 		VkMemoryRequirements memRequirements;
 		vkGetBufferMemoryRequirements(m_LogicalDevice, _Buffer, &memRequirements);
 
+		// Memory allocation infos
 		VkMemoryAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 		allocInfo.allocationSize = memRequirements.size;
 		allocInfo.memoryTypeIndex = FindMemoryType(memRequirements.memoryTypeBits, _Properties);
 
+		// Allocates the memory
 		result = vkAllocateMemory(m_LogicalDevice, &allocInfo, nullptr, &_BufferMemory);
 
 		if (result != VK_SUCCESS)
@@ -1546,6 +1583,7 @@ namespace Core
 			DEBUG_ERROR("Failed to allocate vertex buffer memory, Error Code: %d", result);
 		}
 
+		// Bind the buffer with allocated emplacement
 		vkBindBufferMemory(m_LogicalDevice, _Buffer, _BufferMemory, 0);
 	}
 
@@ -1556,28 +1594,43 @@ namespace Core
 		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingBufferMemory;
 
+		// Creates a transfer buffer
+		// VK_BUFFER_USAGE_TRANSFER_SRC_BIT specifies that the buffer can be used as a source buffer and be copied in the memory
+		// VK_MEMORY_PROPERTY_HOST_COHERENT_BIT specifies that the memory is the same CPU and GPU side so easily accessible by both but not optimized
+		// This is why we are using staging buffer and we copy it in the VRAM
 		CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
+		// Maps the data into the GPU Memory and copy the data into the memory
 		void* data;
 		vkMapMemory(m_LogicalDevice, stagingBufferMemory, 0, bufferSize, 0, &data);
 		memcpy(data, vertices.data(), (size_t)bufferSize);
 		vkUnmapMemory(m_LogicalDevice, stagingBufferMemory);
 
+		// Creates the vertex buffer
+		// VK_BUFFER_USAGE_TRANSFER_DST_BIT specifies that the buffer can only receive data from memory of the GPU and that it is a VERTEX_BUFFER
+		// VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT specifies that the memory is only for GPU and optimized for GPU
 		CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_VertexBuffer, m_VertexBufferMemory);
 
+		// Copies the data from the staging buffer to the vertex buffer
 		CopyBuffer(stagingBuffer, m_VertexBuffer, bufferSize);
 
+		// Destroys the stagging buffer and free the memory
 		vkDestroyBuffer(m_LogicalDevice, stagingBuffer, nullptr);
 		vkFreeMemory(m_LogicalDevice, stagingBufferMemory, nullptr);
 	}
 
 	uint32_t VulkanWrapper::FindMemoryType(uint32_t _TypeFilter, VkMemoryPropertyFlags _Properties)
 	{
+		// Gets all memory properties from the device
 		VkPhysicalDeviceMemoryProperties memProperties;
 		vkGetPhysicalDeviceMemoryProperties(m_PhysicalDevice, &memProperties);
 
+		// Loop going through all memory types
 		for (uint32_t i = 0; i < memProperties.memoryTypeCount; ++i)
 		{
+			// _TypeFilter & (1 << i) checks if the i byte is equal to the one in _TypeFilter 
+			// if its the case it means that the memory type correspond to the _TypeFilter
+			// The second condition checks if all _Properties are present in memProperties.memoryTypes[i].propertyFlags
 			if (_TypeFilter & (1 << i) && (memProperties.memoryTypes[i].propertyFlags & _Properties) == _Properties)
 			{
 				return i;
@@ -1590,33 +1643,45 @@ namespace Core
 
 	void VulkanWrapper::CopyBuffer(VkBuffer _SourceBuffer, VkBuffer _DestinationBuffer, VkDeviceSize _Size)
 	{
+		// Creates a temporary command buffer for transfer
 		VkCommandBuffer commandBuffer = BeginSingleTimeCommands();
 
+		// Buffer Copy infos
 		VkBufferCopy copyRegion{};
 		copyRegion.size = _Size;
+
+		// Copies a buffer from a source buffer to a destination one
 		vkCmdCopyBuffer(commandBuffer, _SourceBuffer, _DestinationBuffer, 1, &copyRegion);
 
+		// Ends and destroys the buffer
 		EndSingleTimeCommands(commandBuffer);
 	}
 
 	void VulkanWrapper::CreateIndexBuffer()
 	{
+		// Same idea as the vertex buffer so please check the CreateVertexBuffer for more information
+
 		VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
 
 		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingBufferMemory;
 
+		// Creates a transfer buffer
 		CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
+		// Maps the data into the GPU Memory and copy the data into the memory
 		void* data;
 		vkMapMemory(m_LogicalDevice, stagingBufferMemory, 0, bufferSize, 0, &data);
 		memcpy(data, indices.data(), (size_t)bufferSize);
 		vkUnmapMemory(m_LogicalDevice, stagingBufferMemory);
 
+		// Creates the index buffer
 		CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_IndexBuffer, m_IndexBufferMemory);
 
+		// Copies the data from the staging buffer to the index buffer
 		CopyBuffer(stagingBuffer, m_IndexBuffer, bufferSize);
 
+		// Destroys the stagging buffer and free the memory
 		vkDestroyBuffer(m_LogicalDevice, stagingBuffer, nullptr);
 		vkFreeMemory(m_LogicalDevice, stagingBufferMemory, nullptr);
 
@@ -1624,12 +1689,13 @@ namespace Core
 
 	void VulkanWrapper::CreateDescriptorSetLayout()
 	{
+		// Descriptor Set layout binding
 		VkDescriptorSetLayoutBinding uboLayoutBinding{};
 		uboLayoutBinding.binding = 0;
 		uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 		uboLayoutBinding.descriptorCount = 1;
+		// Describes which stages can access the UBO can also be VK_SHADER_STAGE_ALL_GRAPHICS
 		uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-		uboLayoutBinding.pImmutableSamplers = nullptr;
 
 		VkDescriptorSetLayoutBinding samplerLayoutBinding{};
 		samplerLayoutBinding.binding = 1;
@@ -1638,24 +1704,24 @@ namespace Core
 		samplerLayoutBinding.pImmutableSamplers = nullptr;
 		samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
+		// Describes all the bindings possibles
 		std::array<VkDescriptorSetLayoutBinding, 2> bindings = { uboLayoutBinding, samplerLayoutBinding };
 
+		// Layou infos
 		VkDescriptorSetLayoutCreateInfo layoutInfo{};
 		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+		// Nbr of bindings
 		layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());;
+		// Bindings data
 		layoutInfo.pBindings = bindings.data();
 
+		// Creates the Descriptor set layout
 		VkResult result = vkCreateDescriptorSetLayout(m_LogicalDevice, &layoutInfo, nullptr, &m_DescriptorSetLayout);
 
 		if (result != VK_SUCCESS)
 		{
 			DEBUG_ERROR("Failed to create descriptor set layout, Error Code: %d", result);
 		}
-
-		VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
-		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		pipelineLayoutInfo.setLayoutCount = 1;
-		pipelineLayoutInfo.pSetLayouts = &m_DescriptorSetLayout;
 	}
 
 	void VulkanWrapper::CreateUniformBuffers()
@@ -1666,43 +1732,57 @@ namespace Core
 		m_UniformBufferMemory.resize(MAX_FRAMES_IN_FLIGHT);
 		m_UniformBuffersMapped.resize(MAX_FRAMES_IN_FLIGHT);
 
+		// Creates a single uniform buffer for each frames
+		// We do not use staging buffer because the data will be updated every frame
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
 		{
+			// Creates a Uniform buffer
 			CreateBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, m_UniformBuffers[i], m_UniformBufferMemory[i]);
+			// Maps the Memory
 			vkMapMemory(m_LogicalDevice, m_UniformBufferMemory[i], 0, bufferSize, 0, &m_UniformBuffersMapped[i]);
 		}
 	}
 
 	void VulkanWrapper::UpdateUniformBuffer(uint32_t _CurrentImage)
 	{
+		// Creates a MVP
 		UniformMVP mvp{};
 
 		Math::Vector3 pos = Math::Vector3::zero;
 		Math::Vector3 rot = Math::Vector3(Math::Utils::DegToRad(90.f), 0.f, iRandomRotation += 0.0005f);
 		Math::Vector3 scale = Math::Vector3::one;
 
+		// Updates the MVP
 		mvp.model = Math::Matrix4::TRS(pos, rot, scale).Transpose();
 		mvp.view = Math::Matrix4::ViewMatrix(Math::Vector3(-0.3f, 0.f, -2.f), Math::Vector3::zero, Math::Vector3::up).Transpose();
 		mvp.projection = Math::Matrix4::ProjectionPerspectiveMatrix(0.01f, 100.f, (float)(m_SwapChainExtent.width / m_SwapChainExtent.height), 45.f).Transpose();
 
+		// Copies the data into the buffer
 		memcpy(m_UniformBuffersMapped[_CurrentImage], &mvp, sizeof(mvp));
+
+		// TODO: CHECK THIS /\ //
 	}
 
 	void VulkanWrapper::CreateDescriptorPool()
 	{
+		// Describes the pool size
 		std::array<VkDescriptorPoolSize, 2> poolSizes{};
 		poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		// Number of UBO
 		poolSizes[0].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
 
 		poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		poolSizes[1].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
 
+		// Pool infos
 		VkDescriptorPoolCreateInfo poolInfo{};
 		poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+		// All Descriptors size
 		poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
 		poolInfo.pPoolSizes = poolSizes.data();
 		poolInfo.maxSets = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
 
+		// Creates a descriptor pool
 		VkResult result = vkCreateDescriptorPool(m_LogicalDevice, &poolInfo, nullptr, &m_DescriptorPool);
 
 		if (result != VK_SUCCESS)
@@ -1715,14 +1795,17 @@ namespace Core
 	{
 		std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, m_DescriptorSetLayout);
 
+		// Allocation infos
 		VkDescriptorSetAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 		allocInfo.descriptorPool = m_DescriptorPool;
+		// Size and data of all the Descriptor set layout
 		allocInfo.descriptorSetCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
 		allocInfo.pSetLayouts = layouts.data();
 
 		m_DescriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
 
+		// Allocates memory for all descriptor sets
 		VkResult result = vkAllocateDescriptorSets(m_LogicalDevice, &allocInfo, m_DescriptorSets.data());
 
 		if (result != VK_SUCCESS)
@@ -1730,13 +1813,16 @@ namespace Core
 			DEBUG_ERROR("Failed to allocate descriptor sets, Error Code: %d", result);
 		}
 
+		// Specifies parameters for all descriptors
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
 		{
+			// UBO info
 			VkDescriptorBufferInfo bufferInfo{};
 			bufferInfo.buffer = m_UniformBuffers[i];
 			bufferInfo.offset = 0;
 			bufferInfo.range = sizeof(UniformMVP);
 
+			// Image info
 			VkDescriptorImageInfo imageInfo{};
 			imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 			imageInfo.imageView = m_TextureImageView;
@@ -1744,7 +1830,9 @@ namespace Core
 
 			std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
 			descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			// Descriptor set to update
 			descriptorWrites[0].dstSet = m_DescriptorSets[i];
+			// Binding to update
 			descriptorWrites[0].dstBinding = 0;
 			descriptorWrites[0].dstArrayElement = 0;
 			descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -1759,6 +1847,7 @@ namespace Core
 			descriptorWrites[1].descriptorCount = 1;
 			descriptorWrites[1].pImageInfo = &imageInfo;
 
+			// Updates the descriptor sets
 			vkUpdateDescriptorSets(m_LogicalDevice, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 		}
 	}
@@ -2035,11 +2124,13 @@ namespace Core
 
 	void VulkanWrapper::LoadModel()
 	{
+		// Sets up the variables for reading
 		tinyobj::attrib_t attrib;
 		std::vector<tinyobj::shape_t> shapes;
 		std::vector<tinyobj::material_t> materials;
 		std::string warn, error;
 
+		// Loads the model
 		if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &error, MODEL_PATH.c_str()))
 		{
 			DEBUG_ERROR("Failed to load model!");
@@ -2049,6 +2140,7 @@ namespace Core
 		{
 			for (const tinyobj::index_t& index : shape.mesh.indices)
 			{
+				// Creates each vertex
 				Vertex vertex{};
 
 				vertex.position = {
@@ -2064,7 +2156,10 @@ namespace Core
 
 				vertex.color = { 1.f, 1.f, 1.f };
 
+				// Adds it to all vertices
 				vertices.push_back(vertex);
+
+				// Adds the index
 				indices.push_back(static_cast<uint32_t>(indices.size()));
 			}
 		}
