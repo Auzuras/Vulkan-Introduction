@@ -36,7 +36,7 @@ namespace Core
 		CreateGraphicsPipeline();
 		CreateCommandPool();
 		CreateDepthRessources();
-		CreateFramebuffers();
+		CreateSwapChainFramebuffers();
 		CreateTextureImage();
 		CreateTextureImageView();
 		CreateTextureSampler();
@@ -722,7 +722,7 @@ namespace Core
 		CreateSwapChain(_Window);
 		CreateSwapChainImageViews();
 		CreateDepthRessources();
-		CreateFramebuffers();
+		CreateSwapChainFramebuffers();
 	}
 
 	void VulkanWrapper::CleanSwapChain()
@@ -913,8 +913,10 @@ namespace Core
 		// References all the information created
 		VkGraphicsPipelineCreateInfo pipelineInfo{};
 		pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+		// Describes the number of stages (shaders in our pipeline)
 		pipelineInfo.stageCount = 2;
 		pipelineInfo.pStages = shaderStages;
+		// Specifies all the information previously created
 		pipelineInfo.pVertexInputState = &vertexInputInfo;
 		pipelineInfo.pInputAssemblyState = &inputAssembly;
 		pipelineInfo.pViewportState = &viewportState;
@@ -923,12 +925,16 @@ namespace Core
 		pipelineInfo.pDepthStencilState = &depthStencil;
 		pipelineInfo.pColorBlendState = &colorBlending;
 		pipelineInfo.pDynamicState = &dynamicState;
+		// Describes the layout of the pipeline
 		pipelineInfo.layout = m_PipelineLayout;
+		// Describes the render pass
 		pipelineInfo.renderPass = m_RenderPass;
 		pipelineInfo.subpass = 0;
+		// Reference a new pipeline to create from this one (not necessary here)
 		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 		pipelineInfo.basePipelineIndex = -1;
 
+		// Creates the pipeline
 		result = vkCreateGraphicsPipelines(m_LogicalDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_GraphicsPipeline);
 
 		if (result != VK_SUCCESS)
@@ -1089,7 +1095,7 @@ namespace Core
 		// Samples (usefull for multisampling)
 		colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
 		// LoadOp and StoreOp describes how we interact with the data of the buffer before loading and after rendering
-		// VK_ATTACHMENT_LOAD_OP_CLEAR will clear all the information with a constant here black
+		// VK_ATTACHMENT_LOAD_OP_CLEAR will clear all the information with a constant
 		colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 		// The rendered frame will be stored
 		colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -1161,26 +1167,32 @@ namespace Core
 		}
 	}
 
-	void VulkanWrapper::CreateFramebuffers()
+	void VulkanWrapper::CreateSwapChainFramebuffers()
 	{
 		m_SwapChainFramebuffers.resize(m_SwapChainImageViews.size());
 
+		// Loop going through every image view of the swap chain
 		for (size_t i = 0; i < m_SwapChainImageViews.size(); ++i)
 		{
+			// Specifies the attachments for each frame buffer
 			std::array<VkImageView, 2> attachments = {
-				m_SwapChainImageViews[i],
-				m_DepthImageView
+				m_SwapChainImageViews[i],			// ColorBuffer
+				m_DepthImageView					// Depth Buffer
 			};
 
 			VkFramebufferCreateInfo framebufferInfo{};
 			framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+			// Specifies the renderpass compatible with the framebuffer
 			framebufferInfo.renderPass = m_RenderPass;
+			// Specifies the attachments
 			framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
 			framebufferInfo.pAttachments = attachments.data();
 			framebufferInfo.width = m_SwapChainExtent.width;
 			framebufferInfo.height = m_SwapChainExtent.height;
+			// Layer number - More than 1 for 3D stereoscopic app
 			framebufferInfo.layers = 1;
 
+			// Creates the frambuffer
 			VkResult result = vkCreateFramebuffer(m_LogicalDevice, &framebufferInfo, nullptr, &m_SwapChainFramebuffers[i]);
 
 			if (result != VK_SUCCESS)
@@ -1192,13 +1204,17 @@ namespace Core
 
 	void VulkanWrapper::CreateCommandPool()
 	{
+		// Gets the queue families
 		QueueFamilyIndices queueFamilyIndices = FindQueueFamilies(m_PhysicalDevice);
 
+		// Creates the pool infos
 		VkCommandPoolCreateInfo poolInfo{};
 		poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 		poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+		// Specifies the graphics queue for the command pool
 		poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
 
+		// Creates the command pool
 		VkResult result = vkCreateCommandPool(m_LogicalDevice, &poolInfo, nullptr, &m_CommandPool);
 
 		if (result != VK_SUCCESS)
@@ -1213,10 +1229,16 @@ namespace Core
 
 		VkCommandBufferAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		// Specifies the command pool
 		allocInfo.commandPool = m_CommandPool;
+		// Specifies if the command buffer is Primary or Secondary
+		// Primary : Can be sent into a queue but can't be called by other command buffers
+		// Secondary : Can be called from primary command buffers but can't be directly sent to a queue
 		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		// Specifies the number of command buffer to create
 		allocInfo.commandBufferCount = (uint32_t)m_CommandBuffers.size();
 
+		// Creates the command buffer
 		VkResult result = vkAllocateCommandBuffers(m_LogicalDevice, &allocInfo, m_CommandBuffers.data());
 
 		if (result != VK_SUCCESS)
@@ -1227,34 +1249,47 @@ namespace Core
 
 	void VulkanWrapper::RecordCommandBuffer(VkCommandBuffer _CommandBuffer, uint32_t _ImageIndex)
 	{
+		// Command buffer begin recording infos
 		VkCommandBufferBeginInfo beginInfo{};
 		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		// Specifies the behavior of the command buffer (0 = None)
 		beginInfo.flags = 0;
+		// Only for secondary command buffers
 		beginInfo.pInheritanceInfo = nullptr;
 
+		// Start the command buffer
 		VkResult result = vkBeginCommandBuffer(_CommandBuffer, &beginInfo);
 
 		if (result != VK_SUCCESS)
 		{
 			DEBUG_ERROR("Failed to begin recording command buffer, Error Code: %d", result);
 		}
-
+		
+		// Render pass infos
 		VkRenderPassBeginInfo renderPassInfo{};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		// Specifies render pass and attachments (FrameBuffer)
 		renderPassInfo.renderPass = m_RenderPass;
 		renderPassInfo.framebuffer = m_SwapChainFramebuffers[_ImageIndex];
+		// Specifies render area
 		renderPassInfo.renderArea.offset = { 0, 0 };
 		renderPassInfo.renderArea.extent = m_SwapChainExtent;
 
+		// Creates the clear values
 		std::array<VkClearValue, 2> clearValues{};
-		clearValues[0].color = { {0.2f, 0.2f, 1.f, 1.f} };
-		clearValues[1].depthStencil = { 1.f, 0 };
+		clearValues[0].color = { {0.2f, 0.2f, 1.f, 1.f} };	// Clear color
+		clearValues[1].depthStencil = { 1.f, 0 };			// Clear depth
 
+		// Specifies the clear values
 		renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
 		renderPassInfo.pClearValues = clearValues.data();
 
+		// Starts the render pass
+		// Last parameter: declares the origin of the commands here from a primary command buffer
+		// VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFER -> for secondary command buffer
 		vkCmdBeginRenderPass(_CommandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
+		// Bind the pipeline (Second parameter specifies that this is a graphic pipeline and not a compute pipeline)
 		vkCmdBindPipeline(_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_GraphicsPipeline);
 
 		VkViewport viewport{};
@@ -1286,8 +1321,10 @@ namespace Core
 
 		vkCmdDrawIndexed(_CommandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
 
+		// Finish the render pass
 		vkCmdEndRenderPass(_CommandBuffer);
 
+		// Stops recording commands
 		result = vkEndCommandBuffer(_CommandBuffer);
 
 		if (result != VK_SUCCESS)
@@ -1333,9 +1370,17 @@ namespace Core
 
 	void VulkanWrapper::DrawFrame(GLFWwindow* _Window)
 	{
+		// Will wait the end of the rendering of the current frame (if rendering) and reset the fence
+		// fourth parameter specifies that we want to wait for all the fences to finish (here we have only one fence)
+		// last parameter specifies the delay before canceling (UINT64_MAX = cancel delay can wait indefinitely)
 		vkWaitForFences(m_LogicalDevice, 1, &m_InFlightFences[m_CurrentFrame], VK_TRUE, UINT64_MAX);
+		vkResetFences(m_LogicalDevice, 1, &m_InFlightFences[m_CurrentFrame]);
 
 		uint32_t imageIndex;
+		// Acquires an image from the swap chain
+		// third parameter is a delay before canceling if no image is available -> here it's at UINT64_MAX which disable the delay
+		// fourth and fifith parameter is the semaphore or fence that will be trigered when an image is available
+		// the last parameter is the index of the image in the swap chain
 		VkResult result = vkAcquireNextImageKHR(m_LogicalDevice, m_SwapChain, UINT64_MAX, m_ImageAvailableSemaphores[m_CurrentFrame], VK_NULL_HANDLE, &imageIndex);
 
 		if (result == VK_ERROR_OUT_OF_DATE_KHR)
@@ -1350,28 +1395,36 @@ namespace Core
 
 		UpdateUniformBuffer(m_CurrentFrame);
 
-		vkResetFences(m_LogicalDevice, 1, &m_InFlightFences[m_CurrentFrame]);
-
 		vkResetCommandBuffer(m_CommandBuffers[m_CurrentFrame], 0);
+
 		RecordCommandBuffer(m_CommandBuffers[m_CurrentFrame], imageIndex);
 
+		// Submit informations
 		VkSubmitInfo submitInfo{};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
+		// Here we reference the waiting semaphore and waiting stage
 		VkSemaphore waitSemaphores[] = { m_ImageAvailableSemaphores[m_CurrentFrame] };
-		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT };
+		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 
+		// Specifies to vulkan to wait for m_ImageAvailableSemaphores at VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT to start rendering
+		// We do not want to write the colors without an image so when an image is available vulkan can write in the image
 		submitInfo.waitSemaphoreCount = 1;
 		submitInfo.pWaitSemaphores = waitSemaphores;
 		submitInfo.pWaitDstStageMask = waitStages;
+
+		// Specifies the command buffer(s) that will be executed
 		submitInfo.commandBufferCount = 1;
 		submitInfo.pCommandBuffers = &m_CommandBuffers[m_CurrentFrame];
 
 		VkSemaphore signalSemaphores[] = { m_RenderFinishedSemaphores[m_CurrentFrame] };
 
+		// Specifies the semaphores that will indicates if the frame finished rendering
 		submitInfo.signalSemaphoreCount = 1;
 		submitInfo.pSignalSemaphores = signalSemaphores;
 
+		// Sumbit the command buffer(s) for execution to the graphic queue
+		// The last parameter is the fence that will signal when the frame finished rendering
 		result = vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, m_InFlightFences[m_CurrentFrame]);
 
 		if (result != VK_SUCCESS)
@@ -1379,18 +1432,24 @@ namespace Core
 			DEBUG_ERROR("Failed to submit draw command buffer, Error Code %d", result);
 		}
 
+		// Presentation informations
 		VkPresentInfoKHR presentInfo{};
 		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+		
+		// Specifies the semaphore to wait for in order to present an image
+		// Here we do not want to present an image it is not finished rendering
 		presentInfo.waitSemaphoreCount = 1;
 		presentInfo.pWaitSemaphores = signalSemaphores;
 
 		VkSwapchainKHR swapChains[] = { m_SwapChain };
 
+		// Reference our swap chain that will present the images
 		presentInfo.swapchainCount = 1;
 		presentInfo.pSwapchains = swapChains;
 		presentInfo.pImageIndices = &imageIndex;
 		presentInfo.pResults = nullptr;
 
+		// Present the image with the presentation queue
 		result = vkQueuePresentKHR(m_PresentQueue, &presentInfo);
 
 		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_FramebufferResized)
@@ -1412,15 +1471,20 @@ namespace Core
 		m_RenderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
 		m_InFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
 
+		// Semaphore create info - for GPU/ GPU synchronization
 		VkSemaphoreCreateInfo smaphoreInfo{};
 		smaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
+		// Fence create info - for CPU / GPU synchronization
 		VkFenceCreateInfo fenceInfo{};
 		fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+		// Specifies that the fence is created as signaled to avoid an infinite wait at the start of the draw
 		fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
+		// Loop for all MAX_FRAMES_IIN_FLIGHT
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
 		{
+			// Creates Image available semaphores
 			VkResult result = vkCreateSemaphore(m_LogicalDevice, &smaphoreInfo, nullptr, &m_ImageAvailableSemaphores[i]);
 
 			if (result != VK_SUCCESS)
@@ -1428,6 +1492,7 @@ namespace Core
 				DEBUG_ERROR("Failed to create semaphore, Error Code: %d", result)
 			}
 
+			// Creates Render Finish semaphores
 			result = vkCreateSemaphore(m_LogicalDevice, &smaphoreInfo, nullptr, &m_RenderFinishedSemaphores[i]);
 
 			if (result != VK_SUCCESS)
@@ -1435,6 +1500,7 @@ namespace Core
 				DEBUG_ERROR("Failed to create semaphore, Error Code: %d", result)
 			}
 
+			// Creates In Flight fences
 			result = vkCreateFence(m_LogicalDevice, &fenceInfo, nullptr, &m_InFlightFences[i]);
 
 			if (result != VK_SUCCESS)

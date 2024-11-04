@@ -400,14 +400,14 @@ namespace Core
 
 		///////////////////////////////////////////////////////////////////////
 
-		/// Render pass related methods
+		/// Frame buffers related methods
 
 		///////////////////////////////////////////////////////////////////////
 
 		/// <summary>
-		/// 
+		/// Creates all the swap chain frames buffers for each image view
 		/// </summary>
-		void CreateFramebuffers();
+		void CreateSwapChainFramebuffers();
 
 		///////////////////////////////////////////////////////////////////////
 
@@ -416,20 +416,20 @@ namespace Core
 		///////////////////////////////////////////////////////////////////////
 
 		/// <summary>
-		/// 
+		/// Creates a command pool that will manage the memory for command buffers
 		/// </summary>
 		void CreateCommandPool();
 
 		/// <summary>
-		/// 
+		/// Creates all the command buffers
 		/// </summary>
 		void CreateCommandBuffers();
 
 		/// <summary>
-		/// 
+		/// Records all the commands for a command buffer
 		/// </summary>
-		/// <param name="_CommandBuffer"></param>
-		/// <param name="_ImageIndex"></param>
+		/// <param name="_CommandBuffer">: Command buffer used </param>
+		/// <param name="_ImageIndex">: Current image </param>
 		void RecordCommandBuffer(VkCommandBuffer _CommandBuffer, uint32_t _ImageIndex);
 
 		/// <summary>
@@ -451,12 +451,12 @@ namespace Core
 		///////////////////////////////////////////////////////////////////////
 
 		/// <summary>
-		/// 
+		/// Executes all drawing commands and presentation commands
 		/// </summary>
 		void DrawFrame(GLFWwindow* _Window) override;
 
 		/// <summary>
-		/// 
+		/// Creates all synchronization objects needed for rendering
 		/// </summary>
 		void CreateSyncObjects();
 
