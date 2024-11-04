@@ -380,6 +380,11 @@ namespace Core
 		/// <returns></returns>
 		VkShaderModule CreateShaderModule(const std::vector<char>& _ShaderSourceCode);
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="_ShaderPath"></param>
+		/// <param name="_ShaderType"></param>
 		void CompileShader(std::filesystem::path _ShaderPath, ShaderType _ShaderType);
 
 		///////////////////////////////////////////////////////////////////////

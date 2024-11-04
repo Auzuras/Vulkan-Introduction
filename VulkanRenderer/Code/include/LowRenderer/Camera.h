@@ -6,6 +6,7 @@ namespace LowRenderer
 {
 	class Camera : public Object
 	{
-
+	private:
+	public:
 	};
 }

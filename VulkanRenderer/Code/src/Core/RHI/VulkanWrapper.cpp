@@ -696,6 +696,9 @@ namespace Core
 		std::vector<char> verShader = ReadShader("Assets/Shaders/vert.spv");
 		std::vector<char> fragShader = ReadShader("Assets/Shaders/frag.spv");
 
+
+		CompileShader("Assets/Shaders/HelloTriangle.vert", ShaderType::VERTEX);
+
 		VkShaderModule vertShaderModule = CreateShaderModule(verShader);
 		VkShaderModule fragShaderModule = CreateShaderModule(fragShader);
 
@@ -921,6 +924,7 @@ namespace Core
 
 		infos.sourceCode = &shaderCode;
 
+		// First step - Preprocessing GLSL
 		shaderc::PreprocessedSourceCompilationResult result = compiler.PreprocessGlsl(*infos.sourceCode, infos.shaderKind, infos.fileName, infos.options);
 
 		if (result.GetCompilationStatus() != shaderc_compilation_status_success)
@@ -933,6 +937,7 @@ namespace Core
 		infos.sourceCode->resize(newSize);
 		memcpy(infos.sourceCode, src, newSize);
 
+		// Second step - SPIR-V Assembly compilation
 		shaderc::AssemblyCompilationResult sResult = compiler.CompileGlslToSpvAssembly(*infos.sourceCode, infos.shaderKind, infos.fileName, infos.options);
 
 		if (sResult.GetCompilationStatus() != shaderc_compilation_status_success)
@@ -944,6 +949,19 @@ namespace Core
 		newSize = sResult.cend() - src;
 		infos.sourceCode->resize(newSize);
 		memcpy(infos.sourceCode, src, newSize);
+
+		// Third step - SPIR-V Binary compilation
+		shaderc::SpvCompilationResult tResult = compiler.AssembleToSpv(infos.sourceCode->data(), infos.sourceCode->size(), infos.options);
+
+		if (tResult.GetCompilationStatus() != shaderc_compilation_status_success)
+		{
+			DEBUG_ERROR("Failed to compiled in binary shader, %s", tResult.GetErrorMessage())
+		}
+
+		const uint32_t* srcBinary = tResult.cbegin();
+		size_t wordCount = tResult.cend() - srcBinary;
+		std::vector<uint32_t> output(wordCount);
+		memcpy(output.data(), srcBinary, wordCount * sizeof(uint32_t));
 	}
 
 	void VulkanWrapper::CreateRenderPass()

@@ -5,6 +5,8 @@
 #include "RHI/VulkanWrapper.h"
 #include "RHI/OpenGLWrapper.h"
 
+#include "Camera.h"
+
 namespace Core
 {
 	class Application
@@ -14,6 +16,8 @@ namespace Core
 		const uint32_t m_Width = 800;
 		const uint32_t m_Height = 600;
 		const char* m_WindowName = "DefaultName";
+
+		LowRenderer::Camera m_AppCamera;
 
 		GLFWwindow* m_Window = nullptr;
 		static inline Core::RHI* m_RHI = nullptr;

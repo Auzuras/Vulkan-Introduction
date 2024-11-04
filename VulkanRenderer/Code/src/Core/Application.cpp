@@ -12,6 +12,7 @@ namespace Core
 
 	const bool Application::Initialize()
 	{
+
 		glfwInit();
 
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -21,11 +22,9 @@ namespace Core
 		{
 		case Core::OPENGL:
 			m_RHI = new Core::OpenGLWRapper;
-#undef VULKAN_WRAPPER
 			break;
 		case Core::VULKAN: default:
 			m_RHI = new Core::VulkanWrapper;
-#undef OPENGL_WRAPPER
 			break;
 		case Core::DIRECTX:
 			break;
