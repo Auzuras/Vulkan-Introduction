@@ -263,7 +263,7 @@ namespace Core
 		///////////////////////////////////////////////////////////////////////
 
 		/// <summary>
-		/// 
+		/// Creates a logical device used to interface with Vulkan and our RHI
 		/// </summary>
 		void CreateLogicalDevice();
 
@@ -274,9 +274,9 @@ namespace Core
 		///////////////////////////////////////////////////////////////////////
 
 		/// <summary>
-		/// 
+		/// Creates a surface which is going to link Vulkan with Window API
 		/// </summary>
-		/// <param name="_Window"></param>
+		/// <param name="_Window">: Current window context </param>
 		void CreateSurface(GLFWwindow* _Window);
 
 
@@ -287,44 +287,44 @@ namespace Core
 		///////////////////////////////////////////////////////////////////////
 
 		/// <summary>
-		/// 
+		/// Checks if the extensions needed for our program are supported by our GPU
 		/// </summary>
-		/// <param name="_Device"></param>
+		/// <param name="_Device">: Logical device which we check extensions support </param>
 		/// <returns></returns>
 		const bool CheckDeviceExtensionSupport(VkPhysicalDevice _Device);
 
 		/// <summary>
-		/// 
+		/// Checks if the SwapChain is supported bu our GPU
 		/// </summary>
-		/// <param name="_Device"></param>
+		/// <param name="_Device">: Logical device which we check if the swap chain is supported </param>
 		/// <returns></returns>
 		SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice _Device);
 
 		/// <summary>
-		/// 
+		/// Selects the best format available for the swapchain
 		/// </summary>
-		/// <param name="_AvailableFormats"></param>
+		/// <param name="_AvailableFormats">: All the availables formats of the swap chain</param>
 		/// <returns></returns>
 		VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& _AvailableFormats);
 		
 		/// <summary>
-		/// 
+		/// Selects the best presentation mode for the swap chain
 		/// </summary>
-		/// <param name="_AvailablePresentModes"></param>
+		/// <param name="_AvailablePresentModes">: All the presentation modes of the swap chain</param>
 		/// <returns></returns>
 		VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& _AvailablePresentModes);
 
 		/// <summary>
-		/// 
+		/// Selects the image format for the swap chain
 		/// </summary>
-		/// <param name="capabilities"></param>
+		/// <param name="capabilities">: Swap chain capabilities availables </param>
 		/// <returns></returns>
 		VkExtent2D ChooseSwapExtent(GLFWwindow* _Window, const VkSurfaceCapabilitiesKHR& _Capabilities);
 
 		/// <summary>
-		/// 
+		/// Creates the Swap chain for our program
 		/// </summary>
-		/// <param name="_Window"></param>
+		/// <param name="_Window">: Current window context </param>
 		void CreateSwapChain(GLFWwindow* _Window);
 
 		/// <summary>
@@ -345,9 +345,9 @@ namespace Core
 		///////////////////////////////////////////////////////////////////////
 
 		/// <summary>
-		/// 
+		/// Creates the image views of the swap chain
 		/// </summary>
-		void CreateImageViews();
+		void CreateSwapChainImageViews();
 
 		///////////////////////////////////////////////////////////////////////
 
@@ -356,16 +356,16 @@ namespace Core
 		///////////////////////////////////////////////////////////////////////
 
 		/// <summary>
-		/// 
+		/// Creates a simple graphics pipeline to draw on screen
 		/// </summary>
 		void CreateGraphicsPipeline();
 
 		/// <summary>
-		/// 
+		/// Reads an already compiled SpirV shader
 		/// </summary>
-		/// <param name="_FilePath"></param>
+		/// <param name="_FilePath">: Path to the SpirV shader </param>
 		/// <returns></returns>
-		std::vector<char> ReadShader(const std::filesystem::path& _FilePath);
+		std::vector<char> ReadSpirVShader(const std::filesystem::path& _FilePath);
 
 		///////////////////////////////////////////////////////////////////////
 
@@ -374,17 +374,17 @@ namespace Core
 		///////////////////////////////////////////////////////////////////////
 
 		/// <summary>
-		/// 
+		/// Creates a shader module object with a shader source code
 		/// </summary>
-		/// <param name="_ShaderSourceCode"></param>
+		/// <param name="_ShaderSourceCode">: Source code of the shader </param>
 		/// <returns></returns>
 		VkShaderModule CreateShaderModule(const std::vector<uint32_t>& _ShaderSourceCode);
 
 		/// <summary>
-		/// 
+		/// Compiles a shader in run time according to the path of the shader and its type
 		/// </summary>
-		/// <param name="_ShaderPath"></param>
-		/// <param name="_ShaderType"></param>
+		/// <param name="_ShaderPath">: Path of the shader </param>
+		/// <param name="_ShaderType">: Type of the shader (Vertex / Geometry / Fragment)  </param>
 		std::vector<uint32_t> CompileShader(std::filesystem::path _ShaderPath, ShaderType _ShaderType);
 
 		///////////////////////////////////////////////////////////////////////
@@ -394,7 +394,7 @@ namespace Core
 		///////////////////////////////////////////////////////////////////////
 
 		/// <summary>
-		/// 
+		/// Creates a render pass object that will descibes the attachments of a framebuffer
 		/// </summary>
 		void CreateRenderPass();
 
@@ -537,11 +537,11 @@ namespace Core
 		///////////////////////////////////////////////////////////////////////
 
 		/// <summary>
-		/// 
+		/// Creates an image view object
 		/// </summary>
-		/// <param name="_Image"></param>
-		/// <param name="_Format"></param>
-		/// <param name="_AspectFlags"></param>
+		/// <param name="_Image">: Base image </param>
+		/// <param name="_Format">: Format of the image </param>
+		/// <param name="_AspectFlags">: Flags defining which aspects of the image are accessible </param>
 		/// <returns></returns>
 		VkImageView CreateImageView(VkImage _Image, VkFormat _Format, VkImageAspectFlags _AspectFlags);
 

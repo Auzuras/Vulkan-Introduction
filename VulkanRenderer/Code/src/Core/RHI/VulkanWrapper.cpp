@@ -30,7 +30,7 @@ namespace Core
 		PickPhysicalDevice();
 		CreateLogicalDevice();
 		CreateSwapChain(_Window);
-		CreateImageViews();
+		CreateSwapChainImageViews();
 		CreateRenderPass();
 		CreateDescriptorSetLayout();
 		CreateGraphicsPipeline();
@@ -77,7 +77,7 @@ namespace Core
 		std::vector<const char*> requiredExtensions = GetRequiredExtensions();
 		createInfo.enabledExtensionCount = static_cast<uint32_t>(requiredExtensions.size());
 		createInfo.ppEnabledExtensionNames = requiredExtensions.data();
-		
+
 		// Specifies or not the validation layers used in the application
 		VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
 		if (m_EnableValidationLayers)
@@ -352,16 +352,25 @@ namespace Core
 		vkGetPhysicalDeviceProperties(_Device, &deviceProperties);
 		vkGetPhysicalDeviceFeatures(_Device, &deviceFeatures);
 
+		// Gets required familie queues
 		QueueFamilyIndices indices = FindQueueFamilies(_Device);
 
+		// Checks if all the extensions we need are availables
 		bool areExtensionsSupported = CheckDeviceExtensionSupport(_Device);
 
 		bool isSwapChainAdequate = false;
 
 		if (areExtensionsSupported)
 		{
+			// Checks if the SwapChain is supported by our device
 			SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(_Device);
+			// Sets the swapchain adequate bool according to the formats and present modes
 			isSwapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
+		}
+		else
+		{
+			DEBUG_ERROR("Some extensions required are not supported by the device");
+			return false;
 		}
 
 		// Return the device if it is a discrete gpu (indeppendent GPU only) and if it supports geometry shader, graphic and presentation queues, extension, swap chains and anisotropy
@@ -393,14 +402,17 @@ namespace Core
 				indices.graphicsFamily = index;
 			}
 
+			// Checks if the current queue can support presentation queues 
 			VkBool32 presentSupport = false;
 			vkGetPhysicalDeviceSurfaceSupportKHR(_Device, index, m_Surface, &presentSupport);
 
+			// Reference the queue if it can support presentation
 			if (presentSupport)
 			{
 				indices.presentFamily = index;
 			}
 
+			// Return the queues if graphics and presentation queues have been found
 			if (indices.graphicsFamily.has_value() && indices.presentFamily.has_value())
 			{
 				break;
@@ -409,6 +421,7 @@ namespace Core
 			++index;
 		}
 
+		// bool describing if the two types of families are supported on our device
 		indices.isComplete = indices.graphicsFamily.has_value() && indices.presentFamily.has_value();
 
 		return indices;
@@ -416,12 +429,14 @@ namespace Core
 
 	void VulkanWrapper::CreateLogicalDevice()
 	{
+		// Gets all queue families to reference the number of queues required for our application
 		QueueFamilyIndices indices = FindQueueFamilies(m_PhysicalDevice);
 		float queuePriority = 1.0f;
 
-		std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 		std::set<uint32_t> uniqueQueueFamilies = { indices.graphicsFamily.value(), indices.presentFamily.value() };
 
+		// References our queues in a create info for the device
+		std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 		for (uint32_t queueFamily : uniqueQueueFamilies)
 		{
 			VkDeviceQueueCreateInfo queueCreateInfo{};
@@ -432,9 +447,11 @@ namespace Core
 			queueCreateInfos.push_back(queueCreateInfo);
 		}
 
+		// Specifies the features of the device we want to use
 		VkPhysicalDeviceFeatures deviceFeatures{};
 		deviceFeatures.samplerAnisotropy = VK_TRUE;
 
+		// Specifies the information for the logical device (extensions and queues)
 		VkDeviceCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 		createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
@@ -443,6 +460,7 @@ namespace Core
 		createInfo.enabledExtensionCount = static_cast<uint32_t>(m_DeviceExtensions.size());
 		createInfo.ppEnabledExtensionNames = m_DeviceExtensions.data();
 
+		// Specifies the validations layers if enabled
 		if (m_EnableValidationLayers)
 		{
 			createInfo.enabledLayerCount = static_cast<uint32_t>(m_ValidationLayers.size());
@@ -453,6 +471,7 @@ namespace Core
 			createInfo.enabledLayerCount = 0;
 		}
 
+		// Creates the logical device
 		VkResult result = vkCreateDevice(m_PhysicalDevice, &createInfo, nullptr, &m_LogicalDevice);
 
 		if (result != VK_SUCCESS)
@@ -461,6 +480,7 @@ namespace Core
 			return;
 		}
 
+		// References the queues
 		vkGetDeviceQueue(m_LogicalDevice, indices.graphicsFamily.value(), 0, &m_GraphicsQueue);
 		vkGetDeviceQueue(m_LogicalDevice, indices.presentFamily.value(), 0, &m_PresentQueue);
 
@@ -469,6 +489,7 @@ namespace Core
 
 	void VulkanWrapper::CreateSurface(GLFWwindow* _Window)
 	{
+		// Gets the window surface for vulkan
 		VkResult result = glfwCreateWindowSurface(m_VulkanInstance, _Window, nullptr, &m_Surface);
 
 		if (result != VK_SUCCESS)
@@ -479,17 +500,30 @@ namespace Core
 
 	const bool VulkanWrapper::CheckDeviceExtensionSupport(VkPhysicalDevice _Device)
 	{
+		// Gets the number of extensions supported by our device
 		uint32_t extensionsNbr;
 		vkEnumerateDeviceExtensionProperties(_Device, nullptr, &extensionsNbr, nullptr);
 
+		// Gets all the extensions supported by our device
 		std::vector<VkExtensionProperties> availableExtensions(extensionsNbr);
 		vkEnumerateDeviceExtensionProperties(_Device, nullptr, &extensionsNbr, availableExtensions.data());
 
 		std::set<std::string> requiredExtensions(m_DeviceExtensions.begin(), m_DeviceExtensions.end());
 
+		// Erase the extensions required by our application if the extension is available in our device
+		// If the requiredExtensions list is empty it means that all the required extensions are available
 		for (const VkExtensionProperties& extension : availableExtensions)
 		{
 			requiredExtensions.erase(extension.extensionName);
+
+			if (requiredExtensions.empty())
+				return requiredExtensions.empty();
+		}
+
+		// Print all extensions not supported
+		for (const std::string& extension : requiredExtensions)
+		{
+			DEBUG_WARN("Extension not supported: %s", extension);
 		}
 
 		return requiredExtensions.empty();
@@ -499,20 +533,25 @@ namespace Core
 	{
 		SwapChainSupportDetails details;
 
+		// Checks the surfaces capabilities (min / max frames in the swap chain, min / max - height / width of the images)
 		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(_Device, m_Surface, &details.capabilities);
 
+		// Checks the number of format available (pixels format / colors)
 		uint32_t formatNbr;
 		vkGetPhysicalDeviceSurfaceFormatsKHR(_Device, m_Surface, &formatNbr, nullptr);
 
+		// References the formats if availables
 		if (formatNbr != 0)
 		{
 			details.formats.resize(formatNbr);
 			vkGetPhysicalDeviceSurfaceFormatsKHR(_Device, m_Surface, &formatNbr, details.formats.data());
 		}
 
+		// Checks the number of presentations modes (FIFO / Mailbox...)
 		uint32_t presentModeNbr;
 		vkGetPhysicalDeviceSurfacePresentModesKHR(_Device, m_Surface, &presentModeNbr, nullptr);
 
+		// References the presentations modes if availables
 		if (presentModeNbr != 0)
 		{
 			details.presentModes.resize(presentModeNbr);
@@ -526,12 +565,14 @@ namespace Core
 	{
 		for (const VkSurfaceFormatKHR& format : _AvailableFormats)
 		{
+			// Checks for BGR 8 bits format and standard RGB colorSpace in all of our formats
 			if (format.format == VK_FORMAT_B8G8R8A8_SRGB && format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
 			{
 				return format;
 			}
 		}
 
+		// If not found return the first format available
 		return _AvailableFormats[0];
 	}
 
@@ -539,23 +580,29 @@ namespace Core
 	{
 		for (const VkPresentModeKHR& presentMode : _AvailablePresentModes)
 		{
+			// Checks for Mailbox presentation mode in all the available presentation modes
 			if (presentMode == VK_PRESENT_MODE_MAILBOX_KHR)
 			{
 				return presentMode;
 			}
 		}
 
+		// If not found return FIFO presentation mode
 		return VK_PRESENT_MODE_FIFO_KHR;
 	}
 
 	VkExtent2D VulkanWrapper::ChooseSwapExtent(GLFWwindow* _Window, const VkSurfaceCapabilitiesKHR& _Capabilities)
 	{
+		// This condition checks if the currentExtent is fixed by the system or the user
 		if (_Capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
 		{
+			// The first case here is if the user defined a size
 			return _Capabilities.currentExtent;
 		}
 		else
 		{
+			// The second case here is if the user doesn't define a size so the system does
+			// In this case the currentExent will be equal to max of uint32_t
 			int width, height;
 			glfwGetFramebufferSize(_Window, &width, &height);
 
@@ -564,6 +611,7 @@ namespace Core
 				static_cast<uint32_t>(height)
 			};
 
+			// Create an extent of the size of the GLFW frame buffer and clamp it if it below or above the capabilities of the swap chain
 			actualExtent.width = std::clamp(actualExtent.width, _Capabilities.minImageExtent.width, _Capabilities.maxImageExtent.width);
 			actualExtent.height = std::clamp(actualExtent.height, _Capabilities.minImageExtent.height, _Capabilities.maxImageExtent.height);
 
@@ -573,21 +621,29 @@ namespace Core
 
 	void VulkanWrapper::CreateSwapChain(GLFWwindow* _Window)
 	{
+		// Gets all the capabilities and information the swapchain can support
 		SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(m_PhysicalDevice);
 
+		// Selects the best surface format
 		VkSurfaceFormatKHR surfaceFormat = ChooseSwapSurfaceFormat(swapChainSupport.formats);
 
+		// Selects the best presentation mode
 		VkPresentModeKHR presentMode = ChooseSwapPresentMode(swapChainSupport.presentModes);
 
+		// Selects the extent
 		VkExtent2D extent = ChooseSwapExtent(_Window, swapChainSupport.capabilities);
 
+		// Selects how much images we want in the swap chain - Here the minimum + 1 to avoid any "pause" in the program
 		uint32_t imageNbr = swapChainSupport.capabilities.minImageCount + 1;
 
+		// If maxImageCount is equal to 0 it means that the only limit is the memory
+		// Here if the number of images is above the max capabilities it is just clamped to the max
 		if (swapChainSupport.capabilities.maxImageCount > 0 && imageNbr > swapChainSupport.capabilities.maxImageCount)
 		{
 			imageNbr = swapChainSupport.capabilities.maxImageCount;
 		}
 
+		// Create info of the swapchain
 		VkSwapchainCreateInfoKHR createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
 		createInfo.surface = m_Surface;
@@ -595,34 +651,43 @@ namespace Core
 		createInfo.imageFormat = surfaceFormat.format;
 		createInfo.imageColorSpace = surfaceFormat.colorSpace;
 		createInfo.imageExtent = extent;
+		// imageArrayLayers is the number of layers an image possess - only usefull for 3D stereoscopic applications
 		createInfo.imageArrayLayers = 1;
 		createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-
+		
+		// Gets all queue families to setup up sharing mode of the images in the swap chain
 		QueueFamilyIndices indices = FindQueueFamilies(m_PhysicalDevice);
 		uint32_t queueFamilyIndices[] = { indices.graphicsFamily.value(), indices.presentFamily.value() };
 
+		// If there is two different queues with one for graphic and the other for presenting we need to share the images
 		if (indices.graphicsFamily != indices.presentFamily)
 		{
+			// Shares the images between two different queues
 			createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
 			createInfo.queueFamilyIndexCount = 2;
 			createInfo.pQueueFamilyIndices = queueFamilyIndices;
 		}
 		else
 		{
+			// Do not share the images because there is only one queue doing graphic and presentation
 			createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
 			createInfo.queueFamilyIndexCount = 0;
 			createInfo.pQueueFamilyIndices = nullptr;
 		}
 
+		// Specifies a modification on the image if needed (Rotation / Flip)
 		createInfo.preTransform = swapChainSupport.capabilities.currentTransform;
+		// Specifies if the alpha component of the window should blend with the other windows
 		createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
 		createInfo.presentMode = presentMode;
+		// Speicifies if the pixels hidden by other windows are discarded
 		createInfo.clipped = VK_TRUE;
 		createInfo.oldSwapchain = VK_NULL_HANDLE;
 
 		m_SwapChainImageFormat = surfaceFormat.format;
 		m_SwapChainExtent = extent;
 
+		// Creates the swap chain
 		VkResult result = vkCreateSwapchainKHR(m_LogicalDevice, &createInfo, nullptr, &m_SwapChain);
 
 		if (result != VK_SUCCESS)
@@ -631,6 +696,7 @@ namespace Core
 			return;
 		}
 
+		// Gets all the images of the swap chain
 		vkGetSwapchainImagesKHR(m_LogicalDevice, m_SwapChain, &imageNbr, nullptr);
 		m_SwapChainImages.resize(imageNbr);
 		vkGetSwapchainImagesKHR(m_LogicalDevice, m_SwapChain, &imageNbr, m_SwapChainImages.data());
@@ -654,7 +720,7 @@ namespace Core
 		CleanSwapChain();
 
 		CreateSwapChain(_Window);
-		CreateImageViews();
+		CreateSwapChainImageViews();
 		CreateDepthRessources();
 		CreateFramebuffers();
 	}
@@ -679,12 +745,13 @@ namespace Core
 
 	}
 
-	void VulkanWrapper::CreateImageViews()
+	void VulkanWrapper::CreateSwapChainImageViews()
 	{
 		m_SwapChainImageViews.resize(m_SwapChainImages.size());
 
 		for (size_t i = 0; i < m_SwapChainImages.size(); ++i)
 		{
+			// Creates an image view for each image of the swap chain
 			m_SwapChainImageViews[i] = CreateImageView(m_SwapChainImages[i], m_SwapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
 		}
 
@@ -693,43 +760,64 @@ namespace Core
 
 	void VulkanWrapper::CreateGraphicsPipeline()
 	{
+		// Compiles and create the two shader modules corresponding to the vertex and fragment shader
 		VkShaderModule vertShaderModule = CreateShaderModule(CompileShader("Assets/Shaders/HelloTriangle.vert", ShaderType::VERTEX));
 		VkShaderModule fragShaderModule = CreateShaderModule(CompileShader("Assets/Shaders/HelloTriangle.frag", ShaderType::FRAGMENT));
 
+		// Creates vertex shader infos
 		VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
 		vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		// Stage of the pipeline (Which momement the shader will be called)
 		vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
+		// Shader module
 		vertShaderStageInfo.module = vertShaderModule;
+		// Start function of the shader
 		vertShaderStageInfo.pName = "main";
 
+		// Creates fragment shader infos
 		VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
 		fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		// Stage of the pipeline (Which momement the shader will be called)
 		fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+		// Shader module
 		fragShaderStageInfo.module = fragShaderModule;
+		// Start function of the shader
 		fragShaderStageInfo.pName = "main";
 
+		// List of all the shaders of the pipeline
 		VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
 
 		VkVertexInputBindingDescription bindingDescription = Core::Vertex::GetBindingDescription();
 		std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions = Core::Vertex::GetAttributeDescriptions();
 
+		// Describes how the vertex will be inputted in the first shader 
+		// (Correspond to the layout(binding=0) position etc in the shader)
 		VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
 		vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+		// How much vertices we are describing
 		vertexInputInfo.vertexBindingDescriptionCount = 1;
+		// The number of attribute per vertex (Position, Color, Normal ...)
 		vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+		// The binding description ()
 		vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
+		// The attributes description (Binding, size, offset, type)
 		vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
+		// Describes the geometry
 		VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
 		inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+		// Describes how the geometry should be drawn
 		inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+		// Can cancel some links between vertices
 		inputAssembly.primitiveRestartEnable = VK_FALSE;
 
+		// Reference all dynamics states
 		std::vector<VkDynamicState> dynamicStates = {
 			VK_DYNAMIC_STATE_VIEWPORT,
 			VK_DYNAMIC_STATE_SCISSOR
 		};
 
+		// Dynamic states infos
 		VkPipelineDynamicStateCreateInfo dynamicState{};
 		dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
 		dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
@@ -740,21 +828,29 @@ namespace Core
 		viewportState.viewportCount = 1;
 		viewportState.scissorCount = 1;
 
+		// Rasterizer informations
 		VkPipelineRasterizationStateCreateInfo rasterizer{};
 		rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+		// Fargments above a under the near and far plane are clamped
 		rasterizer.depthClampEnable = VK_FALSE;
+		// Desactivates rasterizer and steps after
 		rasterizer.rasterizerDiscardEnable = VK_FALSE;
+		// Defines how the polygons are drawn (Fill, poins, lines)
 		rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
 		rasterizer.lineWidth = 1.f;
+		// Defines culling
 		rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
 		rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+		// Modifies the depth acording to a fragment (usefull for shadow mapping)
 		rasterizer.depthBiasEnable = VK_FALSE;
 		rasterizer.depthBiasConstantFactor = 0.f;
 		rasterizer.depthBiasClamp = 0.f;
 		rasterizer.depthBiasSlopeFactor = 0.f;
 
+		// Multisampling infos
 		VkPipelineMultisampleStateCreateInfo multisampling{};
 		multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+		// Activates or not the multisampling
 		multisampling.sampleShadingEnable = VK_FALSE;
 		multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
 		multisampling.minSampleShading = 1.f;
@@ -762,6 +858,7 @@ namespace Core
 		multisampling.alphaToCoverageEnable = VK_FALSE;
 		multisampling.alphaToOneEnable = VK_FALSE;
 
+		// depth
 		VkPipelineDepthStencilStateCreateInfo depthStencil{};
 		depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
 		depthStencil.depthTestEnable = VK_TRUE;
@@ -771,6 +868,8 @@ namespace Core
 		depthStencil.minDepthBounds = 0.f;
 		depthStencil.maxDepthBounds = 1.f;
 
+		// Color blending infos (The color given by the fragshader is blend with the other color at the same fragment)
+		// This structure describes how it should be blend
 		VkPipelineColorBlendAttachmentState colorBlendAttachment{};
 		colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
 		colorBlendAttachment.blendEnable = VK_FALSE;
@@ -781,6 +880,7 @@ namespace Core
 		colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
 		colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
 
+		// Specifies how the color blend with many frame buffers
 		VkPipelineColorBlendStateCreateInfo colorBlending{};
 		colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
 		colorBlending.logicOpEnable = VK_FALSE;
@@ -792,13 +892,17 @@ namespace Core
 		colorBlending.blendConstants[2] = 0.f;
 		colorBlending.blendConstants[3] = 0.f;
 
+		// Pipeline layout infos
+		// Describes all uniform buffers present in our pipeline
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+		// Number of uniform buffers
 		pipelineLayoutInfo.setLayoutCount = 1;
 		pipelineLayoutInfo.pSetLayouts = &m_DescriptorSetLayout;
 		pipelineLayoutInfo.pushConstantRangeCount = 0;
 		pipelineLayoutInfo.pPushConstantRanges = nullptr;
 
+		// Creates the pipeline layout
 		VkResult result = vkCreatePipelineLayout(m_LogicalDevice, &pipelineLayoutInfo, nullptr, &m_PipelineLayout);
 
 		if (result != VK_SUCCESS)
@@ -806,6 +910,7 @@ namespace Core
 			DEBUG_ERROR("Failed to create pipeline layout, Error Code: %d", result);
 		}
 
+		// References all the information created
 		VkGraphicsPipelineCreateInfo pipelineInfo{};
 		pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 		pipelineInfo.stageCount = 2;
@@ -831,12 +936,14 @@ namespace Core
 			DEBUG_ERROR("Failed to create graphics pipeline, Error Code: %d", result);
 		}
 
+		// Destroys the shader module because they are loaded on the GPU
 		vkDestroyShaderModule(m_LogicalDevice, fragShaderModule, nullptr);
 		vkDestroyShaderModule(m_LogicalDevice, vertShaderModule, nullptr);
 	}
 
-	std::vector<char> VulkanWrapper::ReadShader(const std::filesystem::path& _FilePath)
+	std::vector<char> VulkanWrapper::ReadSpirVShader(const std::filesystem::path& _FilePath)
 	{
+		// Cancels the reading if the file is not a SpirV file 
 		if (_FilePath.extension() != ".spv")
 		{
 			DEBUG_ERROR("Wrong shader file extension");
@@ -846,6 +953,7 @@ namespace Core
 
 		std::ifstream file(_FilePath, std::ios::ate | std::ios::binary);
 
+		// Cancels the reading if the file failed to open
 		if (!file.is_open())
 		{
 			DEBUG_ERROR("Failed to open shader file");
@@ -853,26 +961,31 @@ namespace Core
 			return err;
 		}
 
+		// Reads the file
 		size_t fileSize = (size_t)file.tellg();
 		std::vector<char> buffer(fileSize);
 
 		file.seekg(0);
 		file.read(buffer.data(), fileSize);
 
+		// Closes the file
 		file.close();
 
+		// Returns the buffer filled by the file
 		return buffer;
 	}
 
 	VkShaderModule VulkanWrapper::CreateShaderModule(const std::vector<uint32_t>& _ShaderSourceCode)
 	{
+		// Create info of the shader
 		VkShaderModuleCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+		// Specifies the size and the code of the source code
 		createInfo.codeSize = _ShaderSourceCode.size() * sizeof(uint32_t);
 		createInfo.pCode = _ShaderSourceCode.data();
 
+		// Creates the shader module
 		VkShaderModule shaderModule;
-
 		VkResult result = vkCreateShaderModule(m_LogicalDevice, &createInfo, nullptr, &shaderModule);
 
 		if (result != VK_SUCCESS)
@@ -889,7 +1002,7 @@ namespace Core
 		shaderc::Compiler compiler;
 
 		// TODO: Move shader reading in the resource loader
-
+		// Reads the shader
 		std::ifstream shaderFile(_ShaderPath);
 		std::string line = "";
 		std::string shaderCode = "";
@@ -904,9 +1017,10 @@ namespace Core
 
 		shaderFile.close();
 
+		// Fill a struct of informations about the shader
 		CompilationInfos infos{};
 		infos.fileName = _ShaderPath.filename().string().c_str();
-		
+
 		switch (_ShaderType)
 		{
 		case VERTEX: default:
@@ -929,6 +1043,7 @@ namespace Core
 			DEBUG_ERROR("Failed to preprocessed shader, %s", result.GetErrorMessage())
 		}
 
+		// Copy the precompiled code in a buffer
 		const char* src = result.cbegin();
 		size_t newSize = result.cend() - src;
 		infos.sourceCode->resize(newSize);
@@ -942,6 +1057,7 @@ namespace Core
 			DEBUG_ERROR("Failed to compiled in assembly shader, %s", sResult.GetErrorMessage())
 		}
 
+		// Copy the SPRIV Assembly code in a buffer
 		src = sResult.cbegin();
 		newSize = sResult.cend() - src;
 		infos.sourceCode->resize(newSize);
@@ -955,6 +1071,7 @@ namespace Core
 			DEBUG_ERROR("Failed to compiled in binary shader, %s", tResult.GetErrorMessage())
 		}
 
+		// Copy the SPIRV Binary code in the output buffer
 		const uint32_t* srcBinary = tResult.cbegin();
 		size_t wordCount = tResult.cend() - srcBinary;
 		std::vector<uint32_t> output(wordCount);
@@ -965,20 +1082,30 @@ namespace Core
 
 	void VulkanWrapper::CreateRenderPass()
 	{
+		// Describes the color buffer attachment
 		VkAttachmentDescription colorAttachment{};
+		// Same format as the swap chain
 		colorAttachment.format = m_SwapChainImageFormat;
+		// Samples (usefull for multisampling)
 		colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+		// LoadOp and StoreOp describes how we interact with the data of the buffer before loading and after rendering
+		// VK_ATTACHMENT_LOAD_OP_CLEAR will clear all the information with a constant here black
 		colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		// The rendered frame will be stored
 		colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+		// For the stencil buffer we juste dont care about what will be load and unload
 		colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 		colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		// 
 		colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 		colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
+		// Describe the color attachment
 		VkAttachmentReference colorAttachmentRef{};
 		colorAttachmentRef.attachment = 0;
 		colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
+		// Describes the depth buffer attachment
 		VkAttachmentDescription depthAttachment{};
 		depthAttachment.format = FindDepthFormat();
 		depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -989,11 +1116,14 @@ namespace Core
 		depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 		depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
+		// Describe the depth attachment
 		VkAttachmentReference depthAttachmentRef{};
 		depthAttachmentRef.attachment = 1;
 		depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
+		// Creates the subpass with color and depth attachment
 		VkSubpassDescription subpass{};
+		// Defines the subpass as a graphic one (can be a compute one)
 		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 		subpass.colorAttachmentCount = 1;
 		subpass.pColorAttachments = &colorAttachmentRef;
@@ -1007,17 +1137,22 @@ namespace Core
 		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
 		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
+		// Stocks the attachments in a list
 		std::array<VkAttachmentDescription, 2> attachments = { colorAttachment, depthAttachment };
 
+		// Create info of the render pass
 		VkRenderPassCreateInfo renderPassInfo{};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+		// Nbr of attachments
 		renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+		// Data of attachments
 		renderPassInfo.pAttachments = attachments.data();
 		renderPassInfo.subpassCount = 1;
 		renderPassInfo.pSubpasses = &subpass;
 		renderPassInfo.dependencyCount = 1;
 		renderPassInfo.pDependencies = &dependency;
 
+		// Creates the render pass
 		VkResult result = vkCreateRenderPass(m_LogicalDevice, &renderPassInfo, nullptr, &m_RenderPass);
 
 		if (result != VK_SUCCESS)
@@ -1080,7 +1215,7 @@ namespace Core
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 		allocInfo.commandPool = m_CommandPool;
 		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocInfo.commandBufferCount = (uint32_t) m_CommandBuffers.size();
+		allocInfo.commandBufferCount = (uint32_t)m_CommandBuffers.size();
 
 		VkResult result = vkAllocateCommandBuffers(m_LogicalDevice, &allocInfo, m_CommandBuffers.data());
 
@@ -1112,7 +1247,7 @@ namespace Core
 		renderPassInfo.renderArea.extent = m_SwapChainExtent;
 
 		std::array<VkClearValue, 2> clearValues{};
-		clearValues[0].color = {{0.2f, 0.2f, 1.f, 1.f}};
+		clearValues[0].color = { {0.2f, 0.2f, 1.f, 1.f} };
 		clearValues[1].depthStencil = { 1.f, 0 };
 
 		renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
@@ -1374,7 +1509,7 @@ namespace Core
 	{
 		VkPhysicalDeviceMemoryProperties memProperties;
 		vkGetPhysicalDeviceMemoryProperties(m_PhysicalDevice, &memProperties);
-		
+
 		for (uint32_t i = 0; i < memProperties.memoryTypeCount; ++i)
 		{
 			if (_TypeFilter & (1 << i) && (memProperties.memoryTypes[i].propertyFlags & _Properties) == _Properties)
@@ -1513,7 +1648,7 @@ namespace Core
 	void VulkanWrapper::CreateDescriptorSets()
 	{
 		std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, m_DescriptorSetLayout);
-		
+
 		VkDescriptorSetAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 		allocInfo.descriptorPool = m_DescriptorPool;
@@ -1570,11 +1705,14 @@ namespace Core
 		viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
 		viewInfo.format = _Format;
 		viewInfo.subresourceRange.aspectMask = _AspectFlags;
+		// Mipmap levels
 		viewInfo.subresourceRange.baseMipLevel = 0;
 		viewInfo.subresourceRange.levelCount = 1;
+		// baseArrayLayer - layerCount is the number of layers an image possess - only usefull for 3D stereoscopic applications
 		viewInfo.subresourceRange.baseArrayLayer = 0;
 		viewInfo.subresourceRange.layerCount = 1;
 
+		// Creates the image view
 		VkImageView imageView;
 		VkResult result = vkCreateImageView(m_LogicalDevice, &viewInfo, nullptr, &imageView);
 
@@ -1750,7 +1888,7 @@ namespace Core
 
 		EndSingleTimeCommands(commandBuffer);
 	}
-	
+
 	void VulkanWrapper::CreateTextureImageView()
 	{
 		m_TextureImageView = CreateImageView(m_TextureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
@@ -1821,7 +1959,7 @@ namespace Core
 
 	VkFormat VulkanWrapper::FindDepthFormat()
 	{
-		return FindSupportedFormat({VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT}, VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
+		return FindSupportedFormat({ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT }, VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
 	}
 
 	bool VulkanWrapper::HasStencilComponent(VkFormat _Format)
