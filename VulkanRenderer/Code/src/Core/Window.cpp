@@ -25,36 +25,6 @@ namespace Core
 		return false;
 	}
 
-	const int Window::GetWindowWidth() const
-	{
-		return m_Width;
-	}
-
-	void Window::SetWindowWidth(const uint32_t _Width)
-	{
-		m_Width = _Width;
-	}
-
-	const int Window::GetWindowHeight() const
-	{
-		return m_Height;
-	}
-
-	void Window::SetWindowHeight(const uint32_t _Height)
-	{
-		m_Height = _Height;
-	}
-
-	const char* Window::GetWindowName() const
-	{
-		return m_WindowName;
-	}
-
-	void Window::SetWindowName(const char* _WindowName)
-	{
-		m_WindowName = _WindowName;
-	}
-
 	const char** Window::GetWindowExtensions()
 	{
 		const char** glfwExtensions;

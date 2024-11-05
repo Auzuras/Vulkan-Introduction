@@ -354,7 +354,7 @@ namespace Core
 		vkGetPhysicalDeviceFeatures(_Device, &deviceFeatures);
 
 		// Gets required familie queues
-		QueueFamilyIndices indices = FindQueueFamilies(_Device);
+		QueueFamilyIndices indices = FindQueueFamilies(_Device, m_Surface);
 
 		// Checks if all the extensions we need are availables
 		bool areExtensionsSupported = CheckDeviceExtensionSupport(_Device);
@@ -383,7 +383,7 @@ namespace Core
 			&& deviceFeatures.samplerAnisotropy;
 	}
 
-	QueueFamilyIndices VulkanRenderer::FindQueueFamilies(VkPhysicalDevice _Device)
+	QueueFamilyIndices VulkanRenderer::FindQueueFamilies(VkPhysicalDevice _Device, VkSurfaceKHR _Surface)
 	{
 		QueueFamilyIndices indices;
 
@@ -405,7 +405,7 @@ namespace Core
 
 			// Checks if the current queue can support presentation queues 
 			VkBool32 presentSupport = false;
-			vkGetPhysicalDeviceSurfaceSupportKHR(_Device, index, m_Surface, &presentSupport);
+			vkGetPhysicalDeviceSurfaceSupportKHR(_Device, index, _Surface, &presentSupport);
 
 			// Reference the queue if it can support presentation
 			if (presentSupport)
@@ -431,7 +431,7 @@ namespace Core
 	void VulkanRenderer::CreateLogicalDevice()
 	{
 		// Gets all queue families to reference the number of queues required for our application
-		QueueFamilyIndices indices = FindQueueFamilies(m_PhysicalDevice);
+		QueueFamilyIndices indices = FindQueueFamilies(m_PhysicalDevice, m_Surface);
 		float queuePriority = 1.0f;
 
 		std::set<uint32_t> uniqueQueueFamilies = { indices.graphicsFamily.value(), indices.presentFamily.value() };
@@ -657,7 +657,7 @@ namespace Core
 		createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 		
 		// Gets all queue families to setup up sharing mode of the images in the swap chain
-		QueueFamilyIndices indices = FindQueueFamilies(m_PhysicalDevice);
+		QueueFamilyIndices indices = FindQueueFamilies(m_PhysicalDevice, m_Surface);
 		uint32_t queueFamilyIndices[] = { indices.graphicsFamily.value(), indices.presentFamily.value() };
 
 		// If there is two different queues with one for graphic and the other for presenting we need to share the images
@@ -1217,7 +1217,7 @@ namespace Core
 	void VulkanRenderer::CreateCommandPool()
 	{
 		// Gets the queue families
-		QueueFamilyIndices queueFamilyIndices = FindQueueFamilies(m_PhysicalDevice);
+		QueueFamilyIndices queueFamilyIndices = FindQueueFamilies(m_PhysicalDevice, m_Surface);
 
 		// Creates the pool infos
 		VkCommandPoolCreateInfo poolInfo{};

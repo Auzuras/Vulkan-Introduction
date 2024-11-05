@@ -1,8 +1,9 @@
 #include "Model.h"
 
-#include "RHI/Vertex.h"
-
+//#define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
+
+#include "RHI/Vertex.h"
 
 namespace Resources
 {

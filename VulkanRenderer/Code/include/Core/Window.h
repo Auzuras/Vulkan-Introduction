@@ -41,49 +41,65 @@ namespace Core
 
 		Window(const uint32_t _Width, const uint32_t _Height, const char* _WindowName);
 
+		///////////////////////////////////////////////////////////////////////
+
+		/// Getters and setters
+
+		///////////////////////////////////////////////////////////////////////
+
+		/// <summary>
+		/// Returns the pointer to the GLFW window
+		/// </summary>
+		/// <returns></returns>
 		inline GLFWwindow* GetWindowPointer() { return m_Window; }
 
 		/// <summary>
 		/// Returns window width
 		/// </summary>
 		/// <returns></returns>
-		const int GetWindowWidth() const;
+		inline const int GetWindowWidth() const { return m_Width; }
 
 		/// <summary>
 		/// Sets window width
 		/// </summary>
 		/// <param name="_Width"></param>
-		void SetWindowWidth(const uint32_t _Width);
+		inline void SetWindowWidth(const uint32_t _Width) { m_Width = _Width; }
 
 		/// <summary>
 		/// Returns window height
 		/// </summary>
 		/// <returns></returns>
-		const int GetWindowHeight() const;
+		inline const int GetWindowHeight() const { return m_Height; }
 
 		/// <summary>
 		/// Sets window height
 		/// </summary>
 		/// <param name="_Height"></param>
-		void SetWindowHeight(const uint32_t _Height);
+		inline void SetWindowHeight(const uint32_t _Height) { m_Height = _Height; }
 
 		/// <summary>
 		/// Returns window name
 		/// </summary>
 		/// <returns></returns>
-		const char* GetWindowName() const;
+		inline const char* GetWindowName() const { return m_WindowName; }
 
 		/// <summary>
 		/// Sets window name
 		/// </summary>
 		/// <param name="_WindowName"></param>
-		void SetWindowName(const char* _WindowName);
+		inline void SetWindowName(const char* _WindowName) { m_WindowName = _WindowName; }
 
 		/// <summary>
 		/// Returns the window extensions to initialize some APIs
 		/// </summary>
 		/// <returns></returns>
 		const char** GetWindowExtensions();
+
+		///////////////////////////////////////////////////////////////////////
+
+		/// Initialization and termination methods
+
+		///////////////////////////////////////////////////////////////////////
 
 		/// <summary>
 		/// Initializes window according to the current RHI

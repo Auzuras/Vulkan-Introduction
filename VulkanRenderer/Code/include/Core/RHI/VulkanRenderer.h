@@ -254,8 +254,9 @@ namespace Core
 		/// Find all queue famillies suporting features required by the application (Graphics and presentation)
 		/// </summary>
 		/// <param name="_Device">: Physical device containing queue families </param>
+		/// <param name="_Surface">: Surface object to check for presentation queues </param>
 		/// <returns></returns>
-		QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice _Device);
+		static QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice _Device, VkSurfaceKHR _Surface);
 
 		///////////////////////////////////////////////////////////////////////
 
