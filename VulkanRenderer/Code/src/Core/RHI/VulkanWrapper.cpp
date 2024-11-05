@@ -869,15 +869,15 @@ namespace Core
 		multisampling.alphaToCoverageEnable = VK_FALSE;
 		multisampling.alphaToOneEnable = VK_FALSE;
 
-		// depth
+		// Activate depth test
 		VkPipelineDepthStencilStateCreateInfo depthStencil{};
 		depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
 		depthStencil.depthTestEnable = VK_TRUE;
 		depthStencil.depthWriteEnable = VK_TRUE;
+		// Comparison test to eleminate or keep frag
 		depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
 		depthStencil.depthBoundsTestEnable = VK_FALSE;
-		depthStencil.minDepthBounds = 0.f;
-		depthStencil.maxDepthBounds = 1.f;
+		depthStencil.stencilTestEnable = VK_FALSE;
 
 		// Color blending infos (The color given by the fragshader is blend with the other color at the same fragment)
 		// This structure describes how it should be blend
@@ -952,8 +952,6 @@ namespace Core
 		{
 			DEBUG_ERROR("Failed to create graphics pipeline, Error Code: %d", result);
 		}
-
-		// TODO: CHECK THIS /\ //
 
 		// Destroys the shader module because they are loaded on the GPU
 		vkDestroyShaderModule(m_LogicalDevice, fragShaderModule, nullptr);
@@ -1124,7 +1122,7 @@ namespace Core
 		colorAttachmentRef.attachment = 0;
 		colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-		// Describes the depth buffer attachment
+		// Describes the depth buffer attachment - Check above for more infos (Similar to color attachment)
 		VkAttachmentDescription depthAttachment{};
 		depthAttachment.format = FindDepthFormat();
 		depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -1143,6 +1141,7 @@ namespace Core
 		// Creates the subpass with color and depth attachment
 		VkSubpassDescription subpass{};
 		// Defines the subpass as a graphic one (can be a compute one)
+		// Binds the depth attachment to the subpass
 		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 		subpass.colorAttachmentCount = 1;
 		subpass.pColorAttachments = &colorAttachmentRef;
@@ -1305,6 +1304,7 @@ namespace Core
 		// Bind the pipeline (Second parameter specifies that this is a graphic pipeline and not a compute pipeline)
 		vkCmdBindPipeline(_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_GraphicsPipeline);
 
+		// Defines the area where the image will be rendered
 		VkViewport viewport{};
 		viewport.x = 0.f;
 		viewport.y = 0.f;
@@ -1315,6 +1315,7 @@ namespace Core
 
 		vkCmdSetViewport(_CommandBuffer, 0, 1, &viewport);
 
+		// Describes a limit where the image can be draw (similar to the viewport)
 		VkRect2D scissor{};
 		scissor.offset = { 0, 0 };
 		scissor.extent = m_SwapChainExtent;
@@ -1689,7 +1690,7 @@ namespace Core
 
 	void VulkanWrapper::CreateDescriptorSetLayout()
 	{
-		// Descriptor Set layout binding
+		// Descriptor Set layout binding for ubo
 		VkDescriptorSetLayoutBinding uboLayoutBinding{};
 		uboLayoutBinding.binding = 0;
 		uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -1697,6 +1698,7 @@ namespace Core
 		// Describes which stages can access the UBO can also be VK_SHADER_STAGE_ALL_GRAPHICS
 		uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
+		// Descriptor Set layout binding for sampler
 		VkDescriptorSetLayoutBinding samplerLayoutBinding{};
 		samplerLayoutBinding.binding = 1;
 		samplerLayoutBinding.descriptorCount = 1;
@@ -1759,18 +1761,16 @@ namespace Core
 
 		// Copies the data into the buffer
 		memcpy(m_UniformBuffersMapped[_CurrentImage], &mvp, sizeof(mvp));
-
-		// TODO: CHECK THIS /\ //
 	}
 
 	void VulkanWrapper::CreateDescriptorPool()
 	{
 		// Describes the pool size
 		std::array<VkDescriptorPoolSize, 2> poolSizes{};
+		// UBO
 		poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		// Number of UBO
 		poolSizes[0].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
-
+		// Sampler
 		poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		poolSizes[1].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
 
@@ -1839,6 +1839,7 @@ namespace Core
 			descriptorWrites[0].descriptorCount = 1;
 			descriptorWrites[0].pBufferInfo = &bufferInfo;
 
+			// Update sampler
 			descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 			descriptorWrites[1].dstSet = m_DescriptorSets[i];
 			descriptorWrites[1].dstBinding = 1;
@@ -1882,6 +1883,7 @@ namespace Core
 
 	void VulkanWrapper::CreateTextureImage()
 	{
+		// Loads a texture with STB IMAGE
 		int textWidth, textHeight, textChannels;
 		stbi_set_flip_vertically_on_load(true);
 
@@ -1895,45 +1897,64 @@ namespace Core
 			return;
 		}
 
+		// Creates transfer buffers
 		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingBufferMemory;
 
+		// Creates buffer that can transfer memory from CPU to GPU
 		CreateBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
+		// Map the data into the buffer
 		void* data;
 		vkMapMemory(m_LogicalDevice, stagingBufferMemory, 0, imageSize, 0, &data);
 		memcpy(data, texture, static_cast<size_t>(imageSize));
 		vkUnmapMemory(m_LogicalDevice, stagingBufferMemory);
 
+		// Free the texture on the CPU
 		stbi_image_free(texture);
 
+		// Creates the image object
 		CreateImage(static_cast<uint32_t>(textWidth), static_cast<uint32_t>(textHeight), VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_TextureImage, m_TextureImageMemory);
+
+		// Transition the image layout a first time
 		TransitionImageLayout(m_TextureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+
+		// Copy the texture in the good buffer
 		CopyBufferToImage(stagingBuffer, m_TextureImage, static_cast<uint32_t>(textWidth), static_cast<uint32_t>(textHeight));
+
+		// Transition the image layout a second time
 		TransitionImageLayout(m_TextureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
+		// Destroys the transfer buffer
 		vkDestroyBuffer(m_LogicalDevice, stagingBuffer, nullptr);
 		vkFreeMemory(m_LogicalDevice, stagingBufferMemory, nullptr);
 	}
 
 	void VulkanWrapper::CreateImage(uint32_t _Width, uint32_t _Height, VkFormat _Format, VkImageTiling _Tiling, VkImageUsageFlags _Usage, VkMemoryPropertyFlags _Properties, VkImage& _Image, VkDeviceMemory& _ImageMemory)
 	{
+		// Omage infos
 		VkImageCreateInfo imageInfo{};
 		imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+		// Type of texture
 		imageInfo.imageType = VK_IMAGE_TYPE_2D;
 		imageInfo.extent.width = _Width;
 		imageInfo.extent.height = _Height;
+		// Depth is 1 because it's a 2D texture
 		imageInfo.extent.depth = 1;
 		imageInfo.mipLevels = 1;
 		imageInfo.arrayLayers = 1;
 		imageInfo.format = _Format;
+		// How pixels are organized in the memory
 		imageInfo.tiling = _Tiling;
 		imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 		imageInfo.usage = _Usage;
+		// For multi sampling
 		imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+		// Defines if the image can be used by multiple queues
 		imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 		imageInfo.flags = 0;
 
+		// Creates the image
 		VkResult result = vkCreateImage(m_LogicalDevice, &imageInfo, nullptr, &_Image);
 
 		if (result != VK_SUCCESS)
@@ -1941,6 +1962,7 @@ namespace Core
 			DEBUG_ERROR("Failed to create image, Error Code: %d", result);
 		}
 
+		// Gets the memory requirements for the texture
 		VkMemoryRequirements memRequirements;
 		vkGetImageMemoryRequirements(m_LogicalDevice, _Image, &memRequirements);
 
@@ -1949,6 +1971,7 @@ namespace Core
 		allocInfo.allocationSize = memRequirements.size;
 		allocInfo.memoryTypeIndex = FindMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
+		// Allocates the memory
 		result = vkAllocateMemory(m_LogicalDevice, &allocInfo, nullptr, &_ImageMemory);
 
 		if (result != VK_SUCCESS)
@@ -1956,31 +1979,41 @@ namespace Core
 			DEBUG_ERROR("Filed to allocate image memory, Error Code: %d", result);
 		}
 
+		// Bind the memory with our image
 		vkBindImageMemory(m_LogicalDevice, _Image, _ImageMemory, 0);
 	}
 
 	void VulkanWrapper::TransitionImageLayout(VkImage _Image, VkFormat _Format, VkImageLayout _OldLayout, VkImageLayout _NewLayout)
 	{
-		VkCommandBuffer commandBuffer = BeginSingleTimeCommands();
+		// Starts recording command buffer
+ 		VkCommandBuffer commandBuffer = BeginSingleTimeCommands();
 
+		// Creates a memory barrier
+		// Is here to garanty that we will not modify the memory while the GPU is using it or already writing in it
 		VkImageMemoryBarrier barrier{};
-		barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+		barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;\
+		// Specifies the old layout and the new layout
 		barrier.oldLayout = _OldLayout;
 		barrier.newLayout = _NewLayout;
+		// Used to change queue families
 		barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 		barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		// Base data of the image
 		barrier.image = _Image;
 		barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 		barrier.subresourceRange.baseMipLevel = 0;
 		barrier.subresourceRange.levelCount = 1;
 		barrier.subresourceRange.baseArrayLayer = 0;
 		barrier.subresourceRange.layerCount = 1;
+		// Default values
 		barrier.srcAccessMask = 0;
 		barrier.dstAccessMask = 0;
 
+		// Creates src and dst stages that we have to defined
 		VkPipelineStageFlags sourceStage;
 		VkPipelineStageFlags destinationStage;
 
+		// For depth buffer
 		if (_NewLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
 		{
 			barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
@@ -1991,6 +2024,7 @@ namespace Core
 			}
 		}
 
+		// Handles some transitions
 		if (_OldLayout == VK_IMAGE_LAYOUT_UNDEFINED && _NewLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
 		{
 			barrier.srcAccessMask = 0;
@@ -2007,6 +2041,7 @@ namespace Core
 		}
 		else if (_OldLayout == VK_IMAGE_LAYOUT_UNDEFINED && _NewLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
 		{
+			// Also for depth buffer
 			barrier.srcAccessMask = 0;
 			barrier.dstAccessMask = VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 			sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
@@ -2019,13 +2054,16 @@ namespace Core
 
 		vkCmdPipelineBarrier(commandBuffer, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
 
+		// Ends recording the command buffer
 		EndSingleTimeCommands(commandBuffer);
 	}
 
 	void VulkanWrapper::CopyBufferToImage(VkBuffer _Buffer, VkImage _Image, uint32_t _Width, uint32_t _Height)
 	{
+		// Records command buffer
 		VkCommandBuffer commandBuffer = BeginSingleTimeCommands();
 
+		// Creates the region to copy
 		VkBufferImageCopy region{};
 		region.bufferOffset = 0;
 		region.bufferRowLength = 0;
@@ -2039,40 +2077,49 @@ namespace Core
 		region.imageOffset = { 0, 0, 0 };
 		region.imageExtent = { _Width, _Height, 1 };
 
+		// Copies the buffer to the image
 		vkCmdCopyBufferToImage(commandBuffer, _Buffer, _Image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
+		// Ends recording the command buffer
 		EndSingleTimeCommands(commandBuffer);
 	}
 
 	void VulkanWrapper::CreateTextureImageView()
 	{
+		// Uses the create image view function
 		m_TextureImageView = CreateImageView(m_TextureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
 	}
 
 	void VulkanWrapper::CreateTextureSampler()
 	{
+		// Sampler infos
 		VkSamplerCreateInfo samplerInfo{};
 		samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+		// Same as OpenGL
 		samplerInfo.magFilter = VK_FILTER_LINEAR;
 		samplerInfo.minFilter = VK_FILTER_LINEAR;
 		samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
 		samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
 		samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
 		samplerInfo.anisotropyEnable = VK_TRUE;
+		samplerInfo.maxAnisotropy = 16.0f;
 
 		VkPhysicalDeviceProperties properties{};
 		vkGetPhysicalDeviceProperties(m_PhysicalDevice, &properties);
 
 		samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
 		samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+		// VK_FALSE = coords are between 0 and width or height and VK_TRUE coords are between 0 and 1
 		samplerInfo.unnormalizedCoordinates = VK_FALSE;
 		samplerInfo.compareEnable = VK_FALSE;
 		samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+		// Mip maps infos
 		samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
 		samplerInfo.mipLodBias = 0.f;
 		samplerInfo.minLod = 0.f;
 		samplerInfo.maxLod = 0.f;
 
+		// Creates the sampler
 		VkResult result = vkCreateSampler(m_LogicalDevice, &samplerInfo, nullptr, &m_TextureSampler);
 
 		if (result != VK_SUCCESS)
@@ -2084,21 +2131,27 @@ namespace Core
 
 	void VulkanWrapper::CreateDepthRessources()
 	{
+		// Check for the best depth format available
 		VkFormat depthFormat = FindDepthFormat();
 
+		// Creates an image of the size of our rendering viewport (swap chain) - Creates also the image view to have access to the depth buffer
 		CreateImage(m_SwapChainExtent.width, m_SwapChainExtent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_DepthImage, m_DepthImageMemory);
 		m_DepthImageView = CreateImageView(m_DepthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
 
+		// Transition the layout
 		TransitionImageLayout(m_DepthImage, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 	}
 
 	VkFormat VulkanWrapper::FindSupportedFormat(const std::vector<VkFormat>& _Candidates, VkImageTiling _Tiling, VkFormatFeatureFlags _Features)
 	{
+		// Loop through all candidates
 		for (VkFormat format : _Candidates)
 		{
+			// Gets the formats properties in our device
 			VkFormatProperties props;
 			vkGetPhysicalDeviceFormatProperties(m_PhysicalDevice, format, &props);
 
+			// Checks the type of _Tiling and if the features required are supported
 			if (_Tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & _Features) == _Features)
 			{
 				return format;
@@ -2110,10 +2163,14 @@ namespace Core
 		}
 
 		DEBUG_ERROR("Failed to find supported format!");
+
+		VkFormat errFormat;
+		return errFormat;
 	}
 
 	VkFormat VulkanWrapper::FindDepthFormat()
 	{
+		// Checks a suported format for depth texture
 		return FindSupportedFormat({ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT }, VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
 	}
 
