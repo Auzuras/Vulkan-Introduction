@@ -1,12 +1,12 @@
 #pragma once
 
-#include "RHI/RHI.h"
+#include "RHI/IRendererHardware.h"
 
 namespace Core
 {
-	class OpenGLWRapper : public RHI
+	class OpenGLRenderer : public IRendererHardware
 	{
-		~OpenGLWRapper() override;
+		~OpenGLRenderer() override;
 
 		///////////////////////////////////////////////////////////////////////
 
@@ -14,10 +14,10 @@ namespace Core
 
 		///////////////////////////////////////////////////////////////////////
 
-		const bool Initialize(GLFWwindow* _Window) override;
+		const bool Initialize(Window* _Window) override;
 
 		const bool Terminate() override;
 
-		void DrawFrame(GLFWwindow* _Window) override;
+		void DrawFrame(Window* _Window) override;
 	};
 }

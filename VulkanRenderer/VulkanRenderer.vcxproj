@@ -144,10 +144,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Code\src\Core\RHI\OpenGLWrapper.cpp" />
+    <ClCompile Include="Code\src\Core\RHI\OpenGLRenderer.cpp" />
     <ClCompile Include="Code\src\Core\Debug\Log.cpp" />
     <ClCompile Include="Code\src\Core\RHI\Vertex.cpp" />
-    <ClCompile Include="Code\src\Core\RHI\VulkanWrapper.cpp" />
+    <ClCompile Include="Code\src\Core\RHI\VulkanRenderer.cpp" />
     <ClCompile Include="Code\src\Core\Application.cpp" />
     <ClCompile Include="Code\src\Core\Maths\Matrices\Matrix2.cpp" />
     <ClCompile Include="Code\src\Core\Maths\Matrices\Matrix3.cpp" />
@@ -155,6 +155,7 @@
     <ClCompile Include="Code\src\Core\Maths\Vectors\Vector2.cpp" />
     <ClCompile Include="Code\src\Core\Maths\Vectors\Vector3.cpp" />
     <ClCompile Include="Code\src\Core\Maths\Vectors\Vector4.cpp" />
+    <ClCompile Include="Code\src\Core\RHI\VulkanWrapper\SwapChain.cpp" />
     <ClCompile Include="Code\src\Core\Window.cpp" />
     <ClCompile Include="Code\src\LowRenderer\Camera.cpp" />
     <ClCompile Include="Code\src\LowRenderer\Object.cpp" />
@@ -172,10 +173,11 @@
     <ClInclude Include="Code\include\Core\Maths\Vectors\Vector2.h" />
     <ClInclude Include="Code\include\Core\Maths\Vectors\Vector3.h" />
     <ClInclude Include="Code\include\Core\Maths\Vectors\Vector4.h" />
-    <ClInclude Include="Code\include\Core\RHI\OpenGLWrapper.h" />
-    <ClInclude Include="Code\include\Core\RHI\RHI.h" />
+    <ClInclude Include="Code\include\Core\RHI\OpenGLRenderer.h" />
+    <ClInclude Include="Code\include\Core\RHI\IRendererHardware.h" />
     <ClInclude Include="Code\include\Core\RHI\Vertex.h" />
-    <ClInclude Include="Code\include\Core\RHI\VulkanWrapper.h" />
+    <ClInclude Include="Code\include\Core\RHI\VulkanRenderer.h" />
+    <ClInclude Include="Code\include\Core\RHI\VulkanRenderer\SwapChain.h" />
     <ClInclude Include="Code\include\Core\Window.h" />
     <ClInclude Include="Code\include\LowRenderer\Camera.h" />
     <ClInclude Include="Code\include\LowRenderer\Object.h" />

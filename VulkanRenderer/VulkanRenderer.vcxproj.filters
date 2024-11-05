@@ -39,7 +39,7 @@
     <ClCompile Include="Code\src\Core\Application.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Code\src\Core\RHI\VulkanWrapper.cpp">
+    <ClCompile Include="Code\src\Core\RHI\VulkanRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Code\src\Core\Debug\Log.cpp">
@@ -60,10 +60,13 @@
     <ClCompile Include="Code\src\Physics\Transform.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Code\src\Core\RHI\OpenGLWrapper.cpp">
+    <ClCompile Include="Code\src\Core\RHI\OpenGLRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Code\src\Resources\Model.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\src\Core\RHI\VulkanWrapper\SwapChain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -98,10 +101,10 @@
     <ClInclude Include="Code\include\Core\Application.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Code\include\Core\RHI\RHI.h">
+    <ClInclude Include="Code\include\Core\RHI\IRendererHardware.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Code\include\Core\RHI\VulkanWrapper.h">
+    <ClInclude Include="Code\include\Core\RHI\VulkanRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Code\include\Core\Debug\Log.h">
@@ -128,13 +131,16 @@
     <ClInclude Include="Code\include\Physics\Transform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Code\include\Core\RHI\OpenGLWrapper.h">
+    <ClInclude Include="Code\include\Core\RHI\OpenGLRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Code\include\Resources\IResource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Code\include\Resources\Model.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\include\Core\RHI\VulkanRenderer\SwapChain.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

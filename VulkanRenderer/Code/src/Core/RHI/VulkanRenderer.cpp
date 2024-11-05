@@ -1,4 +1,4 @@
-#include "RHI/VulkanWrapper.h"
+#include "RHI/VulkanRenderer.h"
 
 #include <cstring>
 #include <set>
@@ -13,18 +13,18 @@
 
 namespace Core
 {
-	VulkanWrapper::~VulkanWrapper()
+	VulkanRenderer::~VulkanRenderer()
 	{}
 
-	const bool VulkanWrapper::Initialize(GLFWwindow* _Window)
+	const bool VulkanRenderer::Initialize(Window* _Window)
 	{
 		if (!CreateVulkanInstance())
 			return false;
 
 		// Defines the window resize callback with swapchain recreation
 		// Adds a custom pointer to our class to access it in any call back functions
-		glfwSetWindowUserPointer(_Window, this);
-		glfwSetFramebufferSizeCallback(_Window, FrameBufferResizeCallback);
+		glfwSetWindowUserPointer(_Window->GetWindowPointer(), this);
+		glfwSetFramebufferSizeCallback(_Window->GetWindowPointer(), FrameBufferResizeCallback);
 
 		SetupDebugMessenger();
 		CreateSurface(_Window);
@@ -53,7 +53,7 @@ namespace Core
 		return true;
 	}
 
-	const bool VulkanWrapper::CreateVulkanInstance()
+	const bool VulkanRenderer::CreateVulkanInstance()
 	{
 		// Checks if validation layers are available if requested
 		if (m_EnableValidationLayers && !CheckValidationLayerSupport())
@@ -110,7 +110,7 @@ namespace Core
 		return true;
 	}
 
-	const bool VulkanWrapper::SetupDebugMessenger()
+	const bool VulkanRenderer::SetupDebugMessenger()
 	{
 		if (!m_EnableValidationLayers)
 		{
@@ -134,7 +134,7 @@ namespace Core
 		return true;
 	}
 
-	const bool VulkanWrapper::Terminate()
+	const bool VulkanRenderer::Terminate()
 	{
 		// Destroys every objects created
 
@@ -192,7 +192,7 @@ namespace Core
 		return true;
 	}
 
-	const bool VulkanWrapper::CheckValidationLayerSupport()
+	const bool VulkanRenderer::CheckValidationLayerSupport()
 	{
 		// Gets the list of all layer supported
 		uint32_t layerNbr;
@@ -227,7 +227,7 @@ namespace Core
 		return true;
 	}
 
-	VKAPI_ATTR VkBool32 VKAPI_CALL VulkanWrapper::DebugCallBack(VkDebugUtilsMessageSeverityFlagBitsEXT _MessageSeverity, VkDebugUtilsMessageTypeFlagsEXT _MessageType, const VkDebugUtilsMessengerCallbackDataEXT* _CallbackData, void* _UserData)
+	VKAPI_ATTR VkBool32 VKAPI_CALL VulkanRenderer::DebugCallBack(VkDebugUtilsMessageSeverityFlagBitsEXT _MessageSeverity, VkDebugUtilsMessageTypeFlagsEXT _MessageType, const VkDebugUtilsMessengerCallbackDataEXT* _CallbackData, void* _UserData)
 	{
 		// Different message type according to its severity
 		switch (_MessageSeverity)
@@ -246,7 +246,7 @@ namespace Core
 		return VK_FALSE;
 	}
 
-	VkResult VulkanWrapper::CreateDebugUtilsMessengerEXT(VkInstance _Instance, const VkDebugUtilsMessengerCreateInfoEXT* _CreateInfo, const VkAllocationCallbacks* _Allocator, VkDebugUtilsMessengerEXT* _DebugMessenger)
+	VkResult VulkanRenderer::CreateDebugUtilsMessengerEXT(VkInstance _Instance, const VkDebugUtilsMessengerCreateInfoEXT* _CreateInfo, const VkAllocationCallbacks* _Allocator, VkDebugUtilsMessengerEXT* _DebugMessenger)
 	{
 		// Loads the Debug Messenger creation method - Because validation layers are an extension we need to load manually the method
 		auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(_Instance, "vkCreateDebugUtilsMessengerEXT");
@@ -262,7 +262,7 @@ namespace Core
 		}
 	}
 
-	void VulkanWrapper::DestroyDebugUtilsMessengerEXT(VkInstance _Instance, VkDebugUtilsMessengerEXT _DebugMessenger, const VkAllocationCallbacks* _Allocator)
+	void VulkanRenderer::DestroyDebugUtilsMessengerEXT(VkInstance _Instance, VkDebugUtilsMessengerEXT _DebugMessenger, const VkAllocationCallbacks* _Allocator)
 	{
 		// Loads the Debug Messenger deletion method - Because validation layers are an extension we need to load manually the method
 		auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(_Instance, "vkDestroyDebugUtilsMessengerEXT");
@@ -278,7 +278,7 @@ namespace Core
 		}
 	}
 
-	void VulkanWrapper::PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& _CreateInfo)
+	void VulkanRenderer::PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& _CreateInfo)
 	{
 		// Specifies all the information for the debug messenger
 		_CreateInfo = {};
@@ -290,7 +290,7 @@ namespace Core
 		_CreateInfo.pfnUserCallback = DebugCallBack;
 	}
 
-	std::vector<const char*> VulkanWrapper::GetRequiredExtensions()
+	std::vector<const char*> VulkanRenderer::GetRequiredExtensions()
 	{
 		// Gets GLFW extensions in order to link our window with vulkan
 		uint32_t glfwExtensionCount = 0;
@@ -309,7 +309,7 @@ namespace Core
 		return extensions;
 	}
 
-	void VulkanWrapper::PickPhysicalDevice()
+	void VulkanRenderer::PickPhysicalDevice()
 	{
 		// Gets the number of GPU
 		uint32_t deviceNbr = 0;
@@ -341,7 +341,7 @@ namespace Core
 
 	}
 
-	const bool VulkanWrapper::IsDeviceSuitable(VkPhysicalDevice _Device)
+	const bool VulkanRenderer::IsDeviceSuitable(VkPhysicalDevice _Device)
 	{
 		// For the basic properties (Name, Vulkan version supported, Driver version...)
 		VkPhysicalDeviceProperties deviceProperties;
@@ -383,7 +383,7 @@ namespace Core
 			&& deviceFeatures.samplerAnisotropy;
 	}
 
-	QueueFamilyIndices VulkanWrapper::FindQueueFamilies(VkPhysicalDevice _Device)
+	QueueFamilyIndices VulkanRenderer::FindQueueFamilies(VkPhysicalDevice _Device)
 	{
 		QueueFamilyIndices indices;
 
@@ -428,7 +428,7 @@ namespace Core
 		return indices;
 	}
 
-	void VulkanWrapper::CreateLogicalDevice()
+	void VulkanRenderer::CreateLogicalDevice()
 	{
 		// Gets all queue families to reference the number of queues required for our application
 		QueueFamilyIndices indices = FindQueueFamilies(m_PhysicalDevice);
@@ -488,10 +488,10 @@ namespace Core
 		return;
 	}
 
-	void VulkanWrapper::CreateSurface(GLFWwindow* _Window)
+	void VulkanRenderer::CreateSurface(Window* _Window)
 	{
 		// Gets the window surface for vulkan
-		VkResult result = glfwCreateWindowSurface(m_VulkanInstance, _Window, nullptr, &m_Surface);
+		VkResult result = glfwCreateWindowSurface(m_VulkanInstance, _Window->GetWindowPointer(), nullptr, &m_Surface);
 
 		if (result != VK_SUCCESS)
 		{
@@ -499,7 +499,7 @@ namespace Core
 		}
 	}
 
-	const bool VulkanWrapper::CheckDeviceExtensionSupport(VkPhysicalDevice _Device)
+	const bool VulkanRenderer::CheckDeviceExtensionSupport(VkPhysicalDevice _Device)
 	{
 		// Gets the number of extensions supported by our device
 		uint32_t extensionsNbr;
@@ -530,7 +530,7 @@ namespace Core
 		return requiredExtensions.empty();
 	}
 
-	SwapChainSupportDetails VulkanWrapper::QuerySwapChainSupport(VkPhysicalDevice _Device)
+	SwapChainSupportDetails VulkanRenderer::QuerySwapChainSupport(VkPhysicalDevice _Device)
 	{
 		SwapChainSupportDetails details;
 
@@ -562,7 +562,7 @@ namespace Core
 		return details;
 	}
 
-	VkSurfaceFormatKHR VulkanWrapper::ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& _AvailableFormats)
+	VkSurfaceFormatKHR VulkanRenderer::ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& _AvailableFormats)
 	{
 		for (const VkSurfaceFormatKHR& format : _AvailableFormats)
 		{
@@ -577,7 +577,7 @@ namespace Core
 		return _AvailableFormats[0];
 	}
 
-	VkPresentModeKHR VulkanWrapper::ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& _AvailablePresentModes)
+	VkPresentModeKHR VulkanRenderer::ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& _AvailablePresentModes)
 	{
 		for (const VkPresentModeKHR& presentMode : _AvailablePresentModes)
 		{
@@ -592,7 +592,7 @@ namespace Core
 		return VK_PRESENT_MODE_FIFO_KHR;
 	}
 
-	VkExtent2D VulkanWrapper::ChooseSwapExtent(GLFWwindow* _Window, const VkSurfaceCapabilitiesKHR& _Capabilities)
+	VkExtent2D VulkanRenderer::ChooseSwapExtent(Window* _Window, const VkSurfaceCapabilitiesKHR& _Capabilities)
 	{
 		// This condition checks if the currentExtent is fixed by the system or the user
 		if (_Capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
@@ -605,7 +605,7 @@ namespace Core
 			// The second case here is if the user doesn't define a size so the system does
 			// In this case the currentExent will be equal to max of uint32_t
 			int width, height;
-			glfwGetFramebufferSize(_Window, &width, &height);
+			glfwGetFramebufferSize(_Window->GetWindowPointer(), &width, &height);
 
 			VkExtent2D actualExtent = {
 				static_cast<uint32_t>(width),
@@ -620,7 +620,7 @@ namespace Core
 		}
 	}
 
-	void VulkanWrapper::CreateSwapChain(GLFWwindow* _Window)
+	void VulkanRenderer::CreateSwapChain(Window* _Window)
 	{
 		// Gets all the capabilities and information the swapchain can support
 		SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(m_PhysicalDevice);
@@ -705,17 +705,17 @@ namespace Core
 		return;
 	}
 
-	void VulkanWrapper::RecreateSwapChain(GLFWwindow* _Window)
+	void VulkanRenderer::RecreateSwapChain(Window* _Window)
 	{
 		// Gets the current size of the window
 		int width = 0, height = 0;
-		glfwGetFramebufferSize(_Window, &width, &height);
+		glfwGetFramebufferSize(_Window->GetWindowPointer(), &width, &height);
 
 		// Loop executed when the window is minimized (when width and height = 0)
 		while (width == 0 || height == 0)
 		{
 			// Updates the size to get out when not minimized
-			glfwGetFramebufferSize(_Window, &width, &height);
+			glfwGetFramebufferSize(_Window->GetWindowPointer(), &width, &height);
 
 			// Pause all events
 			glfwWaitEvents();
@@ -734,7 +734,7 @@ namespace Core
 		CreateSwapChainFramebuffers();
 	}
 
-	void VulkanWrapper::CleanSwapChain()
+	void VulkanRenderer::CleanSwapChain()
 	{
 		// Destroys data linked to the swap chain
 		vkDestroyImageView(m_LogicalDevice, m_DepthImageView, nullptr);
@@ -755,7 +755,7 @@ namespace Core
 		vkDestroySwapchainKHR(m_LogicalDevice, m_SwapChain, nullptr);
 	}
 
-	void VulkanWrapper::CreateSwapChainImageViews()
+	void VulkanRenderer::CreateSwapChainImageViews()
 	{
 		m_SwapChainImageViews.resize(m_SwapChainImages.size());
 
@@ -768,7 +768,7 @@ namespace Core
 		return;
 	}
 
-	void VulkanWrapper::CreateGraphicsPipeline()
+	void VulkanRenderer::CreateGraphicsPipeline()
 	{
 		// Compiles and create the two shader modules corresponding to the vertex and fragment shader
 		VkShaderModule vertShaderModule = CreateShaderModule(CompileShader("Assets/Shaders/HelloTriangle.vert", ShaderType::VERTEX));
@@ -958,7 +958,7 @@ namespace Core
 		vkDestroyShaderModule(m_LogicalDevice, vertShaderModule, nullptr);
 	}
 
-	std::vector<char> VulkanWrapper::ReadSpirVShader(const std::filesystem::path& _FilePath)
+	std::vector<char> VulkanRenderer::ReadSpirVShader(const std::filesystem::path& _FilePath)
 	{
 		// Cancels the reading if the file is not a SpirV file 
 		if (_FilePath.extension() != ".spv")
@@ -992,7 +992,7 @@ namespace Core
 		return buffer;
 	}
 
-	VkShaderModule VulkanWrapper::CreateShaderModule(const std::vector<uint32_t>& _ShaderSourceCode)
+	VkShaderModule VulkanRenderer::CreateShaderModule(const std::vector<uint32_t>& _ShaderSourceCode)
 	{
 		// Create info of the shader
 		VkShaderModuleCreateInfo createInfo{};
@@ -1013,7 +1013,7 @@ namespace Core
 		return shaderModule;
 	}
 
-	std::vector<uint32_t> VulkanWrapper::CompileShader(std::filesystem::path _ShaderPath, ShaderType _ShaderType)
+	std::vector<uint32_t> VulkanRenderer::CompileShader(std::filesystem::path _ShaderPath, ShaderType _ShaderType)
 	{
 		// Causes memory leaks, thx
 		shaderc::Compiler compiler;
@@ -1097,7 +1097,7 @@ namespace Core
 		return output;
 	}
 
-	void VulkanWrapper::CreateRenderPass()
+	void VulkanRenderer::CreateRenderPass()
 	{
 		// Describes the color buffer attachment
 		VkAttachmentDescription colorAttachment{};
@@ -1179,7 +1179,7 @@ namespace Core
 		}
 	}
 
-	void VulkanWrapper::CreateSwapChainFramebuffers()
+	void VulkanRenderer::CreateSwapChainFramebuffers()
 	{
 		m_SwapChainFramebuffers.resize(m_SwapChainImageViews.size());
 
@@ -1214,7 +1214,7 @@ namespace Core
 		}
 	}
 
-	void VulkanWrapper::CreateCommandPool()
+	void VulkanRenderer::CreateCommandPool()
 	{
 		// Gets the queue families
 		QueueFamilyIndices queueFamilyIndices = FindQueueFamilies(m_PhysicalDevice);
@@ -1235,7 +1235,7 @@ namespace Core
 		}
 	}
 
-	void VulkanWrapper::CreateCommandBuffers()
+	void VulkanRenderer::CreateCommandBuffers()
 	{
 		m_CommandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
 
@@ -1259,7 +1259,7 @@ namespace Core
 		}
 	}
 
-	void VulkanWrapper::RecordCommandBuffer(VkCommandBuffer _CommandBuffer, uint32_t _ImageIndex)
+	void VulkanRenderer::RecordCommandBuffer(VkCommandBuffer _CommandBuffer, uint32_t _ImageIndex)
 	{
 		// Command buffer begin recording infos
 		VkCommandBufferBeginInfo beginInfo{};
@@ -1351,7 +1351,7 @@ namespace Core
 		}
 	}
 
-	VkCommandBuffer VulkanWrapper::BeginSingleTimeCommands()
+	VkCommandBuffer VulkanRenderer::BeginSingleTimeCommands()
 	{
 		// Command buffer allocation infos
 		VkCommandBufferAllocateInfo allocInfo{};
@@ -1375,7 +1375,7 @@ namespace Core
 		return commandBuffer;
 	}
 
-	void VulkanWrapper::EndSingleTimeCommands(VkCommandBuffer _CommandBuffer)
+	void VulkanRenderer::EndSingleTimeCommands(VkCommandBuffer _CommandBuffer)
 	{
 		// Ends recording the command
 		vkEndCommandBuffer(_CommandBuffer);
@@ -1396,7 +1396,7 @@ namespace Core
 		vkFreeCommandBuffers(m_LogicalDevice, m_CommandPool, 1, &_CommandBuffer);
 	}
 
-	void VulkanWrapper::DrawFrame(GLFWwindow* _Window)
+	void VulkanRenderer::DrawFrame(Window* _Window)
 	{
 		// Will wait the end of the rendering of the current frame (if rendering) and reset the fence
 		// fourth parameter specifies that we want to wait for all the fences to finish (here we have only one fence)
@@ -1495,7 +1495,7 @@ namespace Core
 		m_CurrentFrame = (m_CurrentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 	}
 
-	void VulkanWrapper::CreateSyncObjects()
+	void VulkanRenderer::CreateSyncObjects()
 	{
 		m_ImageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
 		m_RenderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
@@ -1540,15 +1540,15 @@ namespace Core
 		}
 	}
 
-	void VulkanWrapper::FrameBufferResizeCallback(GLFWwindow* _Window, int _Width, int _Height)
+	void VulkanRenderer::FrameBufferResizeCallback(GLFWwindow* _Window, int _Width, int _Height)
 	{
 		// Gets the custom pointer and cast it to our class
-		VulkanWrapper* vkWrapper = reinterpret_cast<VulkanWrapper*>(glfwGetWindowUserPointer(_Window));
+		VulkanRenderer* vkWrapper = reinterpret_cast<VulkanRenderer*>(glfwGetWindowUserPointer(_Window));
 
 		vkWrapper->m_FramebufferResized = true;
 	}
 
-	void VulkanWrapper::CreateBuffer(VkDeviceSize _Size, VkBufferUsageFlags _Usage, VkMemoryPropertyFlags _Properties, VkBuffer& _Buffer, VkDeviceMemory& _BufferMemory)
+	void VulkanRenderer::CreateBuffer(VkDeviceSize _Size, VkBufferUsageFlags _Usage, VkMemoryPropertyFlags _Properties, VkBuffer& _Buffer, VkDeviceMemory& _BufferMemory)
 	{
 		// Buffer infos
 		VkBufferCreateInfo bufferInfo{};
@@ -1588,7 +1588,7 @@ namespace Core
 		vkBindBufferMemory(m_LogicalDevice, _Buffer, _BufferMemory, 0);
 	}
 
-	void VulkanWrapper::CreateVertexBuffer()
+	void VulkanRenderer::CreateVertexBuffer()
 	{
 		VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
 
@@ -1620,7 +1620,7 @@ namespace Core
 		vkFreeMemory(m_LogicalDevice, stagingBufferMemory, nullptr);
 	}
 
-	uint32_t VulkanWrapper::FindMemoryType(uint32_t _TypeFilter, VkMemoryPropertyFlags _Properties)
+	uint32_t VulkanRenderer::FindMemoryType(uint32_t _TypeFilter, VkMemoryPropertyFlags _Properties)
 	{
 		// Gets all memory properties from the device
 		VkPhysicalDeviceMemoryProperties memProperties;
@@ -1642,7 +1642,7 @@ namespace Core
 		return 0;
 	}
 
-	void VulkanWrapper::CopyBuffer(VkBuffer _SourceBuffer, VkBuffer _DestinationBuffer, VkDeviceSize _Size)
+	void VulkanRenderer::CopyBuffer(VkBuffer _SourceBuffer, VkBuffer _DestinationBuffer, VkDeviceSize _Size)
 	{
 		// Creates a temporary command buffer for transfer
 		VkCommandBuffer commandBuffer = BeginSingleTimeCommands();
@@ -1658,7 +1658,7 @@ namespace Core
 		EndSingleTimeCommands(commandBuffer);
 	}
 
-	void VulkanWrapper::CreateIndexBuffer()
+	void VulkanRenderer::CreateIndexBuffer()
 	{
 		// Same idea as the vertex buffer so please check the CreateVertexBuffer for more information
 
@@ -1688,7 +1688,7 @@ namespace Core
 
 	}
 
-	void VulkanWrapper::CreateDescriptorSetLayout()
+	void VulkanRenderer::CreateDescriptorSetLayout()
 	{
 		// Descriptor Set layout binding for ubo
 		VkDescriptorSetLayoutBinding uboLayoutBinding{};
@@ -1726,7 +1726,7 @@ namespace Core
 		}
 	}
 
-	void VulkanWrapper::CreateUniformBuffers()
+	void VulkanRenderer::CreateUniformBuffers()
 	{
 		VkDeviceSize bufferSize = sizeof(UniformMVP);
 
@@ -1745,7 +1745,7 @@ namespace Core
 		}
 	}
 
-	void VulkanWrapper::UpdateUniformBuffer(uint32_t _CurrentImage)
+	void VulkanRenderer::UpdateUniformBuffer(uint32_t _CurrentImage)
 	{
 		// Creates a MVP
 		UniformMVP mvp{};
@@ -1763,7 +1763,7 @@ namespace Core
 		memcpy(m_UniformBuffersMapped[_CurrentImage], &mvp, sizeof(mvp));
 	}
 
-	void VulkanWrapper::CreateDescriptorPool()
+	void VulkanRenderer::CreateDescriptorPool()
 	{
 		// Describes the pool size
 		std::array<VkDescriptorPoolSize, 2> poolSizes{};
@@ -1791,7 +1791,7 @@ namespace Core
 		}
 	}
 
-	void VulkanWrapper::CreateDescriptorSets()
+	void VulkanRenderer::CreateDescriptorSets()
 	{
 		std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, m_DescriptorSetLayout);
 
@@ -1853,7 +1853,7 @@ namespace Core
 		}
 	}
 
-	VkImageView VulkanWrapper::CreateImageView(VkImage _Image, VkFormat _Format, VkImageAspectFlags _AspectFlags)
+	VkImageView VulkanRenderer::CreateImageView(VkImage _Image, VkFormat _Format, VkImageAspectFlags _AspectFlags)
 	{
 		VkImageViewCreateInfo viewInfo{};
 		viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -1881,7 +1881,7 @@ namespace Core
 		return imageView;
 	}
 
-	void VulkanWrapper::CreateTextureImage()
+	void VulkanRenderer::CreateTextureImage()
 	{
 		// Loads a texture with STB IMAGE
 		int textWidth, textHeight, textChannels;
@@ -1930,7 +1930,7 @@ namespace Core
 		vkFreeMemory(m_LogicalDevice, stagingBufferMemory, nullptr);
 	}
 
-	void VulkanWrapper::CreateImage(uint32_t _Width, uint32_t _Height, VkFormat _Format, VkImageTiling _Tiling, VkImageUsageFlags _Usage, VkMemoryPropertyFlags _Properties, VkImage& _Image, VkDeviceMemory& _ImageMemory)
+	void VulkanRenderer::CreateImage(uint32_t _Width, uint32_t _Height, VkFormat _Format, VkImageTiling _Tiling, VkImageUsageFlags _Usage, VkMemoryPropertyFlags _Properties, VkImage& _Image, VkDeviceMemory& _ImageMemory)
 	{
 		// Omage infos
 		VkImageCreateInfo imageInfo{};
@@ -1983,7 +1983,7 @@ namespace Core
 		vkBindImageMemory(m_LogicalDevice, _Image, _ImageMemory, 0);
 	}
 
-	void VulkanWrapper::TransitionImageLayout(VkImage _Image, VkFormat _Format, VkImageLayout _OldLayout, VkImageLayout _NewLayout)
+	void VulkanRenderer::TransitionImageLayout(VkImage _Image, VkFormat _Format, VkImageLayout _OldLayout, VkImageLayout _NewLayout)
 	{
 		// Starts recording command buffer
  		VkCommandBuffer commandBuffer = BeginSingleTimeCommands();
@@ -2058,7 +2058,7 @@ namespace Core
 		EndSingleTimeCommands(commandBuffer);
 	}
 
-	void VulkanWrapper::CopyBufferToImage(VkBuffer _Buffer, VkImage _Image, uint32_t _Width, uint32_t _Height)
+	void VulkanRenderer::CopyBufferToImage(VkBuffer _Buffer, VkImage _Image, uint32_t _Width, uint32_t _Height)
 	{
 		// Records command buffer
 		VkCommandBuffer commandBuffer = BeginSingleTimeCommands();
@@ -2084,13 +2084,13 @@ namespace Core
 		EndSingleTimeCommands(commandBuffer);
 	}
 
-	void VulkanWrapper::CreateTextureImageView()
+	void VulkanRenderer::CreateTextureImageView()
 	{
 		// Uses the create image view function
 		m_TextureImageView = CreateImageView(m_TextureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
 	}
 
-	void VulkanWrapper::CreateTextureSampler()
+	void VulkanRenderer::CreateTextureSampler()
 	{
 		// Sampler infos
 		VkSamplerCreateInfo samplerInfo{};
@@ -2129,7 +2129,7 @@ namespace Core
 		}
 	}
 
-	void VulkanWrapper::CreateDepthRessources()
+	void VulkanRenderer::CreateDepthRessources()
 	{
 		// Check for the best depth format available
 		VkFormat depthFormat = FindDepthFormat();
@@ -2142,7 +2142,7 @@ namespace Core
 		TransitionImageLayout(m_DepthImage, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 	}
 
-	VkFormat VulkanWrapper::FindSupportedFormat(const std::vector<VkFormat>& _Candidates, VkImageTiling _Tiling, VkFormatFeatureFlags _Features)
+	VkFormat VulkanRenderer::FindSupportedFormat(const std::vector<VkFormat>& _Candidates, VkImageTiling _Tiling, VkFormatFeatureFlags _Features)
 	{
 		// Loop through all candidates
 		for (VkFormat format : _Candidates)
@@ -2163,23 +2163,20 @@ namespace Core
 		}
 
 		DEBUG_ERROR("Failed to find supported format!");
-
-		VkFormat errFormat;
-		return errFormat;
 	}
 
-	VkFormat VulkanWrapper::FindDepthFormat()
+	VkFormat VulkanRenderer::FindDepthFormat()
 	{
 		// Checks a suported format for depth texture
 		return FindSupportedFormat({ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT }, VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
 	}
 
-	bool VulkanWrapper::HasStencilComponent(VkFormat _Format)
+	bool VulkanRenderer::HasStencilComponent(VkFormat _Format)
 	{
 		return _Format == VK_FORMAT_D32_SFLOAT_S8_UINT || _Format == VK_FORMAT_D24_UNORM_S8_UINT;
 	}
 
-	void VulkanWrapper::LoadModel()
+	void VulkanRenderer::LoadModel()
 	{
 		// Sets up the variables for reading
 		tinyobj::attrib_t attrib;

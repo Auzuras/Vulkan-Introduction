@@ -8,6 +8,8 @@
 
 #include <string>
 
+#include "Window.h"
+
 namespace Core
 {
 	enum ShaderType
@@ -16,7 +18,7 @@ namespace Core
 		FRAGMENT
 	};
 
-	enum RHIType
+	enum RendererType
 	{
 		OPENGL,
 		VULKAN,
@@ -24,17 +26,16 @@ namespace Core
 	};
 
 	/// <summary>
-	/// RHI class -
 	/// Renderer Hardware Interface class -
 	/// The goal of this class is to wrap every graphic API
 	/// </summary>
-	class RHI
+	class IRendererHardware
 	{
 	public:
 		GLFWwindow* window = nullptr;
 
-		RHI() = default;
-		virtual ~RHI() = default;
+		IRendererHardware() = default;
+		virtual ~IRendererHardware() = default;
 
 		///////////////////////////////////////////////////////////////////////
 
@@ -49,7 +50,7 @@ namespace Core
 		/// <param name="_Height"> : height of the window</param>
 		/// <param name="_WindowName"> : name of the window</param>
 		/// <returns></returns>
-		virtual const bool Initialize(GLFWwindow* _Window) = 0;
+		virtual const bool Initialize(Window* _Window) = 0;
 
 		/// <summary>
 		/// Termination method of the graphic API
@@ -57,7 +58,7 @@ namespace Core
 		/// <returns></returns>
 		virtual const bool Terminate() = 0;
 
-		virtual void DrawFrame(GLFWwindow* _Window) = 0;
+		virtual void DrawFrame(Window* _Window) = 0;
 
 		///////////////////////////////////////////////////////////////////////
 

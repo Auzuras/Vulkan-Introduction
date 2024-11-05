@@ -2,6 +2,10 @@
 
 namespace Core
 {
+	Window::Window(const uint32_t _Width, const uint32_t _Height, const char* _WindowName)
+		:m_Width(_Width), m_Height(_Height), m_WindowName(_WindowName)
+	{}
+
 	const bool Window::InitializeVulkanWindow()
 	{
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -26,7 +30,7 @@ namespace Core
 		return m_Width;
 	}
 
-	void Window::SetWindowWidth(int _Width)
+	void Window::SetWindowWidth(const uint32_t _Width)
 	{
 		m_Width = _Width;
 	}
@@ -36,7 +40,7 @@ namespace Core
 		return m_Height;
 	}
 
-	void Window::SetWindowHeight(int _Height)
+	void Window::SetWindowHeight(const uint32_t _Height)
 	{
 		m_Height = _Height;
 	}
@@ -61,7 +65,7 @@ namespace Core
 		return glfwExtensions;
 	}
 
-	const bool Window::Initialize(RHIType _Type)
+	const bool Window::Initialize(RendererType _Type)
 	{
 		glfwInit();
 

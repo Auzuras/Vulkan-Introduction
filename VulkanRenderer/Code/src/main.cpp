@@ -19,20 +19,20 @@ int main()
 	//_CrtSetBreakAlloc(1962);
 #endif
 
-	Core::Application application(800, 600, "Vulkan Renderer");
+	Core::Application app;
 
-	if (!application.Initialize())
+	if (!app.Initialize())
 	{
 		return -1;
 	}
 
-	while (!glfwWindowShouldClose(application.GetWindow()))
+	while (!glfwWindowShouldClose(app))
 	{
 		glfwPollEvents();
-		application.Draw();
+		app.Draw();
 	}
 
-	if (!application.Terminate())
+	if (!app.Terminate())
 	{
 		return -1;
 	}

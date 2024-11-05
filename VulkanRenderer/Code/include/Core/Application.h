@@ -1,9 +1,10 @@
 #pragma once
 
 #include "Window.h"
-#include "RHI/RHI.h"
-#include "RHI/VulkanWrapper.h"
-#include "RHI/OpenGLWrapper.h"
+
+#include "RHI/IRendererHardware.h"
+#include "RHI/VulkanRenderer.h"
+#include "RHI/OpenGLRenderer.h"
 
 #include "Camera.h"
 
@@ -12,17 +13,12 @@ namespace Core
 	class Application
 	{
 	private:
-		Window m_WindowDos;
-		const uint32_t m_Width = 800;
-		const uint32_t m_Height = 600;
-		const char* m_WindowName = "DefaultName";
+		Window m_Window;
 
 		LowRenderer::Camera m_AppCamera;
+		static inline Core::IRendererHardware* m_Renderer = nullptr;
 
-		GLFWwindow* m_Window = nullptr;
-		static inline Core::RHI* m_RHI = nullptr;
-
-		static inline RHIType m_RHIType = RHIType::VULKAN;
+		static inline RendererType m_RendererType = RendererType::VULKAN;
 
 	public:
 
@@ -33,25 +29,9 @@ namespace Core
 		///////////////////////////////////////////////////////////////////////
 
 		/// <summary>
-		/// Application default constructot
+		/// Application default constructor
 		/// </summary>
 		Application() = default;
-
-		/// <summary>
-		/// Application constructor
-		/// </summary>
-		/// <param name="_Width">: Width of the window </param>
-		/// <param name="_Height">: Height of the window </param>
-		/// <param name="_WindowName">: Name of the window </param>
-		/// <param name="_RHIType">: Type of renderer </param>
-		Application(const uint32_t _Width, const uint32_t _Height, const char* _WindowName);
-
-		/// <summary>
-		/// Application constructor
-		/// </summary>
-		/// <param name="_Width">: Width of the window </param>
-		/// <param name="_Height">: Height of the window </param>
-		Application(const uint32_t _Width, const uint32_t _Height);
 
 		/// <summary>
 		/// Application default destructor
@@ -65,28 +45,10 @@ namespace Core
 		///////////////////////////////////////////////////////////////////////
 
 		/// <summary>
-		/// Window width getter
-		/// </summary>
-		/// <returns></returns>
-		inline int GetWindowWidth() { return m_Width; }
-
-		/// <summary>
-		/// Window height getter
-		/// </summary>
-		/// <returns></returns>
-		inline int GetWindowHeight() { return m_Height; }
-
-		/// <summary>
-		/// Window name getter
-		/// </summary>
-		/// <returns></returns>
-		inline const char* GetWindowName() { return m_WindowName; }
-
-		/// <summary>
 		/// Window getter
 		/// </summary>
 		/// <returns></returns>
-		inline GLFWwindow* GetWindow() { return m_Window; }
+		inline Window* GetWindow() { return &m_Window; }
 
 		///////////////////////////////////////////////////////////////////////
 

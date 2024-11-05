@@ -2,7 +2,8 @@
 
 #define NOMINMAX
 
-#include "RHI/RHI.h"
+#include "RHI/IRendererHardware.h"
+
 #include <vulkan/vulkan.h>
 
 #include <vector>
@@ -51,7 +52,7 @@ namespace Core
 		std::vector<VkPresentModeKHR> presentModes;
 	};
 
-	class VulkanWrapper : public RHI
+	class VulkanRenderer : public IRendererHardware
 	{
 	private:
 		std::vector<Vertex> vertices;
@@ -133,8 +134,8 @@ namespace Core
 #endif
 
 	public:
-		VulkanWrapper() = default;
-		~VulkanWrapper() override;
+		VulkanRenderer() = default;
+		~VulkanRenderer() override;
 
 		///////////////////////////////////////////////////////////////////////
 
@@ -147,7 +148,7 @@ namespace Core
 		/// </summary>
 		/// <param name="_Window">: current window </param>
 		/// <returns></returns>
-		const bool Initialize(GLFWwindow* _Window) override;
+		const bool Initialize(Window* _Window) override;
 
 		/// <summary>
 		/// Creates a vulkan instance that links the application with the API
@@ -277,7 +278,7 @@ namespace Core
 		/// Creates a surface which is going to link Vulkan with Window API
 		/// </summary>
 		/// <param name="_Window">: Current window context </param>
-		void CreateSurface(GLFWwindow* _Window);
+		void CreateSurface(Window* _Window);
 
 
 		///////////////////////////////////////////////////////////////////////
@@ -319,19 +320,19 @@ namespace Core
 		/// </summary>
 		/// <param name="capabilities">: Swap chain capabilities availables </param>
 		/// <returns></returns>
-		VkExtent2D ChooseSwapExtent(GLFWwindow* _Window, const VkSurfaceCapabilitiesKHR& _Capabilities);
+		VkExtent2D ChooseSwapExtent(Window* _Window, const VkSurfaceCapabilitiesKHR& _Capabilities);
 
 		/// <summary>
 		/// Creates the Swap chain for our program
 		/// </summary>
 		/// <param name="_Window">: Current window context </param>
-		void CreateSwapChain(GLFWwindow* _Window);
+		void CreateSwapChain(Window* _Window);
 
 		/// <summary>
 		/// Recreates the Swap chain
 		/// </summary>
 		/// <param name="_Window">: Current window context </param>
-		void RecreateSwapChain(GLFWwindow* _Window);
+		void RecreateSwapChain(Window* _Window);
 
 		/// <summary>
 		/// Destroys all data linked to the swap chain and the swap chain
@@ -453,7 +454,7 @@ namespace Core
 		/// <summary>
 		/// Executes all drawing commands and presentation commands
 		/// </summary>
-		void DrawFrame(GLFWwindow* _Window) override;
+		void DrawFrame(Window* _Window) override;
 
 		/// <summary>
 		/// Creates all synchronization objects needed for rendering
