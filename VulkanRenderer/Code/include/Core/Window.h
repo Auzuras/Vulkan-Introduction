@@ -5,7 +5,7 @@
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
 
-#include "RHI/IRendererHardware.h"
+#include "RHI/RHITypes.h"
 
 namespace Core
 {

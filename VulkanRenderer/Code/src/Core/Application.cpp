@@ -19,8 +19,6 @@ namespace Core
 			break;
 		}
 
-		m_Window.Initialize(m_RendererType);
-
 		Debug::Log::OpenFile("Logs/LogFile.log");
 
 		if (!m_Renderer)
@@ -62,6 +60,6 @@ namespace Core
 
 	void Application::Draw()
 	{
-		m_Renderer->DrawFrame(m_Window);
+		m_Renderer->DrawFrame(&m_Window);
 	}
 }

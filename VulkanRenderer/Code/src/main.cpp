@@ -26,7 +26,7 @@ int main()
 		return -1;
 	}
 
-	while (!glfwWindowShouldClose(app))
+	while (!glfwWindowShouldClose(app.GetWindow()->GetWindowPointer()))
 	{
 		glfwPollEvents();
 		app.Draw();

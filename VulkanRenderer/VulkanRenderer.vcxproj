@@ -175,6 +175,7 @@
     <ClInclude Include="Code\include\Core\Maths\Vectors\Vector4.h" />
     <ClInclude Include="Code\include\Core\RHI\OpenGLRenderer.h" />
     <ClInclude Include="Code\include\Core\RHI\IRendererHardware.h" />
+    <ClInclude Include="Code\include\Core\RHI\RHITypes.h" />
     <ClInclude Include="Code\include\Core\RHI\Vertex.h" />
     <ClInclude Include="Code\include\Core\RHI\VulkanRenderer.h" />
     <ClInclude Include="Code\include\Core\RHI\VulkanRenderer\SwapChain.h" />

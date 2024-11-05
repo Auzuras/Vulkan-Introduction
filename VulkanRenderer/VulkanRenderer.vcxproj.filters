@@ -143,6 +143,9 @@
     <ClInclude Include="Code\include\Core\RHI\VulkanRenderer\SwapChain.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Code\include\Core\RHI\RHITypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Shaders\HelloTriangle.vert" />

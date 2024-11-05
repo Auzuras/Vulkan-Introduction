@@ -9,22 +9,10 @@
 #include <string>
 
 #include "Window.h"
+#include "RHI/RHITypes.h"
 
 namespace Core
 {
-	enum ShaderType
-	{
-		VERTEX,
-		FRAGMENT
-	};
-
-	enum RendererType
-	{
-		OPENGL,
-		VULKAN,
-		DIRECTX
-	};
-
 	/// <summary>
 	/// Renderer Hardware Interface class -
 	/// The goal of this class is to wrap every graphic API
@@ -32,8 +20,6 @@ namespace Core
 	class IRendererHardware
 	{
 	public:
-		GLFWwindow* window = nullptr;
-
 		IRendererHardware() = default;
 		virtual ~IRendererHardware() = default;
 

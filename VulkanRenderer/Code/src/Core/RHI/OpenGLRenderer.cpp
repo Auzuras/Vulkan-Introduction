@@ -1,19 +1,22 @@
 #include "RHI/OpenGLRenderer.h"
 
-Core::OpenGLRenderer::~OpenGLRenderer()
+namespace Core
 {
-}
+	OpenGLRenderer::~OpenGLRenderer()
+	{
+	}
 
-const bool Core::OpenGLRenderer::Initialize(Window* _Window)
-{
-	return true;
-}
+	const bool OpenGLRenderer::Initialize(Window* _Window)
+	{
+		return true;
+	}
 
-const bool Core::OpenGLRenderer::Terminate()
-{
-	return false;
-}
+	const bool OpenGLRenderer::Terminate()
+	{
+		return false;
+	}
 
-void Core::OpenGLRenderer::DrawFrame(Window* _Window)
-{
+	void OpenGLRenderer::DrawFrame(Window* _Window)
+	{
+	}
 }
