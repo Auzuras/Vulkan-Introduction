@@ -4,21 +4,21 @@
 
 namespace Resources
 {
-	class Shader : public IResource
+	class ITexture : public IResource
 	{
 	private:
 	public:
 		/// <summary>
-		/// Loads a GLSL shader specified with a path
+		/// Loads a texture with STB Image specified with a path
 		/// </summary>
 		/// <param name="_ResourcePath">: Path of the 3D model </param>
 		/// <returns></returns>
-		const bool Load(std::filesystem::path _ResourcePath) override;
+		virtual ITexture* Load(std::filesystem::path _ResourcePath) override = 0;
 
 		/// <summary>
 		/// Unloads the 3D model
 		/// </summary>
 		/// <returns></returns>
-		const bool Unload() override;
+		virtual const bool Unload() = 0;
 	};
 }

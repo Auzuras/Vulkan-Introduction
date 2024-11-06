@@ -4,17 +4,17 @@
 
 namespace Resources
 {
-	class Model : public IResource
+	class IShader : public IResource
 	{
 	private:
 	public:
 		/// <summary>
-		/// Loads a 3D model with TINY OBJ specified with a path
+		/// Loads a GLSL shader specified with a path
 		/// </summary>
 		/// <param name="_ResourcePath">: Path of the 3D model </param>
 		/// <returns></returns>
-		const bool Load(std::filesystem::path _ResourcePath) override;
-		
+		IShader* Load(std::filesystem::path _ResourcePath) override;
+
 		/// <summary>
 		/// Unloads the 3D model
 		/// </summary>

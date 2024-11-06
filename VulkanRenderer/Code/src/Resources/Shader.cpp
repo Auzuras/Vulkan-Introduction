@@ -1,8 +1,8 @@
-#include "Shader.h"
+#include "IShader.h"
 
 namespace Resources
 {
-	const bool Shader::Load(std::filesystem::path _ResourcePath)
+	IShader* IShader::Load(std::filesystem::path _ResourcePath)
 	{
 		const char* ext = _ResourcePath.extension().string().c_str();
 
@@ -11,7 +11,7 @@ namespace Resources
 		if (_ResourcePath.extension() != ".vert")
 		{
 			DEBUG_ERROR("Cannot load shader due to unsuported extension: %s", ext);
-			return false;
+			return nullptr;
 		}
 
 		std::ifstream shaderFile(_ResourcePath);
@@ -32,10 +32,10 @@ namespace Resources
 		
 		// TODO: Compile shader
 
-		return true;
+		return nullptr;
 	}
 
-	const bool Shader::Unload()
+	const bool IShader::Unload()
 	{
 		// TODO: Unload/Destroy shader 
 

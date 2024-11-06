@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RHI/VulkanRenderer.h"
+#include "RHI/VulkanRHI/VulkanRenderer.h"
 
 namespace Core
 {

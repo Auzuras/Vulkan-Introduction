@@ -144,10 +144,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Code\src\Core\RHI\OpenGLRenderer.cpp" />
+    <ClCompile Include="Code\src\Core\RHI\OpenGLRHI\OpenGLRenderer.cpp" />
     <ClCompile Include="Code\src\Core\Debug\Log.cpp" />
     <ClCompile Include="Code\src\Core\RHI\Vertex.cpp" />
-    <ClCompile Include="Code\src\Core\RHI\VulkanRenderer.cpp" />
+    <ClCompile Include="Code\src\Core\RHI\VulkanRHI\VulkanRenderer.cpp" />
     <ClCompile Include="Code\src\Core\Application.cpp" />
     <ClCompile Include="Code\src\Core\Maths\Matrices\Matrix2.cpp" />
     <ClCompile Include="Code\src\Core\Maths\Matrices\Matrix3.cpp" />
@@ -155,15 +155,16 @@
     <ClCompile Include="Code\src\Core\Maths\Vectors\Vector2.cpp" />
     <ClCompile Include="Code\src\Core\Maths\Vectors\Vector3.cpp" />
     <ClCompile Include="Code\src\Core\Maths\Vectors\Vector4.cpp" />
-    <ClCompile Include="Code\src\Core\RHI\VulkanRenderer\VulkanBuffer.cpp" />
-    <ClCompile Include="Code\src\Core\RHI\VulkanRenderer\VulkanDevice.cpp" />
-    <ClCompile Include="Code\src\Core\RHI\VulkanRenderer\VulkanSwapChain.cpp" />
+    <ClCompile Include="Code\src\Core\RHI\VulkanRHI\VulkanTypes\VulkanBuffer.cpp" />
+    <ClCompile Include="Code\src\Core\RHI\VulkanRHI\VulkanTypes\VulkanDevice.cpp" />
+    <ClCompile Include="Code\src\Core\RHI\VulkanRHI\VulkanTypes\VulkanPipeline.cpp" />
+    <ClCompile Include="Code\src\Core\RHI\VulkanRHI\VulkanTypes\VulkanSwapChain.cpp" />
     <ClCompile Include="Code\src\Core\Window.cpp" />
     <ClCompile Include="Code\src\LowRenderer\Camera.cpp" />
     <ClCompile Include="Code\src\LowRenderer\Object.cpp" />
     <ClCompile Include="Code\src\main.cpp" />
     <ClCompile Include="Code\src\Physics\Transform.cpp" />
-    <ClCompile Include="Code\src\Resources\Model.cpp" />
+    <ClCompile Include="Code\src\Resources\IMesh.cpp" />
     <ClCompile Include="Code\src\Resources\Shader.cpp" />
     <ClCompile Include="Code\src\Resources\Texture.cpp" />
   </ItemGroup>
@@ -177,22 +178,27 @@
     <ClInclude Include="Code\include\Core\Maths\Vectors\Vector2.h" />
     <ClInclude Include="Code\include\Core\Maths\Vectors\Vector3.h" />
     <ClInclude Include="Code\include\Core\Maths\Vectors\Vector4.h" />
-    <ClInclude Include="Code\include\Core\RHI\OpenGLRenderer.h" />
+    <ClInclude Include="Code\include\Core\RHI\OpenGLRHI\OpenGLRenderer.h" />
     <ClInclude Include="Code\include\Core\RHI\IRendererHardware.h" />
     <ClInclude Include="Code\include\Core\RHI\RHITypes.h" />
     <ClInclude Include="Code\include\Core\RHI\Vertex.h" />
-    <ClInclude Include="Code\include\Core\RHI\VulkanRenderer.h" />
-    <ClInclude Include="Code\include\Core\RHI\VulkanRenderer\VulkanBuffer.h" />
-    <ClInclude Include="Code\include\Core\RHI\VulkanRenderer\VulkanDevice.h" />
-    <ClInclude Include="Code\include\Core\RHI\VulkanRenderer\VulkanSwapChain.h" />
+    <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanRenderer.h" />
+    <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanBuffer.h" />
+    <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanDevice.h" />
+    <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanImage.h" />
+    <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanPipeline.h" />
+    <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanShader.h" />
+    <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanSwapChain.h" />
+    <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanTexture.h" />
+    <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanTypesWrapper.h" />
     <ClInclude Include="Code\include\Core\Window.h" />
     <ClInclude Include="Code\include\LowRenderer\Camera.h" />
     <ClInclude Include="Code\include\LowRenderer\Object.h" />
     <ClInclude Include="Code\include\Physics\Transform.h" />
     <ClInclude Include="Code\include\Resources\IResource.h" />
-    <ClInclude Include="Code\include\Resources\Model.h" />
-    <ClInclude Include="Code\include\Resources\Shader.h" />
-    <ClInclude Include="Code\include\Resources\Texture.h" />
+    <ClInclude Include="Code\include\Resources\IMesh.h" />
+    <ClInclude Include="Code\include\Resources\IShader.h" />
+    <ClInclude Include="Code\include\Resources\ITexture.h" />
     <ClInclude Include="Externals\GLFW\include\GLFW\glfw3.h" />
     <ClInclude Include="Externals\GLFW\include\GLFW\glfw3native.h" />
     <ClInclude Include="Externals\STB_IMAGE\include\stb_image.h" />

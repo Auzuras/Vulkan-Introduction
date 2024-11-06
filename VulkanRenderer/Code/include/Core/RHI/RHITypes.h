@@ -12,6 +12,7 @@ namespace Core
 	enum ShaderType
 	{
 		VERTEX,
-		FRAGMENT
+		FRAGMENT,
+		GEOMETRY
 	};
 }

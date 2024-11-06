@@ -1,4 +1,4 @@
-#include "Model.h"
+#include "IMesh.h"
 
 //#define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
@@ -7,7 +7,7 @@
 
 namespace Resources
 {
-	const bool Model::Load(std::filesystem::path _ResourcePath)
+	IMesh* IMesh::Load(std::filesystem::path _ResourcePath)
 	{
 		tinyobj::attrib_t attrib;
 		std::vector<tinyobj::shape_t> shapes;
@@ -49,10 +49,10 @@ namespace Resources
 		// TODO: Create Vertex buffer
 		// TODO: Create Index buffer
 
-		return false;
+		return nullptr;
 	}
 
-	const bool Model::Unload()
+	const bool IMesh::Unload()
 	{
 		return false;
 	}

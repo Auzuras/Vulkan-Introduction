@@ -1,4 +1,4 @@
-#include "RHI/OpenGLRenderer.h"
+#include "RHI/OpenGLRHI/OpenGLRenderer.h"
 
 namespace Core
 {

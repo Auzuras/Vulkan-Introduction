@@ -1,4 +1,4 @@
-#include "RHI/VulkanRenderer.h"
+#include "RHI/VulkanRHI/VulkanRenderer.h"
 
 #include <cstring>
 #include <set>
@@ -1259,7 +1259,7 @@ namespace Core
 		}
 	}
 
-	void VulkanRenderer::RecordCommandBuffer(VkCommandBuffer _CommandBuffer, uint32_t _ImageIndex)
+	void VulkanRenderer::RecordDrawCommandBuffer(VkCommandBuffer _CommandBuffer, uint32_t _ImageIndex)
 	{
 		// Command buffer begin recording infos
 		VkCommandBufferBeginInfo beginInfo{};
@@ -1323,7 +1323,10 @@ namespace Core
 		vkCmdSetScissor(_CommandBuffer, 0, 1, &scissor);
 
 		vkCmdBindPipeline(_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_GraphicsPipeline);
+	}
 
+	void VulkanRenderer::DrawCommandBuffer(VkCommandBuffer _CommandBuffer)
+	{
 		VkBuffer vertexBuffers[] = { m_VertexBuffer };
 		VkDeviceSize offsets[] = { 0 };
 
@@ -1338,12 +1341,15 @@ namespace Core
 
 		// Draws the vertex buffer with indices
 		vkCmdDrawIndexed(_CommandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+	}
 
+	void VulkanRenderer::EndDrawCommandBuffer(VkCommandBuffer _CommandBuffer)
+	{
 		// Finish the render pass
 		vkCmdEndRenderPass(_CommandBuffer);
 
 		// Stops recording commands
-		result = vkEndCommandBuffer(_CommandBuffer);
+		VkResult result = vkEndCommandBuffer(_CommandBuffer);
 
 		if (result != VK_SUCCESS)
 		{
@@ -1421,11 +1427,25 @@ namespace Core
 			DEBUG_ERROR("Failed to acquire swap chain image, Error Code: %d", result);
 		}
 
-		// Updates the uniform buffer
-		UpdateUniformBuffer(m_CurrentFrame);
+		Math::Vector3 pos = Math::Vector3::zero;
+		Math::Vector3 pos2 = Math::Vector3(-1.f, 0.f, 0.f);
+		Math::Vector3 rot = Math::Vector3::zero;
+		Math::Vector3 scale = Math::Vector3::one;
+
+		Math::Matrix4 model[] = { Math::Matrix4::TRS(pos, rot, scale),  Math::Matrix4::TRS(pos2, rot, scale) };
 
 		vkResetCommandBuffer(m_CommandBuffers[m_CurrentFrame], 0);
-		RecordCommandBuffer(m_CommandBuffers[m_CurrentFrame], imageIndex);
+		RecordDrawCommandBuffer(m_CommandBuffers[m_CurrentFrame], imageIndex);
+
+		for (size_t i = 0; i < 2; ++i)
+		{
+			// Updates the uniform buffer
+			UpdateUniformBuffer(m_CurrentFrame, model[i]);
+
+			DrawCommandBuffer(m_CommandBuffers[m_CurrentFrame]);
+		}
+
+		EndDrawCommandBuffer(m_CommandBuffers[m_CurrentFrame]);
 
 		// Submit informations
 		VkSubmitInfo submitInfo{};
@@ -1745,17 +1765,13 @@ namespace Core
 		}
 	}
 
-	void VulkanRenderer::UpdateUniformBuffer(uint32_t _CurrentImage)
+	void VulkanRenderer::UpdateUniformBuffer(uint32_t _CurrentImage, Math::Matrix4 _ModelMatrix)
 	{
 		// Creates a MVP
 		UniformMVP mvp{};
 
-		Math::Vector3 pos = Math::Vector3::zero;
-		Math::Vector3 rot = Math::Vector3(Math::Utils::DegToRad(90.f), 0.f, iRandomRotation += 0.0005f);
-		Math::Vector3 scale = Math::Vector3::one;
-
 		// Updates the MVP
-		mvp.model = Math::Matrix4::TRS(pos, rot, scale).Transpose();
+		mvp.model = _ModelMatrix.Transpose();
 		mvp.view = Math::Matrix4::ViewMatrix(Math::Vector3(-0.3f, 0.f, -2.f), Math::Vector3::zero, Math::Vector3::up).Transpose();
 		mvp.projection = Math::Matrix4::ProjectionPerspectiveMatrix(0.01f, 100.f, (float)(m_SwapChainExtent.width / m_SwapChainExtent.height), 45.f).Transpose();
 

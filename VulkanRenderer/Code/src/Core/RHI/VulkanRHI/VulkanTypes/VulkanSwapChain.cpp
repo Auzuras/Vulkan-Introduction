@@ -1,4 +1,4 @@
-#include "RHI/VulkanRenderer/VulkanSwapChain.h"
+#include "RHI/VulkanRHI/VulkanTypes/VulkanSwapChain.h"
 
 #include <set>
 

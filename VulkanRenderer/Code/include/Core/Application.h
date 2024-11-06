@@ -3,8 +3,8 @@
 #include "Window.h"
 
 #include "RHI/IRendererHardware.h"
-#include "RHI/VulkanRenderer.h"
-#include "RHI/OpenGLRenderer.h"
+#include "RHI/VulkanRHI/VulkanRenderer.h"
+#include "RHI/OpenGLRHI/OpenGLRenderer.h"
 
 #include "Camera.h"
 

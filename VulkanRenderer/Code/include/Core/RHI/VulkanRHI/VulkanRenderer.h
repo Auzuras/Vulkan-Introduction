@@ -41,6 +41,7 @@ namespace Core
 	{
 		std::optional<uint32_t> graphicsFamily;
 		std::optional<uint32_t> presentFamily;
+		std::optional<uint32_t> transfertFamily;
 
 		bool isComplete = false;
 	};
@@ -57,8 +58,6 @@ namespace Core
 	private:
 		std::vector<Vertex> vertices;
 		std::vector<uint32_t> indices;
-
-		float iRandomRotation = 0.f;
 
 		VkInstance m_VulkanInstance;
 		VkDebugUtilsMessengerEXT m_DebugMessenger;
@@ -106,9 +105,9 @@ namespace Core
 		std::vector<VkDescriptorSet> m_DescriptorSets;
 
 		VkImage m_TextureImage;
-		VkDeviceMemory m_TextureImageMemory;
-
 		VkImageView m_TextureImageView;
+
+		VkDeviceMemory m_TextureImageMemory;
 		VkSampler m_TextureSampler;
 
 		bool m_FramebufferResized = false;
@@ -432,7 +431,11 @@ namespace Core
 		/// </summary>
 		/// <param name="_CommandBuffer">: Command buffer used </param>
 		/// <param name="_ImageIndex">: Current image </param>
-		void RecordCommandBuffer(VkCommandBuffer _CommandBuffer, uint32_t _ImageIndex);
+		void RecordDrawCommandBuffer(VkCommandBuffer _CommandBuffer, uint32_t _ImageIndex);
+
+		void DrawCommandBuffer(VkCommandBuffer _CommandBuffer);
+
+		void EndDrawCommandBuffer(VkCommandBuffer _CommandBuffer);
 
 		/// <summary>
 		/// Creates a temporary command buffer for a single command
@@ -520,7 +523,7 @@ namespace Core
 		/// Updates the uniform buffer
 		/// </summary>
 		/// <param name="_CurrentImage">: Current image updated </param>
-		void UpdateUniformBuffer(uint32_t _CurrentImage);
+		void UpdateUniformBuffer(uint32_t _CurrentImage, Math::Matrix4 _ModelMatrix);
 
 		/// <summary>
 		/// Creates all descriptor pool

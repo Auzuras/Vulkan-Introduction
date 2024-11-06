@@ -1,11 +1,11 @@
-#include "Texture.h"
+#include "ITexture.h"
 
 //#define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
 namespace Resources
 {
-	const bool Texture::Load(std::filesystem::path _ResourcePath)
+	ITexture* ITexture::Load(std::filesystem::path _ResourcePath)
 	{
 		int textWidth, textHeight, textChannels;
 		stbi_set_flip_vertically_on_load(true);
@@ -15,13 +15,13 @@ namespace Resources
 		if (!texture)
 		{
 			DEBUG_ERROR("Failed to load texture");
-			return false;
+			return nullptr;
 		}
 
-		return true;
+		return nullptr;
 	}
 
-	const bool Texture::Unload()
+	const bool ITexture::Unload()
 	{
 		return false;
 	}
