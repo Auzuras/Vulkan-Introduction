@@ -159,6 +159,7 @@
     <ClCompile Include="Code\src\Core\RHI\VulkanRHI\VulkanTypes\VulkanDevice.cpp" />
     <ClCompile Include="Code\src\Core\RHI\VulkanRHI\VulkanTypes\VulkanPipeline.cpp" />
     <ClCompile Include="Code\src\Core\RHI\VulkanRHI\VulkanTypes\VulkanSwapChain.cpp" />
+    <ClCompile Include="Code\src\Core\Time\Time.cpp" />
     <ClCompile Include="Code\src\Core\Window.cpp" />
     <ClCompile Include="Code\src\LowRenderer\Camera.cpp" />
     <ClCompile Include="Code\src\LowRenderer\Object.cpp" />
@@ -191,6 +192,7 @@
     <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanSwapChain.h" />
     <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanTexture.h" />
     <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanTypesWrapper.h" />
+    <ClInclude Include="Code\include\Core\Time\Time.h" />
     <ClInclude Include="Code\include\Core\Window.h" />
     <ClInclude Include="Code\include\LowRenderer\Camera.h" />
     <ClInclude Include="Code\include\LowRenderer\Object.h" />
@@ -199,6 +201,7 @@
     <ClInclude Include="Code\include\Resources\IMesh.h" />
     <ClInclude Include="Code\include\Resources\IShader.h" />
     <ClInclude Include="Code\include\Resources\ITexture.h" />
+    <ClInclude Include="Code\src\Core\Time.h" />
     <ClInclude Include="Externals\GLFW\include\GLFW\glfw3.h" />
     <ClInclude Include="Externals\GLFW\include\GLFW\glfw3native.h" />
     <ClInclude Include="Externals\STB_IMAGE\include\stb_image.h" />

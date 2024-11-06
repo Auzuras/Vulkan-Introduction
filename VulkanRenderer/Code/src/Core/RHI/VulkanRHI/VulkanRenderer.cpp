@@ -11,6 +11,8 @@
 
 #include "Utils/Utils.h"
 
+#include "Application.h"
+
 namespace Core
 {
 	VulkanRenderer::~VulkanRenderer()
@@ -1428,11 +1430,10 @@ namespace Core
 		}
 
 		Math::Vector3 pos = Math::Vector3::zero;
-		Math::Vector3 pos2 = Math::Vector3(-1.f, 0.f, 0.f);
 		Math::Vector3 rot = Math::Vector3::zero;
 		Math::Vector3 scale = Math::Vector3::one;
 
-		Math::Matrix4 model[] = { Math::Matrix4::TRS(pos, rot, scale),  Math::Matrix4::TRS(pos2, rot, scale) };
+		Math::Matrix4 model[] = { Math::Matrix4::TRS(pos, rot, scale),  Math::Matrix4::TRS(pos, rot, scale) };
 
 		vkResetCommandBuffer(m_CommandBuffers[m_CurrentFrame], 0);
 		RecordDrawCommandBuffer(m_CommandBuffers[m_CurrentFrame], imageIndex);
@@ -1772,8 +1773,8 @@ namespace Core
 
 		// Updates the MVP
 		mvp.model = _ModelMatrix.Transpose();
-		mvp.view = Math::Matrix4::ViewMatrix(Math::Vector3(-0.3f, 0.f, -2.f), Math::Vector3::zero, Math::Vector3::up).Transpose();
-		mvp.projection = Math::Matrix4::ProjectionPerspectiveMatrix(0.01f, 100.f, (float)(m_SwapChainExtent.width / m_SwapChainExtent.height), 45.f).Transpose();
+		mvp.view = Core::Application::appCamera.viewMatrix.Transpose();
+		mvp.projection = Core::Application::appCamera.projectionMatrix.Transpose();
 
 		// Copies the data into the buffer
 		memcpy(m_UniformBuffersMapped[_CurrentImage], &mvp, sizeof(mvp));

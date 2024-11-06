@@ -15,12 +15,12 @@ namespace Core
 	private:
 		Window m_Window;
 
-		LowRenderer::Camera m_AppCamera;
 		static inline Core::IRendererHardware* m_Renderer = nullptr;
 
 		static inline RendererType m_RendererType = RendererType::VULKAN;
 
 	public:
+		static inline LowRenderer::Camera appCamera;
 
 		///////////////////////////////////////////////////////////////////////
 
