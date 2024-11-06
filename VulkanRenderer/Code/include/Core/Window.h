@@ -87,7 +87,7 @@ namespace Core
 		/// Sets window name
 		/// </summary>
 		/// <param name="_WindowName"></param>
-		inline void SetWindowName(const char* _WindowName) { m_WindowName = _WindowName; }
+		inline void SetWindowName(const char* _WindowName) { m_WindowName = _WindowName; glfwSetWindowTitle(m_Window, _WindowName); }
 
 		/// <summary>
 		/// Returns the window extensions to initialize some APIs

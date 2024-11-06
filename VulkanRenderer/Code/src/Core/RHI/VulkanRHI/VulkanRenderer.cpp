@@ -581,6 +581,8 @@ namespace Core
 
 	VkPresentModeKHR VulkanRenderer::ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& _AvailablePresentModes)
 	{
+		//return VK_PRESENT_MODE_IMMEDIATE_KHR;
+
 		for (const VkPresentModeKHR& presentMode : _AvailablePresentModes)
 		{
 			// Checks for Mailbox presentation mode in all the available presentation modes

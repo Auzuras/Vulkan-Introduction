@@ -64,6 +64,10 @@ int main()
 			app.appCamera.position = app.appCamera.position.Add(Math::Vector3(0.f, -1.f, 0.f) * Core::Time::deltaTime * 2.f);
 		}
 
+		float fps = 1.f / Core::Time::deltaTime;
+
+		app.GetWindow()->SetWindowName(std::to_string(fps).c_str());
+
 		// Last thing to execute
 		Core::Time::UpdateDeltaTime(static_cast<float>(glfwGetTime()));
 	}
