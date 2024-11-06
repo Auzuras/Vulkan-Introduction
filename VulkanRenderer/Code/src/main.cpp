@@ -65,8 +65,9 @@ int main()
 		}
 
 		float fps = 1.f / Core::Time::deltaTime;
+		std::string name = "Vulkan Renderer: " + std::to_string(fps);
 
-		app.GetWindow()->SetWindowName(std::to_string(fps).c_str());
+		app.GetWindow()->SetWindowName(name.c_str());
 
 		// Last thing to execute
 		Core::Time::UpdateDeltaTime(static_cast<float>(glfwGetTime()));

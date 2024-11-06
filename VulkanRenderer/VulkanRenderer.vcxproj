@@ -185,6 +185,7 @@
     <ClInclude Include="Code\include\Core\RHI\Vertex.h" />
     <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanRenderer.h" />
     <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanBuffer.h" />
+    <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanCommandBuffer.h" />
     <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanDevice.h" />
     <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanImage.h" />
     <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanPipeline.h" />

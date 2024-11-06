@@ -60,50 +60,60 @@ namespace Core
 		std::vector<uint32_t> indices;
 
 		VkInstance m_VulkanInstance;
+
 		VkDebugUtilsMessengerEXT m_DebugMessenger;
+
+		// Device
 		VkPhysicalDevice m_PhysicalDevice = VK_NULL_HANDLE;
 		VkDevice m_LogicalDevice;
 
+		// Queues
 		VkQueue m_GraphicsQueue;
 		VkQueue m_PresentQueue;
 
+		// Surface
 		VkSurfaceKHR m_Surface;
 
+		// SwapChain
 		VkSwapchainKHR m_SwapChain;
 		std::vector<VkImage> m_SwapChainImages;
 		std::vector<VkImageView> m_SwapChainImageViews;
 		VkFormat m_SwapChainImageFormat;
 		VkExtent2D m_SwapChainExtent;
-
-		VkDescriptorSetLayout m_DescriptorSetLayout;
-		VkPipelineLayout m_PipelineLayout;
-
-		VkRenderPass m_RenderPass;
-
-		VkPipeline m_GraphicsPipeline;
-
 		std::vector<VkFramebuffer> m_SwapChainFramebuffers;
 
-		VkCommandPool m_CommandPool;
-		std::vector<VkCommandBuffer> m_CommandBuffers;
-
+		// Sync object (Swaphcain)
 		std::vector<VkSemaphore> m_ImageAvailableSemaphores;
 		std::vector<VkSemaphore> m_RenderFinishedSemaphores;
 		std::vector<VkFence> m_InFlightFences;
 
+		// Pipeline
+		VkDescriptorSetLayout m_DescriptorSetLayout;
+		VkPipelineLayout m_PipelineLayout;
+		VkRenderPass m_RenderPass;
+		VkPipeline m_GraphicsPipeline;
+
+		// Comands
+		VkCommandPool m_CommandPool;
+		std::vector<VkCommandBuffer> m_CommandBuffers;
+
+		// Buffers
 		VkBuffer m_VertexBuffer;
 		VkDeviceMemory m_VertexBufferMemory;
 
 		VkBuffer m_IndexBuffer;
 		VkDeviceMemory m_IndexBufferMemory;
 
+		// Uniforms
 		std::vector<VkBuffer> m_UniformBuffers;
 		std::vector<VkDeviceMemory> m_UniformBufferMemory;
 		std::vector<void*> m_UniformBuffersMapped;
 
+		// Descriptors
 		VkDescriptorPool m_DescriptorPool;
 		std::vector<VkDescriptorSet> m_DescriptorSets;
 
+		// Texture
 		VkImage m_TextureImage;
 		VkImageView m_TextureImageView;
 
