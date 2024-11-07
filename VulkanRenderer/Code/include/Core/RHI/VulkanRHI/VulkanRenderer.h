@@ -75,7 +75,7 @@ namespace Core
 		VkRenderPass m_RenderPass;
 		VkPipeline m_GraphicsPipeline;
 
-		// Comands
+		// Commands
 		VkCommandPool m_CommandPool;
 		std::vector<VkCommandBuffer> m_CommandBuffers;
 
