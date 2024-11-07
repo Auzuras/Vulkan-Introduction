@@ -1,10 +1,12 @@
 #pragma once
 
+#include "RHI/RHITypes/IPipeline.h"
+
 #include "RHI/VulkanRHI/VulkanRenderer.h"
 
 namespace Core
 {
-	class VulkanPipeline
+	class VulkanPipeline : public IPipeline
 	{
 	private:
 	public:

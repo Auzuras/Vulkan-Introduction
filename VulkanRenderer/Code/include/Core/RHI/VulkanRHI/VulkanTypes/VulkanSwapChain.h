@@ -1,5 +1,6 @@
 #pragma once
 
+#include "RHI/RHITypes/ISwapChain.h"
 #include "RHI/VulkanRHI/VulkanRenderer.h"
 
 namespace Core
@@ -11,7 +12,7 @@ namespace Core
 	//	std::vector<VkPresentModeKHR> presentModes;
 	//};
 
-	class VulkanSwapChain
+	class VulkanSwapChain : public ISwapChain
 	{
 	private:
 

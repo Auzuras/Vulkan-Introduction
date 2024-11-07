@@ -1,10 +1,12 @@
 #pragma once
 
+#include "RHI/RHITypes/IBuffer.h"
+
 #include "RHI/VulkanRHI/VulkanRenderer.h"
 
 namespace Core
 {
-	class VulkanBuffer
+	class VulkanBuffer : public IBuffer
 	{
 	private:
 

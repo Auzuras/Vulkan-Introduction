@@ -12,8 +12,8 @@ namespace Core
 	class Window
 	{
 	private:
-		uint32_t m_Width = 800;
-		uint32_t m_Height = 600;
+		uint32_t m_Width = 1280;
+		uint32_t m_Height = 720;
 		const char* m_WindowName = "DefaultName";
 
 		GLFWwindow* m_Window = nullptr;

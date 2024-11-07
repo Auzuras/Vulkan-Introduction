@@ -1,10 +1,11 @@
 #pragma once
 
 #include "RHI/VulkanRHI/VulkanRenderer.h"
+#include "RHI/RHITypes/IDevice.h"
 
 namespace Core
 {
-	class VulkanDevice
+	class VulkanDevice : public IDevice
 	{
 	private:
 

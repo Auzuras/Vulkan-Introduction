@@ -1,8 +1,10 @@
 #pragma once
 
+#include "RHI/RHITypes/ICommandBuffer.h"
+
 namespace Core
 {
-	class VulkanCommandBuffer
+	class VulkanCommandBuffer : public ICommandBuffer
 	{
 	private:
 
