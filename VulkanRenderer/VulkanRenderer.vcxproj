@@ -144,6 +144,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Code\src\Core\RHI\VulkanRHI\VulkanTypes\VulkanCommandBuffer.cpp" />
+    <ClCompile Include="Code\src\Core\RHI\VulkanRHI\VulkanTypes\VulkanDescriptor.cpp" />
     <ClCompile Include="Code\src\Core\RHI\VulkanRHI\VulkanTypes\VulkanQueue.cpp" />
     <ClCompile Include="Code\src\Core\RHI\OpenGLRHI\OpenGLRenderer.cpp" />
     <ClCompile Include="Code\src\Core\Debug\Log.cpp" />
@@ -167,8 +169,8 @@
     <ClCompile Include="Code\src\main.cpp" />
     <ClCompile Include="Code\src\Physics\Transform.cpp" />
     <ClCompile Include="Code\src\Resources\IMesh.cpp" />
-    <ClCompile Include="Code\src\Resources\Shader.cpp" />
-    <ClCompile Include="Code\src\Resources\Texture.cpp" />
+    <ClCompile Include="Code\src\Resources\IShader.cpp" />
+    <ClCompile Include="Code\src\Resources\ITexture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\include\Core\Application.h" />

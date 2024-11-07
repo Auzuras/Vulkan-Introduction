@@ -4,6 +4,7 @@
 
 namespace Core
 {
+	class Window;
 	class IDevice;
 
 	class ISwapChain

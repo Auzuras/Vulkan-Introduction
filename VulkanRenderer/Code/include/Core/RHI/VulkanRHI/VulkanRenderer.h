@@ -69,23 +69,6 @@ namespace Core
 		std::vector<VkSemaphore> m_RenderFinishedSemaphores;
 		std::vector<VkFence> m_InFlightFences;
 
-		// Pipeline
-		VkDescriptorSetLayout m_DescriptorSetLayout;
-		VkPipelineLayout m_PipelineLayout;
-		VkRenderPass m_RenderPass;
-		VkPipeline m_GraphicsPipeline;
-
-		// Commands
-		VkCommandPool m_CommandPool;
-		std::vector<VkCommandBuffer> m_CommandBuffers;
-
-		// Buffers
-		VkBuffer m_VertexBuffer;
-		VkDeviceMemory m_VertexBufferMemory;
-
-		VkBuffer m_IndexBuffer;
-		VkDeviceMemory m_IndexBufferMemory;
-
 		// Uniforms
 		std::vector<VkBuffer> m_UniformBuffers;
 		std::vector<VkDeviceMemory> m_UniformBufferMemory;
@@ -133,49 +116,6 @@ namespace Core
 		/// <returns></returns>
 		const bool Terminate() override;
 
-		///////////////////////////////////////////////////////////////////////
-
-		/// SwapChain related methods
-		
-		///////////////////////////////////////////////////////////////////////
-
-		/// <summary>
-		/// Selects the best format available for the swapchain
-		/// </summary>
-		/// <param name="_AvailableFormats">: All the availables formats of the swap chain</param>
-		/// <returns></returns>
-		VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& _AvailableFormats);
-		
-		/// <summary>
-		/// Selects the best presentation mode for the swap chain
-		/// </summary>
-		/// <param name="_AvailablePresentModes">: All the presentation modes of the swap chain</param>
-		/// <returns></returns>
-		VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& _AvailablePresentModes);
-
-		/// <summary>
-		/// Selects the image format for the swap chain
-		/// </summary>
-		/// <param name="capabilities">: Swap chain capabilities availables </param>
-		/// <returns></returns>
-		VkExtent2D ChooseSwapExtent(Window* _Window, const VkSurfaceCapabilitiesKHR& _Capabilities);
-
-		/// <summary>
-		/// Creates the Swap chain for our program
-		/// </summary>
-		/// <param name="_Window">: Current window context </param>
-		void CreateSwapChain(Window* _Window);
-
-		/// <summary>
-		/// Recreates the Swap chain
-		/// </summary>
-		/// <param name="_Window">: Current window context </param>
-		void RecreateSwapChain(Window* _Window);
-
-		/// <summary>
-		/// Destroys all data linked to the swap chain and the swap chain
-		/// </summary>
-		void CleanSwapChain();
 
 		///////////////////////////////////////////////////////////////////////
 
@@ -193,11 +133,6 @@ namespace Core
 		/// Graphics pipeline related methods
 
 		///////////////////////////////////////////////////////////////////////
-
-		/// <summary>
-		/// Creates a simple graphics pipeline to draw on screen
-		/// </summary>
-		void CreateGraphicsPipeline();
 
 		/// <summary>
 		/// Reads an already compiled SpirV shader
@@ -228,17 +163,6 @@ namespace Core
 
 		///////////////////////////////////////////////////////////////////////
 
-		/// Render pass related methods
-		
-		///////////////////////////////////////////////////////////////////////
-
-		/// <summary>
-		/// Creates a render pass object that will descibes the attachments of a framebuffer
-		/// </summary>
-		void CreateRenderPass();
-
-		///////////////////////////////////////////////////////////////////////
-
 		/// Frame buffers related methods
 
 		///////////////////////////////////////////////////////////////////////
@@ -247,45 +171,6 @@ namespace Core
 		/// Creates all the swap chain frames buffers for each image view
 		/// </summary>
 		void CreateSwapChainFramebuffers();
-
-		///////////////////////////////////////////////////////////////////////
-
-		/// Commands related methods
-
-		///////////////////////////////////////////////////////////////////////
-
-		/// <summary>
-		/// Creates a command pool that will manage the memory for command buffers
-		/// </summary>
-		void CreateCommandPool();
-
-		/// <summary>
-		/// Creates all the command buffers
-		/// </summary>
-		void CreateCommandBuffers();
-
-		/// <summary>
-		/// Records all the commands for a command buffer
-		/// </summary>
-		/// <param name="_CommandBuffer">: Command buffer used </param>
-		/// <param name="_ImageIndex">: Current image </param>
-		void RecordDrawCommandBuffer(VkCommandBuffer _CommandBuffer, uint32_t _ImageIndex);
-
-		void DrawCommandBuffer(VkCommandBuffer _CommandBuffer);
-
-		void EndDrawCommandBuffer(VkCommandBuffer _CommandBuffer);
-
-		/// <summary>
-		/// Creates a temporary command buffer for a single command
-		/// </summary>
-		/// <returns></returns>
-		VkCommandBuffer BeginSingleTimeCommands();
-
-		/// <summary>
-		/// Ends and destroy a temporary command buffer for a single command
-		/// </summary>
-		/// <param name="_CommandBuffer">: Command buffer to destroy </param>
-		void EndSingleTimeCommands(VkCommandBuffer _CommandBuffer);
 
 		///////////////////////////////////////////////////////////////////////
 
@@ -304,55 +189,6 @@ namespace Core
 		void CreateSyncObjects();
 
 		/// <summary>
-		/// Method called when the window is resized manually
-		/// </summary>
-		/// <param name="_Window">: Current window context </param>
-		/// <param name="_Width">: Window width </param>
-		/// <param name="_Height">: Window height </param>
-		static void FrameBufferResizeCallback(GLFWwindow* _Window, int _Width, int _Height);
-
-		/// <summary>
-		/// Creates and allocate a buffer in memory
-		/// </summary>
-		/// <param name="_Size">: Size of the buffer </param>
-		/// <param name="_Usage">: Type of usage of the buffer </param>
-		/// <param name="_Properties">: Buffer properties </param>
-		/// <param name="_Buffer">: Buffer you want to create and store </param>
-		/// <param name="_BufferMemory">: Buffer memory you want to allocate </param>
-		void CreateBuffer(VkDeviceSize _Size, VkBufferUsageFlags _Usage, VkMemoryPropertyFlags _Properties, VkBuffer& _Buffer, VkDeviceMemory& _BufferMemory);
-
-		/// <summary>
-		/// Creates a vertex buffer
-		/// </summary>
-		void CreateVertexBuffer();
-
-		/// <summary>
-		/// Selects the best memory type for an allocation
-		/// </summary>
-		/// <param name="_TypeFilter">: Type of memory needed by a buffer </param>
-		/// <param name="_Properties">: Properties needed for the buffer </param>
-		/// <returns></returns>
-		uint32_t FindMemoryType(uint32_t _TypeFilter, VkMemoryPropertyFlags _Properties);
-
-		/// <summary>
-		/// Copies a buffer from a source buffer to a destination buffer
-		/// </summary>
-		/// <param name="_SourceBuffer">: First buffer you want to copy </param>
-		/// <param name="_DestinationBuffer">: Second buffer receiving the first one </param>
-		/// <param name="_Size">: Size of the buffer </param>
-		void CopyBuffer(VkBuffer _SourceBuffer, VkBuffer _DestinationBuffer, VkDeviceSize _Size);
-
-		/// <summary>
-		/// Creates an index buffer
-		/// </summary>
-		void CreateIndexBuffer();
-
-		/// <summary>
-		/// Creates all the descriptor set layout to describe the UBO or global variables
-		/// </summary>
-		void CreateDescriptorSetLayout();
-
-		/// <summary>
 		/// Creates an uniform buffer
 		/// </summary>
 		void CreateUniformBuffers();
@@ -362,16 +198,6 @@ namespace Core
 		/// </summary>
 		/// <param name="_CurrentImage">: Current image updated </param>
 		void UpdateUniformBuffer(uint32_t _CurrentImage, Math::Matrix4 _ModelMatrix);
-
-		/// <summary>
-		/// Creates all descriptor pool
-		/// </summary>
-		void CreateDescriptorPool();
-
-		/// <summary>
-		/// Creates all Descriptor Sets
-		/// </summary>
-		void CreateDescriptorSets();
 
 		///////////////////////////////////////////////////////////////////////
 
@@ -466,16 +292,5 @@ namespace Core
 		/// <param name="_Format">: Format that you want to check </param>
 		/// <returns></returns>
 		bool HasStencilComponent(VkFormat _Format);
-
-		///////////////////////////////////////////////////////////////////////
-
-		/// Model related methods
-
-		///////////////////////////////////////////////////////////////////////
-
-		/// <summary>
-		/// Loads an OBJ 3D model
-		/// </summary>
-		void LoadModel();
 	};
 }
