@@ -2,17 +2,19 @@
 
 #include <set>
 
+#include "RHI/VulkanRHI/VulkanTypes/VulkanDevice.h"
+
 namespace Core
 {
-	const bool VulkanSwapChain::CheckDeviceExtensionSupport(VkPhysicalDevice _Device, const std::vector<const char*> _DeviceExtensions)
+	const bool VulkanSwapChain::CheckDeviceExtensionSupport(VulkanDevice _Device, const std::vector<const char*> _DeviceExtensions)
 	{
 		// Gets the number of extensions supported by our device
 		uint32_t extensionsNbr;
-		vkEnumerateDeviceExtensionProperties(_Device, nullptr, &extensionsNbr, nullptr);
+		vkEnumerateDeviceExtensionProperties(_Device.GetPhysicalDevice(), nullptr, &extensionsNbr, nullptr);
 
 		// Gets all the extensions supported by our device
 		std::vector<VkExtensionProperties> availableExtensions(extensionsNbr);
-		vkEnumerateDeviceExtensionProperties(_Device, nullptr, &extensionsNbr, availableExtensions.data());
+		vkEnumerateDeviceExtensionProperties(_Device.GetPhysicalDevice(), nullptr, &extensionsNbr, availableExtensions.data());
 
 		std::set<std::string> requiredExtensions(_DeviceExtensions.begin(), _DeviceExtensions.end());
 
@@ -35,33 +37,33 @@ namespace Core
 		return requiredExtensions.empty();
 	}
 
-	SwapChainSupportDetails VulkanSwapChain::QuerySwapChainSupport(VkPhysicalDevice _Device, VkSurfaceKHR _Surface)
+	SwapChainSupportDetails VulkanSwapChain::QuerySwapChainSupport(VulkanDevice _Device)
 	{
 		SwapChainSupportDetails details;
 
 		// Checks the surfaces capabilities (min / max frames in the swap chain, min / max - height / width of the images)
-		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(_Device, _Surface, &details.capabilities);
+		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(_Device.GetPhysicalDevice(), _Device.GetSurface(), &details.capabilities);
 
 		// Checks the number of format available (pixels format / colors)
 		uint32_t formatNbr;
-		vkGetPhysicalDeviceSurfaceFormatsKHR(_Device, _Surface, &formatNbr, nullptr);
+		vkGetPhysicalDeviceSurfaceFormatsKHR(_Device.GetPhysicalDevice(), _Device.GetSurface(), &formatNbr, nullptr);
 
 		// References the formats if availables
 		if (formatNbr != 0)
 		{
 			details.formats.resize(formatNbr);
-			vkGetPhysicalDeviceSurfaceFormatsKHR(_Device, _Surface, &formatNbr, details.formats.data());
+			vkGetPhysicalDeviceSurfaceFormatsKHR(_Device.GetPhysicalDevice(), _Device.GetSurface(), &formatNbr, details.formats.data());
 		}
 
 		// Checks the number of presentations modes (FIFO / Mailbox...)
 		uint32_t presentModeNbr;
-		vkGetPhysicalDeviceSurfacePresentModesKHR(_Device, _Surface, &presentModeNbr, nullptr);
+		vkGetPhysicalDeviceSurfacePresentModesKHR(_Device.GetPhysicalDevice(), _Device.GetSurface(), &presentModeNbr, nullptr);
 
 		// References the presentations modes if availables
 		if (presentModeNbr != 0)
 		{
 			details.presentModes.resize(presentModeNbr);
-			vkGetPhysicalDeviceSurfacePresentModesKHR(_Device, _Surface, &presentModeNbr, details.presentModes.data());
+			vkGetPhysicalDeviceSurfacePresentModesKHR(_Device.GetPhysicalDevice(), _Device.GetSurface(), &presentModeNbr, details.presentModes.data());
 		}
 
 		return details;
@@ -97,7 +99,7 @@ namespace Core
 		return VK_PRESENT_MODE_FIFO_KHR;
 	}
 
-	VkExtent2D VulkanSwapChain::ChooseSwapExtent(GLFWwindow* _Window, const VkSurfaceCapabilitiesKHR& _Capabilities)
+	VkExtent2D VulkanSwapChain::ChooseSwapExtent(Window* _Window, const VkSurfaceCapabilitiesKHR& _Capabilities)
 	{
 		// This condition checks if the currentExtent is fixed by the system or the user
 		if (_Capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
@@ -110,7 +112,7 @@ namespace Core
 			// The second case here is if the user doesn't define a size so the system does
 			// In this case the currentExent will be equal to max of uint32_t
 			int width, height;
-			glfwGetFramebufferSize(_Window, &width, &height);
+			glfwGetFramebufferSize(_Window->GetWindowPointer(), &width, &height);
 
 			VkExtent2D actualExtent = {
 				static_cast<uint32_t>(width),
@@ -125,10 +127,12 @@ namespace Core
 		}
 	}
 
-	void VulkanSwapChain::CreateSwapChain(GLFWwindow* _Window, VkDevice _LogicalDevice, VkPhysicalDevice _Device, VkSurfaceKHR _Surface)
+	const RHI_RESULT VulkanSwapChain::CreateSwapChain(Window* _Window, IDevice* _Device)
 	{
+		VulkanDevice device = *_Device->CastToVulkan();
+
 		// Gets all the capabilities and information the swapchain can support
-		SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(_Device, _Surface);
+		SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(device);
 
 		// Selects the best surface format
 		VkSurfaceFormatKHR surfaceFormat = ChooseSwapSurfaceFormat(swapChainSupport.formats);
@@ -152,7 +156,7 @@ namespace Core
 		// Create info of the swapchain
 		VkSwapchainCreateInfoKHR createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-		createInfo.surface = _Surface;
+		createInfo.surface = device.GetSurface();
 		createInfo.minImageCount = imageNbr;
 		createInfo.imageFormat = surfaceFormat.format;
 		createInfo.imageColorSpace = surfaceFormat.colorSpace;
@@ -162,7 +166,7 @@ namespace Core
 		createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
 		// Gets all queue families to setup up sharing mode of the images in the swap chain
-		QueueFamilyIndices indices = VulkanRenderer::FindQueueFamilies(_Device, _Surface);
+		QueueFamilyIndices indices = VulkanQueue::FindQueueFamilies(device);
 		uint32_t queueFamilyIndices[] = { indices.graphicsFamily.value(), indices.presentFamily.value() };
 
 		// If there is two different queues with one for graphic and the other for presenting we need to share the images
@@ -194,53 +198,60 @@ namespace Core
 		m_SwapChainExtent = extent;
 
 		// Creates the swap chain
-		VkResult result = vkCreateSwapchainKHR(_LogicalDevice, &createInfo, nullptr, &m_SwapChain);
+		VkResult result = vkCreateSwapchainKHR(device.GetLogicalDevice(), &createInfo, nullptr, &m_SwapChain);
 
 		if (result != VK_SUCCESS)
 		{
 			DEBUG_ERROR("Failed to create swap chain, Error Code: %d", result);
-			return;
+			return RHI_FAILED_UNKNOWN;
 		}
 
 		// Gets all the images of the swap chain
-		vkGetSwapchainImagesKHR(_LogicalDevice, m_SwapChain, &imageNbr, nullptr);
+		vkGetSwapchainImagesKHR(device.GetLogicalDevice(), m_SwapChain, &imageNbr, nullptr);
 		m_SwapChainImages.resize(imageNbr);
-		vkGetSwapchainImagesKHR(_LogicalDevice, m_SwapChain, &imageNbr, m_SwapChainImages.data());
+		vkGetSwapchainImagesKHR(device.GetLogicalDevice(), m_SwapChain, &imageNbr, m_SwapChainImages.data());
 
-		return;
+		return RHI_SUCCESS;
 	}
 
-	void VulkanSwapChain::RecreateSwapChain(GLFWwindow* _Window, VkDevice _LogicalDevice, VkPhysicalDevice _Device, VkSurfaceKHR _Surface)
+	const RHI_RESULT VulkanSwapChain::RecreateSwapChain(Window* _Window, IDevice* _Device)
 	{
+		VulkanDevice device = *_Device->CastToVulkan();
+
 		// Gets the current size of the window
 		int width = 0, height = 0;
-		glfwGetFramebufferSize(_Window, &width, &height);
+		glfwGetFramebufferSize(_Window->GetWindowPointer(), &width, &height);
 
 		// Loop executed when the window is minimized (when width and height = 0)
 		while (width == 0 || height == 0)
 		{
 			// Updates the size to get out when not minimized
-			glfwGetFramebufferSize(_Window, &width, &height);
+			glfwGetFramebufferSize(_Window->GetWindowPointer(), &width, &height);
 
 			// Pause all events
 			glfwWaitEvents();
 		}
 
 		// Waits the end of the utilisation of all resources to not access them when used
-		vkDeviceWaitIdle(_LogicalDevice);
+		vkDeviceWaitIdle(device.GetLogicalDevice());
 
 		// Destroys the swap chain
-		CleanSwapChain(_LogicalDevice);
+		DestroySwapChain(_Device);
 
 		// Recreates the swap chain
-		CreateSwapChain(_Window, _LogicalDevice, _Device, _Surface);
+		RHI_RESULT result = CreateSwapChain(_Window, _Device);
+
 		//CreateSwapChainImageViews();
 		//CreateDepthRessources();
 		//CreateSwapChainFramebuffers();
+
+		return result;
 	}
 
-	void VulkanSwapChain::CleanSwapChain(VkDevice _LogicalDevice)
+	const RHI_RESULT VulkanSwapChain::DestroySwapChain(IDevice* _Device)
 	{
+		VulkanDevice device = *_Device->CastToVulkan();
+
 		// Destroys data linked to the swap chain
 		//vkDestroyImageView(_LogicalDevice, m_DepthImageView, nullptr);
 		//vkDestroyImage(_LogicalDevice, m_DepthImage, nullptr);
@@ -248,15 +259,17 @@ namespace Core
 
 		for (auto framebuffer : m_SwapChainFramebuffers)
 		{
-			vkDestroyFramebuffer(_LogicalDevice, framebuffer, nullptr);
+			vkDestroyFramebuffer(device.GetLogicalDevice(), framebuffer, nullptr);
 		}
 
 		for (VkImageView imageView : m_SwapChainImageViews)
 		{
-			vkDestroyImageView(_LogicalDevice, imageView, nullptr);
+			vkDestroyImageView(device.GetLogicalDevice(), imageView, nullptr);
 		}
 
 		// Destroys the swap chain
-		vkDestroySwapchainKHR(_LogicalDevice, m_SwapChain, nullptr);
+		vkDestroySwapchainKHR(device.GetLogicalDevice(), m_SwapChain, nullptr);
+
+		return RHI_SUCCESS;
 	}
 }

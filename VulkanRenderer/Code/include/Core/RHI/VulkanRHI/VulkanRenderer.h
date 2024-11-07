@@ -56,24 +56,6 @@ namespace Core
 	class VulkanRenderer : public IRendererHardware
 	{
 	private:
-		std::vector<Vertex> vertices;
-		std::vector<uint32_t> indices;
-
-		VkInstance m_VulkanInstance;
-
-		VkDebugUtilsMessengerEXT m_DebugMessenger;
-
-		// Device
-		VkPhysicalDevice m_PhysicalDevice = VK_NULL_HANDLE;
-		VkDevice m_LogicalDevice;
-
-		// Queues
-		VkQueue m_GraphicsQueue;
-		VkQueue m_PresentQueue;
-
-		// Surface
-		VkSurfaceKHR m_Surface;
-
 		// SwapChain
 		VkSwapchainKHR m_SwapChain;
 		std::vector<VkImage> m_SwapChainImages;
@@ -82,7 +64,7 @@ namespace Core
 		VkExtent2D m_SwapChainExtent;
 		std::vector<VkFramebuffer> m_SwapChainFramebuffers;
 
-		// Sync object (Swaphcain)
+		// Sync object
 		std::vector<VkSemaphore> m_ImageAvailableSemaphores;
 		std::vector<VkSemaphore> m_RenderFinishedSemaphores;
 		std::vector<VkFence> m_InFlightFences;
@@ -128,20 +110,6 @@ namespace Core
 		VkDeviceMemory m_DepthImageMemory;
 		VkImageView m_DepthImageView;
 
-		const std::vector<const char*> m_ValidationLayers = {
-			"VK_LAYER_KHRONOS_validation"
-		};
-
-		const std::vector<const char*> m_DeviceExtensions = {
-			VK_KHR_SWAPCHAIN_EXTENSION_NAME
-		};
-
-#ifdef NDEBUG
-		const bool m_EnableValidationLayers = false;
-#else
-		const bool m_EnableValidationLayers = true;
-#endif
-
 	public:
 		VulkanRenderer() = default;
 		~VulkanRenderer() override;
@@ -160,18 +128,6 @@ namespace Core
 		const bool Initialize(Window* _Window) override;
 
 		/// <summary>
-		/// Creates a vulkan instance that links the application with the API
-		/// </summary>
-		const bool CreateVulkanInstance();
-
-		/// <summary>
-		/// Setup debugger tool for validation layers
-		/// </summary>
-		/// <returns></returns>
-		const bool SetupDebugMessenger();
-
-
-		/// <summary>
 		/// Terminates - Cleans all the informations stored in the Vulkan RHI
 		/// </summary>
 		/// <returns></returns>
@@ -179,137 +135,9 @@ namespace Core
 
 		///////////////////////////////////////////////////////////////////////
 
-		/// Validation layers related methods
-
-		///////////////////////////////////////////////////////////////////////
-
-		/// <summary>
-		/// Checks if validation layers are supported with the SDK
-		/// </summary>
-		/// <returns></returns>
-		const bool CheckValidationLayerSupport();
-
-		/// <summary>
-		/// Callback method called when a validation layer should be print
-		/// </summary>
-		/// <param name="_MessageSeverity">: Type of severity of the message, LOG, WARN, EROOR </param>
-		/// <param name="_MessageType">: Type of the message </param>
-		/// <param name="_CallbackData">: Data of the message </param>
-		/// <param name="_UserData">: More data from the user </param>
-		/// <returns></returns>
-		static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallBack(VkDebugUtilsMessageSeverityFlagBitsEXT _MessageSeverity, VkDebugUtilsMessageTypeFlagsEXT _MessageType, const VkDebugUtilsMessengerCallbackDataEXT* _CallbackData, void* _UserData);
-
-		/// <summary>
-		/// Creates the debug messenger for validation layers
-		/// </summary>
-		/// <param name="_Instance">: Vulkan instance </param>
-		/// <param name="_CreateInfo">: Creation information structure - Specifies all the informations for the debug messenger </param>
-		/// <param name="_Allocator">: Pointer to a structure for custom memory allocations </param>
-		/// <param name="_DebugMessenger">: Debug messenger you want to create </param>
-		/// <returns></returns>
-		VkResult CreateDebugUtilsMessengerEXT(VkInstance _Instance, const VkDebugUtilsMessengerCreateInfoEXT* _CreateInfo, const VkAllocationCallbacks* _Allocator, VkDebugUtilsMessengerEXT* _DebugMessenger);
-
-		/// <summary>
-		/// Destroys the debug messenger and the callback method
-		/// </summary>
-		/// <param name="_Instance">: Vulkan instance of the program </param>
-		/// <param name="_DebugMessenger">: Debug messenger you want to destroy </param>
-		/// <param name="_Allocator">: Pointer to a structure for custom memory allocations </param>
-		void DestroyDebugUtilsMessengerEXT(VkInstance _Instance, VkDebugUtilsMessengerEXT _DebugMessenger, const VkAllocationCallbacks* _Allocator);
-
-		/// <summary>
-		/// Specifies all the information for the creation of the debug messenger
-		/// </summary>
-		/// <param name="_CreateInfo">: Create info structure of the debug messenger </param>
-		void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& _CreateInfo);
-
-		///////////////////////////////////////////////////////////////////////
-
-		/// Extensions related methods
-
-		///////////////////////////////////////////////////////////////////////
-
-		/// <summary>
-		/// Get all required extensions needed for the application (GLFW and Debug extensions)
-		/// </summary>
-		/// <returns></returns>
-		std::vector<const char*> GetRequiredExtensions();
-
-		///////////////////////////////////////////////////////////////////////
-
-		/// Physical divice related methods
-
-		///////////////////////////////////////////////////////////////////////
-		
-		/// <summary>
-		/// Selects a GPU of the computer in order to use it
-		/// </summary>
-		void PickPhysicalDevice();
-
-		/// <summary>
-		/// Checks if a GPU is able to handle the operations required for our application
-		/// </summary>
-		/// <param name="_Device">: Physical device that will be checked </param>
-		/// <returns></returns>
-		const bool IsDeviceSuitable(VkPhysicalDevice _Device);
-
-		///////////////////////////////////////////////////////////////////////
-
-		/// Families queues related methods
-
-		///////////////////////////////////////////////////////////////////////
-
-		/// <summary>
-		/// Find all queue famillies suporting features required by the application (Graphics and presentation)
-		/// </summary>
-		/// <param name="_Device">: Physical device containing queue families </param>
-		/// <param name="_Surface">: Surface object to check for presentation queues </param>
-		/// <returns></returns>
-		static QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice _Device, VkSurfaceKHR _Surface);
-
-		///////////////////////////////////////////////////////////////////////
-
-		/// Logical devices related methods
-
-		///////////////////////////////////////////////////////////////////////
-
-		/// <summary>
-		/// Creates a logical device used to interface with Vulkan and our RHI
-		/// </summary>
-		void CreateLogicalDevice();
-
-		///////////////////////////////////////////////////////////////////////
-
-		/// Surface related methods
-
-		///////////////////////////////////////////////////////////////////////
-
-		/// <summary>
-		/// Creates a surface which is going to link Vulkan with Window API
-		/// </summary>
-		/// <param name="_Window">: Current window context </param>
-		void CreateSurface(Window* _Window);
-
-
-		///////////////////////////////////////////////////////////////////////
-
 		/// SwapChain related methods
 		
 		///////////////////////////////////////////////////////////////////////
-
-		/// <summary>
-		/// Checks if the extensions needed for our program are supported by our GPU
-		/// </summary>
-		/// <param name="_Device">: Logical device which we check extensions support </param>
-		/// <returns></returns>
-		const bool CheckDeviceExtensionSupport(VkPhysicalDevice _Device);
-
-		/// <summary>
-		/// Checks if the SwapChain is supported bu our GPU
-		/// </summary>
-		/// <param name="_Device">: Logical device which we check if the swap chain is supported </param>
-		/// <returns></returns>
-		SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice _Device);
 
 		/// <summary>
 		/// Selects the best format available for the swapchain

@@ -1,16 +1,20 @@
 #pragma once
 
 #include "RHI/RHITypes/ISwapChain.h"
+
 #include "RHI/VulkanRHI/VulkanRenderer.h"
+
 
 namespace Core
 {
-	//struct SwapChainSupportDetails
-	//{
-	//	VkSurfaceCapabilitiesKHR capabilities;
-	//	std::vector<VkSurfaceFormatKHR> formats;
-	//	std::vector<VkPresentModeKHR> presentModes;
-	//};
+	class VulkanDevice;
+
+	struct SwapChainSupportDetails
+	{
+		VkSurfaceCapabilitiesKHR capabilities;
+		std::vector<VkSurfaceFormatKHR> formats;
+		std::vector<VkPresentModeKHR> presentModes;
+	};
 
 	class VulkanSwapChain : public ISwapChain
 	{
@@ -30,15 +34,7 @@ namespace Core
 		/// </summary>
 		/// <param name="_Device">: Logical device which we check extensions support </param>
 		/// <returns></returns>
-		const bool CheckDeviceExtensionSupport(VkPhysicalDevice _Device, const std::vector<const char*> _DeviceExtensions);
-
-		/// <summary>
-		/// Checks if the SwapChain is supported bu our GPU
-		/// </summary>
-		/// <param name="_Device">: Logical device which we check if the swap chain is supported </param>
-		/// <param name="_Surface">: Rendering surface </param>
-		/// <returns></returns>
-		SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice _Device, VkSurfaceKHR _Surface);
+		const bool CheckDeviceExtensionSupport(VulkanDevice _Device, const std::vector<const char*> _DeviceExtensions);
 
 		/// <summary>
 		/// Selects the best format available for the swapchain
@@ -59,7 +55,7 @@ namespace Core
 		/// </summary>
 		/// <param name="capabilities">: Swap chain capabilities availables </param>
 		/// <returns></returns>
-		VkExtent2D ChooseSwapExtent(GLFWwindow* _Window, const VkSurfaceCapabilitiesKHR& _Capabilities);
+		VkExtent2D ChooseSwapExtent(Window* _Window, const VkSurfaceCapabilitiesKHR& _Capabilities);
 
 	public:
 
@@ -69,17 +65,25 @@ namespace Core
 		/// <param name="_Window">: Current window context </param>
 		/// <param name="_Device">: Application physical device </param>
 		/// <param name="_Surface">: Rendering surface </param>
-		void CreateSwapChain(GLFWwindow* _Window, VkDevice _LogicalDevice, VkPhysicalDevice _Device, VkSurfaceKHR _Surface);
+		const RHI_RESULT CreateSwapChain(Window* _Window, IDevice* _Device) override;
 
 		/// <summary>
 		/// Recreates the Swap chain
 		/// </summary>
 		/// <param name="_Window">: Current window context </param>
-		void RecreateSwapChain(GLFWwindow* _Window, VkDevice _LogicalDevice, VkPhysicalDevice _Device, VkSurfaceKHR _Surface);
+		const RHI_RESULT RecreateSwapChain(Window* _Window, IDevice* _Device) override;
 
 		/// <summary>
 		/// Destroys all data linked to the swap chain and the swap chain
 		/// </summary>
-		void CleanSwapChain(VkDevice _LogicalDevice);
+		const RHI_RESULT DestroySwapChain(IDevice* _Device) override;
+
+		/// <summary>
+		/// Checks if the SwapChain is supported bu our GPU
+		/// </summary>
+		/// <param name="_Device">: Logical device which we check if the swap chain is supported </param>
+		/// <param name="_Surface">: Rendering surface </param>
+		/// <returns></returns>
+		static SwapChainSupportDetails QuerySwapChainSupport(VulkanDevice _Device);
 	};
 }
