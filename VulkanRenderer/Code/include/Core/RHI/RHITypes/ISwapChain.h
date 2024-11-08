@@ -4,6 +4,10 @@
 
 namespace Core
 {
+	const int MAX_FRAMES_IN_FLIGHT = 2;
+
+	uint32_t m_CurrentFrame = 0;
+
 	class Window;
 	class IDevice;
 

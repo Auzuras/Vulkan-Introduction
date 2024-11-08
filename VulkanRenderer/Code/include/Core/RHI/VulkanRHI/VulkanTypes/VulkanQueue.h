@@ -9,12 +9,26 @@ namespace Core
 {
 	class VulkanDevice;
 
+	struct QueueFamilyIndices
+	{
+		std::optional<uint32_t> graphicsFamily;
+		std::optional<uint32_t> presentFamily;
+		std::optional<uint32_t> transfertFamily;
+
+		bool isComplete = false;
+	};
+
 	class VulkanQueue : public IQueue
 	{
 	private:
 		VkQueue m_Queue;
 
 	public:
+
+		// TODO: Check if necessary
+		RHI_RESULT CreateQueue();
+		RHI_RESULT DestroyQueue();
+
 		/// <summary>
 		/// Find all queue famillies suporting features required by the application (Graphics and presentation)
 		/// </summary>

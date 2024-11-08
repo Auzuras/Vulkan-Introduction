@@ -25,6 +25,7 @@ namespace Core
 
 		std::vector<VkImage> m_SwapChainImages;
 		std::vector<VkImageView> m_SwapChainImageViews;
+
 		std::vector<VkFramebuffer> m_SwapChainFramebuffers;
 
 		/// <summary>

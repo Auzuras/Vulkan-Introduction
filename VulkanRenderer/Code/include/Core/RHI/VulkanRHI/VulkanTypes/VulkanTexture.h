@@ -30,5 +30,7 @@ namespace Core
 		/// Creates a texture sampler to access a texture in a shader
 		/// </summary>
 		void CreateTextureSampler();
+
+		RHI_RESULT DestroyTexture();
 	};
 }

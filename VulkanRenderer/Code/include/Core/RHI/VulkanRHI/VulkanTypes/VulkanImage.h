@@ -42,5 +42,33 @@ namespace Core
 		/// <param name="_NewLayout">: New layout of the image </param>
 		void TransitionImageLayout(VkImage _Image, VkFormat _Format, VkImageLayout _OldLayout, VkImageLayout _NewLayout);
 
+		/// <summary>
+		/// Creates a depth texture to store the depth buffer
+		/// </summary>
+		void CreateDepthRessources();
+
+		/// <summary>
+		/// Find a supported Format between many candidates
+		/// </summary>
+		/// <param name="_Candidates">: Formats that we want to check the support </param>
+		/// <param name="_Tiling">: Type of tiling </param>
+		/// <param name="_Features">: Flags of features we want to support </param>
+		/// <returns></returns>
+		VkFormat FindSupportedFormat(const std::vector<VkFormat>& _Candidates, VkImageTiling _Tiling, VkFormatFeatureFlags _Features);
+
+		/// <summary>
+		/// Checks if depth texture format are supported for depth attachment
+		/// </summary>
+		/// <returns></returns>
+		VkFormat FindDepthFormat();
+
+		/// <summary>
+		/// Checks is a format also contains a stencil component
+		/// </summary>
+		/// <param name="_Format">: Format that you want to check </param>
+		/// <returns></returns>
+		bool HasStencilComponent(VkFormat _Format);
+
+		RHI_RESULT DestroyImage();
 	};
 }

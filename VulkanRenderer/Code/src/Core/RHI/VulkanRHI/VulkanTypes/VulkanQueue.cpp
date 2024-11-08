@@ -4,6 +4,16 @@
 
 namespace Core
 {
+	RHI_RESULT VulkanQueue::CreateQueue()
+	{
+		return RHI_RESULT();
+	}
+
+	RHI_RESULT VulkanQueue::DestroyQueue()
+	{
+		return RHI_RESULT();
+	}
+
 	QueueFamilyIndices VulkanQueue::FindQueueFamilies(VulkanDevice _Device)
 	{
 		QueueFamilyIndices indices;

@@ -51,6 +51,11 @@ namespace Core
 		/// </summary>
 		void CreateIndexBuffer();
 
+		/// <summary>
+		/// Creates an uniform buffer
+		/// </summary>
+		void CreateUniformBuffers();
+
 		void DestroyBuffer();
 	};
 }

@@ -23,7 +23,7 @@ namespace Core
 		framebufferInfo.layers = 1;
 
 		// Creates the frambuffer
-		VkResult result = vkCreateFramebuffer(m_LogicalDevice, &framebufferInfo, nullptr, &m_SwapChainFramebuffers[i]);
+		VkResult result = vkCreateFramebuffer(m_LogicalDevice, &framebufferInfo, nullptr, &m_FrameBuffer);
 
 		if (result != VK_SUCCESS)
 		{
@@ -33,6 +33,7 @@ namespace Core
 
 	const RHI_RESULT VulkanFramebuffer::DestroyFramebuffer()
 	{
+		vkDestroyFramebuffer(m_LogicalDevice, m_FrameBuffer, nullptr);
 		return RHI_RESULT();
 	}
 }

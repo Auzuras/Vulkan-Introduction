@@ -141,6 +141,39 @@ namespace Core
 		vkFreeMemory(m_LogicalDevice, stagingBufferMemory, nullptr);
 	}
 
+	void VulkanBuffer::CreateUniformBuffers()
+	{
+		VkDeviceSize bufferSize = sizeof(UniformMVP);
+
+		m_UniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+		m_UniformBufferMemory.resize(MAX_FRAMES_IN_FLIGHT);
+		m_UniformBuffersMapped.resize(MAX_FRAMES_IN_FLIGHT);
+
+		// Creates a single uniform buffer for each frames
+		// We do not use staging buffer because the data will be updated every frame
+		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+		{
+			// Creates a Uniform buffer
+			CreateBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, m_UniformBuffers[i], m_UniformBufferMemory[i]);
+			// Maps the Memory
+			vkMapMemory(m_LogicalDevice, m_UniformBufferMemory[i], 0, bufferSize, 0, &m_UniformBuffersMapped[i]);
+		}
+	}
+
+	//void VulkanRenderer::UpdateUniformBuffer(uint32_t _CurrentImage, Math::Matrix4 _ModelMatrix)
+	//{
+	//	// Creates a MVP
+	//	UniformMVP mvp{};
+
+	//	// Updates the MVP
+	//	mvp.model = _ModelMatrix.Transpose();
+	//	mvp.view = Core::Application::appCamera.viewMatrix.Transpose();
+	//	mvp.projection = Core::Application::appCamera.projectionMatrix.Transpose();
+
+	//	// Copies the data into the buffer
+	//	memcpy(m_UniformBuffersMapped[_CurrentImage], &mvp, sizeof(mvp));
+	//}
+
 	void VulkanBuffer::DestroyBuffer()
 	{
 		vkDestroyBuffer(m_LogicalDevice, m_Buffer, nullptr);

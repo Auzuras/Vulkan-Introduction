@@ -95,4 +95,13 @@ namespace Core
 			return;
 		}
 	}
+
+	RHI_RESULT VulkanTexture::DestroyTexture()
+	{
+		vkDestroySampler(m_LogicalDevice, m_TextureSampler, nullptr);
+
+		// Other destroy
+
+		return RHI_RESULT();
+	}
 }

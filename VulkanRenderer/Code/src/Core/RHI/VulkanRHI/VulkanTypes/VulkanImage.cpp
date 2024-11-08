@@ -157,4 +157,59 @@ namespace Core
 		// Ends recording the command buffer
 		EndSingleTimeCommands(commandBuffer);
 	}
+
+	void VulkanImage::CreateDepthRessources()
+	{
+		// Check for the best depth format available
+		VkFormat depthFormat = FindDepthFormat();
+
+		// Creates an image of the size of our rendering viewport (swap chain) - Creates also the image view to have access to the depth buffer
+		CreateImage(m_SwapChainExtent.width, m_SwapChainExtent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_DepthImage, m_DepthImageMemory);
+		m_DepthImageView = CreateImageView(m_DepthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
+
+		// Transition the layout
+		TransitionImageLayout(m_DepthImage, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+	}
+
+	VkFormat VulkanImage::FindSupportedFormat(const std::vector<VkFormat>& _Candidates, VkImageTiling _Tiling, VkFormatFeatureFlags _Features)
+	{
+		// Loop through all candidates
+		for (VkFormat format : _Candidates)
+		{
+			// Gets the formats properties in our device
+			VkFormatProperties props;
+			vkGetPhysicalDeviceFormatProperties(m_PhysicalDevice, format, &props);
+
+			// Checks the type of _Tiling and if the features required are supported
+			if (_Tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & _Features) == _Features)
+			{
+				return format;
+			}
+			else if (_Tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & _Features) == _Features)
+			{
+				return format;
+			}
+		}
+
+		DEBUG_ERROR("Failed to find supported format!");
+	}
+
+	VkFormat VulkanImage::FindDepthFormat()
+	{
+		// Checks a suported format for depth texture
+		return FindSupportedFormat({ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT }, VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
+	}
+
+	bool VulkanImage::HasStencilComponent(VkFormat _Format)
+	{
+		return _Format == VK_FORMAT_D32_SFLOAT_S8_UINT || _Format == VK_FORMAT_D24_UNORM_S8_UINT;
+	}
+
+	RHI_RESULT VulkanImage::DestroyImage()
+	{
+		vkDestroyImageView(m_LogicalDevice, m_ImageView, nullptr);
+		vkDestroyImage(m_LogicalDevice, m_Image, nullptr);
+
+		return RHI_RESULT();
+	}
 }
