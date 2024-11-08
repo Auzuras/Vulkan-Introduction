@@ -10,7 +10,6 @@ namespace Core
 	{
 	private:
 		VkDescriptorSetLayout m_DescriptorSetLayout;
-		VkDescriptorPool m_DescriptorPool;
 		VkDescriptorSet m_DescriptorSets;
 
 	public:
@@ -19,11 +18,6 @@ namespace Core
 		/// Creates all the descriptor set layout to describe the UBO or global variables
 		/// </summary>
 		void CreateDescriptorSetLayout();
-
-		/// <summary>
-		/// Creates all descriptor pool
-		/// </summary>
-		void CreateDescriptorPool();
 
 		/// <summary>
 		/// Creates all Descriptor Sets

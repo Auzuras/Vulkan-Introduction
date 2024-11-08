@@ -144,8 +144,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Code\src\Core\RHI\VulkanRHI\VulkanTypes\VulkanCommandAllocator.cpp" />
     <ClCompile Include="Code\src\Core\RHI\VulkanRHI\VulkanTypes\VulkanCommandBuffer.cpp" />
     <ClCompile Include="Code\src\Core\RHI\VulkanRHI\VulkanTypes\VulkanDescriptor.cpp" />
+    <ClCompile Include="Code\src\Core\RHI\VulkanRHI\VulkanTypes\VulkanDescriptorAllocator.cpp" />
     <ClCompile Include="Code\src\Core\RHI\VulkanRHI\VulkanTypes\VulkanQueue.cpp" />
     <ClCompile Include="Code\src\Core\RHI\OpenGLRHI\OpenGLRenderer.cpp" />
     <ClCompile Include="Code\src\Core\Debug\Log.cpp" />
@@ -187,8 +189,10 @@
     <ClInclude Include="Code\include\Core\RHI\IRendererHardware.h" />
     <ClInclude Include="Code\include\Core\RHI\RHITypes.h" />
     <ClInclude Include="Code\include\Core\RHI\RHITypes\IBuffer.h" />
+    <ClInclude Include="Code\include\Core\RHI\RHITypes\ICommandAllocator.h" />
     <ClInclude Include="Code\include\Core\RHI\RHITypes\ICommandBuffer.h" />
     <ClInclude Include="Code\include\Core\RHI\RHITypes\IDescriptor.h" />
+    <ClInclude Include="Code\include\Core\RHI\RHITypes\IDescriptorAllocator.h" />
     <ClInclude Include="Code\include\Core\RHI\RHITypes\IDevice.h" />
     <ClInclude Include="Code\include\Core\RHI\RHITypes\IPipeline.h" />
     <ClInclude Include="Code\include\Core\RHI\RHITypes\IQueue.h" />
@@ -197,8 +201,10 @@
     <ClInclude Include="Code\include\Core\RHI\Vertex.h" />
     <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanRenderer.h" />
     <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanBuffer.h" />
+    <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanCommandAllocator.h" />
     <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanCommandBuffer.h" />
     <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanDescriptor.h" />
+    <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanDescriptorAllocator.h" />
     <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanDevice.h" />
     <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanImage.h" />
     <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanPipeline.h" />

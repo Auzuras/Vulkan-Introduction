@@ -10,15 +10,9 @@ namespace Core
 	{
 	private:
 		// Commands
-		VkCommandPool m_CommandPool;
 		VkCommandBuffer m_CommandBuffer;
 
 	public:
-		/// <summary>
-		/// Creates a command pool that will manage the memory for command buffers
-		/// </summary>
-		void CreateCommandPool();
-
 		/// <summary>
 		/// Creates all the command buffers
 		/// </summary>
@@ -31,8 +25,16 @@ namespace Core
 		/// <param name="_ImageIndex">: Current image </param>
 		void RecordDrawCommandBuffer(VkCommandBuffer _CommandBuffer, uint32_t _ImageIndex);
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="_CommandBuffer"></param>
 		void DrawCommandBuffer(VkCommandBuffer _CommandBuffer);
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="_CommandBuffer"></param>
 		void EndDrawCommandBuffer(VkCommandBuffer _CommandBuffer);
 
 		/// <summary>
