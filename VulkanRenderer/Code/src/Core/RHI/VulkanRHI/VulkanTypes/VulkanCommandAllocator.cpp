@@ -25,6 +25,7 @@ namespace Core
 
 	const RHI_RESULT VulkanCommandAllocator::DestroyCommandAllocator()
 	{
+		vkDestroyCommandPool(m_LogicalDevice, m_CommandPool, nullptr);
 		return RHI_RESULT();
 	}
 }

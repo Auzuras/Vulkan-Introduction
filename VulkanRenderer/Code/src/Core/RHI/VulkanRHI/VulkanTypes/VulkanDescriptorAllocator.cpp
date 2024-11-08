@@ -32,5 +32,6 @@ namespace Core
 
 	const bool  VulkanDescriptorAllocator::DestroyDescriptorAllocator()
 	{
+		vkDestroyDescriptorPool(m_LogicalDevice, m_DescriptorPool, nullptr);
 	}
 }

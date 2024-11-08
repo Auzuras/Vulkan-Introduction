@@ -64,25 +64,11 @@ namespace Core
 		vkDestroyImage(m_LogicalDevice, m_TextureImage, nullptr);
 		vkFreeMemory(m_LogicalDevice, m_TextureImageMemory, nullptr);
 
-		vkDestroyPipeline(m_LogicalDevice, m_GraphicsPipeline, nullptr);
-		vkDestroyPipelineLayout(m_LogicalDevice, m_PipelineLayout, nullptr);
-		vkDestroyRenderPass(m_LogicalDevice, m_RenderPass, nullptr);
-
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
 		{
 			vkDestroyBuffer(m_LogicalDevice, m_UniformBuffers[i], nullptr);
 			vkFreeMemory(m_LogicalDevice, m_UniformBufferMemory[i], nullptr);
 		}
-
-		vkDestroyDescriptorPool(m_LogicalDevice, m_DescriptorPool, nullptr);
-
-		vkDestroyDescriptorSetLayout(m_LogicalDevice, m_DescriptorSetLayout, nullptr);
-
-		vkDestroyBuffer(m_LogicalDevice, m_IndexBuffer, nullptr);
-		vkFreeMemory(m_LogicalDevice, m_IndexBufferMemory, nullptr);
-
-		vkDestroyBuffer(m_LogicalDevice, m_VertexBuffer, nullptr);
-		vkFreeMemory(m_LogicalDevice, m_VertexBufferMemory, nullptr);
 
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
 		{
@@ -92,8 +78,6 @@ namespace Core
 
 			vkDestroyFence(m_LogicalDevice, m_InFlightFences[i], nullptr);
 		}
-
-		vkDestroyCommandPool(m_LogicalDevice, m_CommandPool, nullptr);
 
 		return true;
 	}

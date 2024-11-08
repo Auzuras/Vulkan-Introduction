@@ -101,4 +101,9 @@ namespace Core
 			vkUpdateDescriptorSets(m_LogicalDevice, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 		}
 	}
-};
+
+	void VulkanDescriptor::DestroyDescriptorSets()
+	{
+		vkDestroyDescriptorSetLayout(m_LogicalDevice, m_DescriptorSetLayout, nullptr);
+	}
+}

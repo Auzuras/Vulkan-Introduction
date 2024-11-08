@@ -50,5 +50,7 @@ namespace Core
 		/// Creates an index buffer
 		/// </summary>
 		void CreateIndexBuffer();
+
+		void DestroyBuffer();
 	};
 }

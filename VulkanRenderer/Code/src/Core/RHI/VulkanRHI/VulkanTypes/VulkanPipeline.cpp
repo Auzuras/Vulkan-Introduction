@@ -200,7 +200,11 @@ namespace Core
 
 	RHI_RESULT VulkanPipeline::DestroyPipeline()
 	{
-		return RHI_RESULT();
+		vkDestroyPipeline(m_LogicalDevice, m_GraphicsPipeline, nullptr);
+		vkDestroyPipelineLayout(m_LogicalDevice, m_PipelineLayout, nullptr);
+		vkDestroyRenderPass(m_LogicalDevice, m_RenderPass, nullptr);
+
+		return RHI_SUCCESS;
 	}
 
 	void VulkanPipeline::CreateRenderPass()

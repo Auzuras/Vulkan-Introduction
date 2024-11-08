@@ -140,4 +140,10 @@ namespace Core
 		vkDestroyBuffer(m_LogicalDevice, stagingBuffer, nullptr);
 		vkFreeMemory(m_LogicalDevice, stagingBufferMemory, nullptr);
 	}
+
+	void VulkanBuffer::DestroyBuffer()
+	{
+		vkDestroyBuffer(m_LogicalDevice, m_Buffer, nullptr);
+		vkFreeMemory(m_LogicalDevice, m_BufferMemory, nullptr);
+	}
 }

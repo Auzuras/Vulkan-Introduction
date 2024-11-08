@@ -23,6 +23,8 @@ namespace Core
 		/// Creates all Descriptor Sets
 		/// </summary>
 		void CreateDescriptorSets();
+		
+		void DestroyDescriptorSets();
 
 	};
 }
