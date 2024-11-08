@@ -1,9 +1,7 @@
 #pragma once
 
 #include "RHI/RHITypes/ISwapChain.h"
-
 #include "RHI/VulkanRHI/VulkanRenderer.h"
-
 
 namespace Core
 {
@@ -56,6 +54,16 @@ namespace Core
 		/// <param name="capabilities">: Swap chain capabilities availables </param>
 		/// <returns></returns>
 		VkExtent2D ChooseSwapExtent(Window* _Window, const VkSurfaceCapabilitiesKHR& _Capabilities);
+
+		/// <summary>
+		/// Creates all the swap chain frames buffers for each image view
+		/// </summary>
+		void CreateSwapChainFramebuffers();
+
+		/// <summary>
+		/// Creates the image views of the swap chain
+		/// </summary>
+		void CreateSwapChainImageViews();
 
 	public:
 

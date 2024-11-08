@@ -102,6 +102,15 @@
     <ClCompile Include="Code\src\Core\RHI\VulkanRHI\VulkanTypes\VulkanCommandAllocator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Code\src\Core\RHI\VulkanRHI\VulkanTypes\VulkanImage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\src\Core\RHI\VulkanRHI\VulkanTypes\VulkanTexture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\src\Core\RHI\VulkanRHI\VulkanTypes\VulkanFramebuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\include\Core\Maths\Matrices\Matrix2.h">
@@ -258,6 +267,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanDescriptorAllocator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\include\Core\RHI\RHITypes\IFramebuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanFramebuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

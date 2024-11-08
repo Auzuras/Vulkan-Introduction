@@ -127,6 +127,29 @@ namespace Core
 		}
 	}
 
+	void VulkanSwapChain::CreateSwapChainFramebuffers()
+	{
+		m_SwapChainFramebuffers.resize(m_SwapChainImageViews.size());
+
+		// Loop going through every image view of the swap chain
+		for (size_t i = 0; i < m_SwapChainImageViews.size(); ++i)
+		{
+		}
+	}
+
+	void VulkanSwapChain::CreateSwapChainImageViews()
+	{
+		m_SwapChainImageViews.resize(m_SwapChainImages.size());
+
+		for (size_t i = 0; i < m_SwapChainImages.size(); ++i)
+		{
+			// Creates an image view for each image of the swap chain
+			m_SwapChainImageViews[i] = CreateImageView(m_SwapChainImages[i], m_SwapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
+		}
+
+		return;
+	}
+
 	const RHI_RESULT VulkanSwapChain::CreateSwapChain(Window* _Window, IDevice* _Device)
 	{
 		VulkanDevice device = *_Device->CastToVulkan();
