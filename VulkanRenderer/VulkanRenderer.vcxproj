@@ -144,6 +144,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Code\src\Core\RHI\VulkanRHI\VulkanTypes\VulkanShader.cpp" />
     <ClCompile Include="Code\src\Core\RHI\VulkanRHI\VulkanTypes\VulkanCommandAllocator.cpp" />
     <ClCompile Include="Code\src\Core\RHI\VulkanRHI\VulkanTypes\VulkanCommandBuffer.cpp" />
     <ClCompile Include="Code\src\Core\RHI\VulkanRHI\VulkanTypes\VulkanDescriptor.cpp" />

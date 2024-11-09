@@ -9,6 +9,7 @@ namespace Core
 	private:
 		VkImage m_Image;
 		VkImageView m_ImageView;
+
 	public:
 
 		/// <summary>

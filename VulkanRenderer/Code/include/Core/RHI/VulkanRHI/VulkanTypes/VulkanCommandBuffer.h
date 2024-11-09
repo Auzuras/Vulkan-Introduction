@@ -9,14 +9,13 @@ namespace Core
 	class VulkanCommandBuffer : public ICommandBuffer
 	{
 	private:
-		// Commands
 		VkCommandBuffer m_CommandBuffer;
 
 	public:
 		/// <summary>
 		/// Creates all the command buffers
 		/// </summary>
-		void CreateCommandBuffers();
+		RHI_RESULT CreateCommandBuffers(IDevice* _Device, ICommandAllocator* _CommandAllocator) override;
 
 		/// <summary>
 		/// Records all the commands for a command buffer

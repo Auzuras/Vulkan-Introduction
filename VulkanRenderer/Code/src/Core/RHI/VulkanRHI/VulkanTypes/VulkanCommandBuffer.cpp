@@ -1,29 +1,35 @@
 #include "RHI/VulkanRHI/VulkanTypes/VulkanCommandBuffer.h"
 
+#include "RHI/VulkanRHI/VulkanTypes/VulkanCommandAllocator.h"
+
 namespace Core
 {
-	void VulkanCommandBuffer::CreateCommandBuffers()
+	RHI_RESULT VulkanCommandBuffer::CreateCommandBuffers(IDevice* _Device, ICommandAllocator* _CommandAllocator)
 	{
-		m_CommandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+		VulkanDevice device = *_Device->CastToVulkan();
+		VulkanCommandAllocator commandPool = *_CommandAllocator->CastToVulkan();
 
 		VkCommandBufferAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 		// Specifies the command pool
-		allocInfo.commandPool = m_CommandPool;
+		allocInfo.commandPool = commandPool.GetCommandPool();
 		// Specifies if the command buffer is Primary or Secondary
 		// Primary : Can be sent into a queue but can't be called by other command buffers
 		// Secondary : Can be called from primary command buffers but can't be directly sent to a queue
 		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 		// Specifies the number of command buffer to create
-		allocInfo.commandBufferCount = (uint32_t)m_CommandBuffers.size();
+		allocInfo.commandBufferCount = 1;
 
 		// Creates the command buffer
-		VkResult result = vkAllocateCommandBuffers(m_LogicalDevice, &allocInfo, m_CommandBuffers.data());
+		VkResult result = vkAllocateCommandBuffers(device.GetLogicalDevice(), &allocInfo, &m_CommandBuffer);
 
 		if (result != VK_SUCCESS)
 		{
 			DEBUG_ERROR("Failed to allocate command buffers, Error Code: %d", result);
+			return RHI_FAILED_UNKNOWN;
 		}
+
+		return RHI_SUCCESS;
 	}
 
 	void VulkanCommandBuffer::RecordDrawCommandBuffer(VkCommandBuffer _CommandBuffer, uint32_t _ImageIndex)

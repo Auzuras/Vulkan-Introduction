@@ -10,7 +10,11 @@
 
 #include "Window.h"
 #include "RHI/RHITypes.h"
+
 #include "RHI/RHITypes/RHITypesWrapper.h"
+#include "IShader.h"
+#include "IMesh.h"
+#include "ITexture.h"
 
 namespace Core
 {
@@ -57,5 +61,13 @@ namespace Core
 		/// </summary>
 		/// <returns></returns>
 		virtual IDevice* CreateDevice() = 0;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="_ShaderSourceCode"></param>
+		/// <param name="_ShaderType"></param>
+		/// <returns></returns>
+		virtual Resources::IShader* CompileShader(std::string _ShaderSourceCode, ShaderType _ShaderType) = 0;
 	};
 }

@@ -2,8 +2,14 @@
 
 namespace Core
 {
-	const bool  VulkanDescriptorAllocator::CreateDescriptorAllocator()
+
+	VulkanDescriptorAllocator::~VulkanDescriptorAllocator()
+	{}
+
+	const RHI_RESULT VulkanDescriptorAllocator::CreateDescriptorAllocator(IDevice* _Device)
 	{
+		VulkanDevice device = *_Device->CastToVulkan();
+
 		// Describes the pool size
 		std::array<VkDescriptorPoolSize, 2> poolSizes{};
 		// UBO
@@ -22,16 +28,23 @@ namespace Core
 		poolInfo.maxSets = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
 
 		// Creates a descriptor pool
-		VkResult result = vkCreateDescriptorPool(m_LogicalDevice, &poolInfo, nullptr, &m_DescriptorPool);
+		VkResult result = vkCreateDescriptorPool(device.GetLogicalDevice(), &poolInfo, nullptr, &m_DescriptorPool);
 
 		if (result != VK_SUCCESS)
 		{
 			DEBUG_ERROR("Failed to create descriptor pool, Error Code: %d", result);
+			return RHI_FAILED_UNKNOWN;
 		}
+
+		return RHI_SUCCESS;
 	}
 
-	const bool  VulkanDescriptorAllocator::DestroyDescriptorAllocator()
+	const RHI_RESULT VulkanDescriptorAllocator::DestroyDescriptorAllocator(IDevice* _Device)
 	{
-		vkDestroyDescriptorPool(m_LogicalDevice, m_DescriptorPool, nullptr);
+		VulkanDevice device = *_Device->CastToVulkan();
+
+		vkDestroyDescriptorPool(device.GetLogicalDevice(), m_DescriptorPool, nullptr);
+
+		return RHI_SUCCESS;
 	}
 }

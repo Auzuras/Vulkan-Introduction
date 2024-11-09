@@ -18,5 +18,8 @@ namespace Core
 	{
 	private:
 	public:
+		RHI_RESULT PreprocessShader(shaderc::Compiler& _Compiler, CompilationInfos _Infos);
+		RHI_RESULT SpirVAssemblyCompilation(shaderc::Compiler& _Compiler, CompilationInfos _Infos);
+		std::vector<uint32_t> SpirVBinaryCompilation(shaderc::Compiler& _Compiler, CompilationInfos _Infos);
 	};
 }

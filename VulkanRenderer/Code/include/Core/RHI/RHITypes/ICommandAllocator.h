@@ -4,20 +4,28 @@
 
 namespace Core
 {
+	class IDevice;
+
+	class VulkanCommandAllocator;
+
 	class ICommandAllocator
 	{
 	public:		
 		
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns></returns>
-		virtual const RHI_RESULT CreateCommandAllocator() = 0;
+		virtual ~ICommandAllocator() = default;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns></returns>
-		virtual const RHI_RESULT  DestroyCommandAllocator() = 0;
+		virtual const RHI_RESULT CreateCommandAllocator(IDevice* _Device) = 0;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		virtual const RHI_RESULT  DestroyCommandAllocator(IDevice* _Device) = 0;
+
+		virtual VulkanCommandAllocator* CastToVulkan() = 0;
 	};
 }

@@ -12,16 +12,23 @@ namespace Core
 		VkCommandPool m_CommandPool;
 
 	public:
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns></returns>
-		const RHI_RESULT CreateCommandAllocator() override;
+
+		~VulkanCommandAllocator() override;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns></returns>
-		const RHI_RESULT  DestroyCommandAllocator() override;
+		const RHI_RESULT CreateCommandAllocator(IDevice* _Device) override;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		const RHI_RESULT  DestroyCommandAllocator(IDevice* _Device) override;
+
+		inline VulkanCommandAllocator* CastToVulkan() override { return this; };
+
+		inline VkCommandPool GetCommandPool() { return m_CommandPool; }
 	};
 }

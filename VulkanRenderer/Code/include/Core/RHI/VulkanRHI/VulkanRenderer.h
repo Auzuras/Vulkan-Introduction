@@ -49,12 +49,7 @@ namespace Core
 		/// <returns></returns>
 		IDevice* CreateDevice();
 
-		///// <summary>
-		///// Reads an already compiled SpirV shader
-		///// </summary>
-		///// <param name="_FilePath">: Path to the SpirV shader </param>
-		///// <returns></returns>
-		//std::vector<char> ReadSpirVShader(const std::filesystem::path& _FilePath);
+		Resources::IShader* CompileShader(std::string _ShaderSourceCode, ShaderType _) override;
 
 		///// <summary>
 		///// Creates a shader module object with a shader source code
@@ -62,13 +57,6 @@ namespace Core
 		///// <param name="_ShaderSourceCode">: Source code of the shader </param>
 		///// <returns></returns>
 		//VkShaderModule CreateShaderModule(const std::vector<uint32_t>& _ShaderSourceCode);
-
-		///// <summary>
-		///// Compiles a shader in run time according to the path of the shader and its type
-		///// </summary>
-		///// <param name="_ShaderPath">: Path of the shader </param>
-		///// <param name="_ShaderType">: Type of the shader (Vertex / Geometry / Fragment)  </param>
-		//std::vector<uint32_t> CompileShader(std::filesystem::path _ShaderPath, ShaderType _ShaderType);
 
 		/// <summary>
 		/// Allows to move an image from a src buffer to a dest image

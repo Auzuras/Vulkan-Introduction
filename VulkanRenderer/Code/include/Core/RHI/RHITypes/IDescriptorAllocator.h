@@ -4,10 +4,14 @@
 
 namespace Core
 {
+	class IDevice;
+
 	class IDescriptorAllocator
 	{
 	public:
-		virtual const RHI_RESULT CreateDescriptorAllocator() = 0;
-		virtual const RHI_RESULT DestroyDescriptorAllocator() = 0;
+		virtual ~IDescriptorAllocator() = default;
+
+		virtual const RHI_RESULT CreateDescriptorAllocator(IDevice* _Device) = 0;
+		virtual const RHI_RESULT DestroyDescriptorAllocator(IDevice* _Device) = 0;
 	};
 }

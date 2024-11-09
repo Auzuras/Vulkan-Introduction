@@ -2,10 +2,15 @@
 
 namespace Core
 {
-	const RHI_RESULT VulkanCommandAllocator::CreateCommandAllocator()
+	VulkanCommandAllocator::~VulkanCommandAllocator()
+	{}
+
+	const RHI_RESULT VulkanCommandAllocator::CreateCommandAllocator(IDevice* _Device)
 	{
+		VulkanDevice device = *_Device->CastToVulkan();
+
 		// Gets the queue families
-		QueueFamilyIndices queueFamilyIndices = FindQueueFamilies(m_PhysicalDevice, m_Surface);
+		QueueFamilyIndices queueFamilyIndices;// = FindQueueFamilies(m_PhysicalDevice, m_Surface);
 
 		// Creates the pool infos
 		VkCommandPoolCreateInfo poolInfo{};
@@ -15,7 +20,7 @@ namespace Core
 		poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
 
 		// Creates the command pool
-		VkResult result = vkCreateCommandPool(m_LogicalDevice, &poolInfo, nullptr, &m_CommandPool);
+		VkResult result = vkCreateCommandPool(device.GetLogicalDevice(), &poolInfo, nullptr, &m_CommandPool);
 
 		if (result != VK_SUCCESS)
 		{
@@ -23,9 +28,11 @@ namespace Core
 		}
 	}
 
-	const RHI_RESULT VulkanCommandAllocator::DestroyCommandAllocator()
+	const RHI_RESULT VulkanCommandAllocator::DestroyCommandAllocator(IDevice* _Device)
 	{
-		vkDestroyCommandPool(m_LogicalDevice, m_CommandPool, nullptr);
+		VulkanDevice device = *_Device->CastToVulkan();
+
+		vkDestroyCommandPool(device.GetLogicalDevice(), m_CommandPool, nullptr);
 		return RHI_RESULT();
 	}
 }

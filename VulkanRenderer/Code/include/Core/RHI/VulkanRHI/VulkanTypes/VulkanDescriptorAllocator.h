@@ -12,15 +12,18 @@ namespace Core
 		VkDescriptorPool m_DescriptorPool;
 
 	public:
+
+		~VulkanDescriptorAllocator() override;
+
 		/// <summary>
 		/// Creates all descriptor pool
 		/// </summary>
-		const RHI_RESULT CreateDescriptorAllocator() override;
+		const RHI_RESULT CreateDescriptorAllocator(IDevice* _Device) override;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns></returns>
-		const RHI_RESULT  DestroyDescriptorAllocator() override;
+		const RHI_RESULT DestroyDescriptorAllocator(IDevice* _Device) override;
 	};
 }
