@@ -4,20 +4,6 @@ namespace Core
 {
 	void VulkanTexture::CreateTextureImage()
 	{
-		// Loads a texture with STB IMAGE
-		int textWidth, textHeight, textChannels;
-		stbi_set_flip_vertically_on_load(true);
-
-		stbi_uc* texture = stbi_load(TEXTURE_PATH.c_str(), &textWidth, &textHeight, &textChannels, STBI_rgb_alpha);
-
-		VkDeviceSize imageSize = textWidth * textHeight * 4;
-
-		if (!texture)
-		{
-			DEBUG_ERROR("Failed to load texture");
-			return;
-		}
-
 		// Creates transfer buffers
 		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingBufferMemory;

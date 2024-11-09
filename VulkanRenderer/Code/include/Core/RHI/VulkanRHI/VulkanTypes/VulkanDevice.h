@@ -195,6 +195,6 @@ namespace Core
 		/// </summary>
 		const RHI_RESULT Terminate() override;
 
-		inline VulkanDevice* CastToVulkan() override { return this; };
+		inline VulkanDevice* CastToVulkan() override { return this; }
 	};
 }

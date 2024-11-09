@@ -8,6 +8,8 @@ namespace Core
 
 	class VulkanCommandAllocator;
 
+	class ICommandBuffer;
+
 	class ICommandAllocator
 	{
 	public:		
@@ -26,6 +28,20 @@ namespace Core
 		/// <returns></returns>
 		virtual const RHI_RESULT  DestroyCommandAllocator(IDevice* _Device) = 0;
 
+		/// <summary>
+		/// Creates a single command buffer
+		/// </summary>
+		virtual ICommandBuffer* CreateCommandBuffer(IDevice* _Device) = 0;
+
+		/// <summary>
+		/// Creates a list of command buffers
+		/// </summary>
+		virtual std::vector<ICommandBuffer*> CreateCommandBuffers(IDevice* _Device, uint32_t _CommandBuffersNbr) = 0;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
 		virtual VulkanCommandAllocator* CastToVulkan() = 0;
 	};
 }

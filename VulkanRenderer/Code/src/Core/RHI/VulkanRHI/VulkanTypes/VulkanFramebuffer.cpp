@@ -1,39 +1,51 @@
 #include "RHI/VulkanRHI/VulkanTypes/VulkanFramebuffer.h"
 
+#include "RHI/VulkanRHI/VulkanTypes/VulkanDevice.h"
+#include "RHI/VulkanRHI/VulkanTypes/VulkanPipeline.h"
+
 namespace Core
 {
-	const RHI_RESULT VulkanFramebuffer::CreateFramebuffer()
+	const RHI_RESULT VulkanFramebuffer::CreateFramebuffer(IDevice* _Device, IPipeline* _CompatiblePipeline, uint32_t _Width, uint32_t _Height)
 	{
+		VulkanDevice device = *_Device->CastToVulkan();
+		VulkanPipeline pipeline = *_CompatiblePipeline->CastToVulkan();
+
 		// Specifies the attachments for each frame buffer
 		std::array<VkImageView, 2> attachments = {
-			m_SwapChainImageViews[i],			// ColorBuffer
-			m_DepthImageView					// Depth Buffer
+			//m_SwapChainImageViews[i],			// ColorBuffer
+			//m_DepthImageView					// Depth Buffer
 		};
 
 		VkFramebufferCreateInfo framebufferInfo{};
 		framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 		// Specifies the renderpass compatible with the framebuffer
-		framebufferInfo.renderPass = m_RenderPass;
+		framebufferInfo.renderPass = pipeline.GetRenderPass();
 		// Specifies the attachments
 		framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
 		framebufferInfo.pAttachments = attachments.data();
-		framebufferInfo.width = m_SwapChainExtent.width;
-		framebufferInfo.height = m_SwapChainExtent.height;
+		framebufferInfo.width = _Width;
+		framebufferInfo.height = _Height;
 		// Layer number - More than 1 for 3D stereoscopic app
 		framebufferInfo.layers = 1;
 
 		// Creates the frambuffer
-		VkResult result = vkCreateFramebuffer(m_LogicalDevice, &framebufferInfo, nullptr, &m_FrameBuffer);
+		VkResult result = vkCreateFramebuffer(device.GetLogicalDevice(), &framebufferInfo, nullptr, &m_FrameBuffer);
 
 		if (result != VK_SUCCESS)
 		{
 			DEBUG_ERROR("Failed to create Framebuffer, Error Code: %d", result);
+			return RHI_FAILED_UNKNOWN;
 		}
+
+		return RHI_SUCCESS;
 	}
 
-	const RHI_RESULT VulkanFramebuffer::DestroyFramebuffer()
+	const RHI_RESULT VulkanFramebuffer::DestroyFramebuffer(IDevice* _Device)
 	{
-		vkDestroyFramebuffer(m_LogicalDevice, m_FrameBuffer, nullptr);
-		return RHI_RESULT();
+		VulkanDevice device = *_Device->CastToVulkan();
+
+		vkDestroyFramebuffer(device.GetLogicalDevice(), m_FrameBuffer, nullptr);
+
+		return RHI_SUCCESS;
 	}
 }

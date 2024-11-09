@@ -8,7 +8,6 @@ namespace Core
 	{
 	private:
 		VkImage m_Image;
-		VkImageView m_ImageView;
 
 	public:
 
@@ -23,16 +22,7 @@ namespace Core
 		/// <param name="_Properties">: More properties about the image </param>
 		/// <param name="_Image">: Variable where you want to keep the image </param>
 		/// <param name="_ImageMemory">: Variable for the memory of the image </param>
-		void CreateImage(uint32_t _Width, uint32_t _Height, VkFormat _Format, VkImageTiling _Tiling, VkImageUsageFlags _Usage, VkMemoryPropertyFlags _Properties, VkImage& _Image, VkDeviceMemory& _ImageMemory);
-
-		/// <summary>
-		/// Creates an image view object
-		/// </summary>
-		/// <param name="_Image">: Base image </param>
-		/// <param name="_Format">: Format of the image </param>
-		/// <param name="_AspectFlags">: Flags defining which aspects of the image are accessible </param>
-		/// <returns></returns>
-		VkImageView CreateImageView(VkImage _Image, VkFormat _Format, VkImageAspectFlags _AspectFlags);
+		void CreateImage(IDevice* _Device, uint32_t _Width, uint32_t _Height, VkFormat _Format, VkImageTiling _Tiling, VkImageUsageFlags _Usage, VkMemoryPropertyFlags _Properties, VkImage& _Image, VkDeviceMemory& _ImageMemory);
 
 		/// <summary>
 		/// Transitions the image from one layout to new one
@@ -55,21 +45,21 @@ namespace Core
 		/// <param name="_Tiling">: Type of tiling </param>
 		/// <param name="_Features">: Flags of features we want to support </param>
 		/// <returns></returns>
-		VkFormat FindSupportedFormat(const std::vector<VkFormat>& _Candidates, VkImageTiling _Tiling, VkFormatFeatureFlags _Features);
+		static VkFormat FindSupportedFormat(VkPhysicalDevice _PhysicalDevice, const std::vector<VkFormat>& _Candidates, VkImageTiling _Tiling, VkFormatFeatureFlags _Features);
 
 		/// <summary>
 		/// Checks if depth texture format are supported for depth attachment
 		/// </summary>
 		/// <returns></returns>
-		VkFormat FindDepthFormat();
+		static VkFormat FindDepthFormat(VkPhysicalDevice _PhysicalDevice);
 
 		/// <summary>
 		/// Checks is a format also contains a stencil component
 		/// </summary>
 		/// <param name="_Format">: Format that you want to check </param>
 		/// <returns></returns>
-		bool HasStencilComponent(VkFormat _Format);
+		static bool HasStencilComponent(VkFormat _Format);
 
-		RHI_RESULT DestroyImage();
+		RHI_RESULT DestroyImage(VkDevice _Device);
 	};
 }

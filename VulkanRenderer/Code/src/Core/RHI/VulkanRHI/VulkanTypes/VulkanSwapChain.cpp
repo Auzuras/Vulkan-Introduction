@@ -3,6 +3,8 @@
 #include <set>
 
 #include "RHI/VulkanRHI/VulkanTypes/VulkanDevice.h"
+#include "RHI/VulkanRHI/VulkanTypes/VulkanImage.h"
+#include "RHI/VulkanRHI/VulkanTypes/VulkanImageView.h"
 
 namespace Core
 {
@@ -143,8 +145,9 @@ namespace Core
 
 		for (size_t i = 0; i < m_SwapChainImages.size(); ++i)
 		{
+			VulkanImageView image;
 			// Creates an image view for each image of the swap chain
-			m_SwapChainImageViews[i] = CreateImageView(m_SwapChainImages[i], m_SwapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
+			m_SwapChainImageViews[i] = image.CreateImageView(m_SwapChainImages[i], m_SwapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
 		}
 
 		return;

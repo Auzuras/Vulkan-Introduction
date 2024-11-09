@@ -2,8 +2,10 @@
 
 namespace Core
 {
-	void VulkanImage::CreateImage(uint32_t _Width, uint32_t _Height, VkFormat _Format, VkImageTiling _Tiling, VkImageUsageFlags _Usage, VkMemoryPropertyFlags _Properties, VkImage& _Image, VkDeviceMemory& _ImageMemory)
+	void VulkanImage::CreateImage(IDevice* _Device, uint32_t _Width, uint32_t _Height, VkFormat _Format, VkImageTiling _Tiling, VkImageUsageFlags _Usage, VkMemoryPropertyFlags _Properties, VkImage& _Image, VkDeviceMemory& _ImageMemory)
 	{
+		VulkanDevice device = *_Device->CastToVulkan();
+
 		// Omage infos
 		VkImageCreateInfo imageInfo{};
 		imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -27,7 +29,7 @@ namespace Core
 		imageInfo.flags = 0;
 
 		// Creates the image
-		VkResult result = vkCreateImage(m_LogicalDevice, &imageInfo, nullptr, &_Image);
+		VkResult result = vkCreateImage(device.GetLogicalDevice(), &imageInfo, nullptr, &_Image);
 
 		if (result != VK_SUCCESS)
 		{
@@ -36,15 +38,15 @@ namespace Core
 
 		// Gets the memory requirements for the texture
 		VkMemoryRequirements memRequirements;
-		vkGetImageMemoryRequirements(m_LogicalDevice, _Image, &memRequirements);
+		vkGetImageMemoryRequirements(device.GetLogicalDevice(), _Image, &memRequirements);
 
 		VkMemoryAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 		allocInfo.allocationSize = memRequirements.size;
-		allocInfo.memoryTypeIndex = FindMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+		allocInfo.memoryTypeIndex = VulkanBuffer::FindMemoryType(device.GetPhysicalDevice(), memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
 		// Allocates the memory
-		result = vkAllocateMemory(m_LogicalDevice, &allocInfo, nullptr, &_ImageMemory);
+		result = vkAllocateMemory(device.GetLogicalDevice(), &allocInfo, nullptr, &_ImageMemory);
 
 		if (result != VK_SUCCESS)
 		{
@@ -52,41 +54,13 @@ namespace Core
 		}
 
 		// Bind the memory with our image
-		vkBindImageMemory(m_LogicalDevice, _Image, _ImageMemory, 0);
-	}
-
-	VkImageView VulkanImage::CreateImageView(VkImage _Image, VkFormat _Format, VkImageAspectFlags _AspectFlags)
-	{
-		VkImageViewCreateInfo viewInfo{};
-		viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-		viewInfo.image = _Image;
-		viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-		viewInfo.format = _Format;
-		viewInfo.subresourceRange.aspectMask = _AspectFlags;
-		// Mipmap levels
-		viewInfo.subresourceRange.baseMipLevel = 0;
-		viewInfo.subresourceRange.levelCount = 1;
-		// baseArrayLayer - layerCount is the number of layers an image possess - only usefull for 3D stereoscopic applications
-		viewInfo.subresourceRange.baseArrayLayer = 0;
-		viewInfo.subresourceRange.layerCount = 1;
-
-		// Creates the image view
-		VkImageView imageView;
-		VkResult result = vkCreateImageView(m_LogicalDevice, &viewInfo, nullptr, &imageView);
-
-		if (result != VK_SUCCESS)
-		{
-			DEBUG_ERROR("Failed to create texture image view, Error Code: %d", result);
-			return nullptr;
-		}
-
-		return imageView;
+		vkBindImageMemory(device.GetLogicalDevice(), _Image, _ImageMemory, 0);
 	}
 
 	void VulkanImage::TransitionImageLayout(VkImage _Image, VkFormat _Format, VkImageLayout _OldLayout, VkImageLayout _NewLayout)
 	{
 		// Starts recording command buffer
-		VkCommandBuffer commandBuffer = BeginSingleTimeCommands();
+		//VkCommandBuffer commandBuffer = BeginSingleTimeCommands();
 
 		// Creates a memory barrier
 		// Is here to garanty that we will not modify the memory while the GPU is using it or already writing in it
@@ -152,33 +126,33 @@ namespace Core
 			DEBUG_ERROR("Unsupported layout transition !");
 		}
 
-		vkCmdPipelineBarrier(commandBuffer, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+		//vkCmdPipelineBarrier(commandBuffer, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
 
 		// Ends recording the command buffer
-		EndSingleTimeCommands(commandBuffer);
+		//EndSingleTimeCommands(commandBuffer);
 	}
 
 	void VulkanImage::CreateDepthRessources()
 	{
-		// Check for the best depth format available
-		VkFormat depthFormat = FindDepthFormat();
+		//// Check for the best depth format available
+		//VkFormat depthFormat = FindDepthFormat();
 
-		// Creates an image of the size of our rendering viewport (swap chain) - Creates also the image view to have access to the depth buffer
-		CreateImage(m_SwapChainExtent.width, m_SwapChainExtent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_DepthImage, m_DepthImageMemory);
-		m_DepthImageView = CreateImageView(m_DepthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
+		//// Creates an image of the size of our rendering viewport (swap chain) - Creates also the image view to have access to the depth buffer
+		//CreateImage(m_SwapChainExtent.width, m_SwapChainExtent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_DepthImage, m_DepthImageMemory);
+		//m_DepthImageView = CreateImageView(m_DepthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
 
-		// Transition the layout
-		TransitionImageLayout(m_DepthImage, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+		//// Transition the layout
+		//TransitionImageLayout(m_DepthImage, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 	}
 
-	VkFormat VulkanImage::FindSupportedFormat(const std::vector<VkFormat>& _Candidates, VkImageTiling _Tiling, VkFormatFeatureFlags _Features)
+	VkFormat VulkanImage::FindSupportedFormat(VkPhysicalDevice _PhysicalDevice, const std::vector<VkFormat>& _Candidates, VkImageTiling _Tiling, VkFormatFeatureFlags _Features)
 	{
 		// Loop through all candidates
 		for (VkFormat format : _Candidates)
 		{
 			// Gets the formats properties in our device
 			VkFormatProperties props;
-			vkGetPhysicalDeviceFormatProperties(m_PhysicalDevice, format, &props);
+			vkGetPhysicalDeviceFormatProperties(_PhysicalDevice, format, &props);
 
 			// Checks the type of _Tiling and if the features required are supported
 			if (_Tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & _Features) == _Features)
@@ -194,10 +168,10 @@ namespace Core
 		DEBUG_ERROR("Failed to find supported format!");
 	}
 
-	VkFormat VulkanImage::FindDepthFormat()
+	VkFormat VulkanImage::FindDepthFormat(VkPhysicalDevice _PhysicalDevice)
 	{
 		// Checks a suported format for depth texture
-		return FindSupportedFormat({ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT }, VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
+		return FindSupportedFormat(_PhysicalDevice, { VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT }, VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
 	}
 
 	bool VulkanImage::HasStencilComponent(VkFormat _Format)
@@ -205,10 +179,9 @@ namespace Core
 		return _Format == VK_FORMAT_D32_SFLOAT_S8_UINT || _Format == VK_FORMAT_D24_UNORM_S8_UINT;
 	}
 
-	RHI_RESULT VulkanImage::DestroyImage()
+	RHI_RESULT VulkanImage::DestroyImage(VkDevice _Device)
 	{
-		vkDestroyImageView(m_LogicalDevice, m_ImageView, nullptr);
-		vkDestroyImage(m_LogicalDevice, m_Image, nullptr);
+		vkDestroyImage(_Device, m_Image, nullptr);
 
 		return RHI_RESULT();
 	}

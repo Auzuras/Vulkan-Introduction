@@ -12,10 +12,8 @@ namespace Core
 		VkCommandBuffer m_CommandBuffer;
 
 	public:
-		/// <summary>
-		/// Creates all the command buffers
-		/// </summary>
-		RHI_RESULT CreateCommandBuffers(IDevice* _Device, ICommandAllocator* _CommandAllocator) override;
+
+		VulkanCommandBuffer(VkCommandBuffer _CommandBuffer);
 
 		/// <summary>
 		/// Records all the commands for a command buffer

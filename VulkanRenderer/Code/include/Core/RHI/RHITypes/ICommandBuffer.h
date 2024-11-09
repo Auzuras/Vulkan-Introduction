@@ -10,7 +10,5 @@ namespace Core
 	class ICommandBuffer
 	{
 	public:
-
-		virtual RHI_RESULT CreateCommandBuffers(IDevice* _Device, ICommandAllocator* _CommandAllocator) = 0;
 	};
 }

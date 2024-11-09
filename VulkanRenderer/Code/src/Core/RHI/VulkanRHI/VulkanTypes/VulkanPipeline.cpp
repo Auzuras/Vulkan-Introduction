@@ -4,13 +4,16 @@
 
 namespace Core
 {
+	VulkanPipeline::~VulkanPipeline()
+	{}
+
 	RHI_RESULT VulkanPipeline::CreatePipeline(IDevice* _Device)
 	{
 		VulkanDevice device = *_Device->CastToVulkan();
 
 		// Compiles and create the two shader modules corresponding to the vertex and fragment shader
-		VkShaderModule vertShaderModule = CreateShaderModule(CompileShader("Assets/Shaders/HelloTriangle.vert", ShaderType::VERTEX));
-		VkShaderModule fragShaderModule = CreateShaderModule(CompileShader("Assets/Shaders/HelloTriangle.frag", ShaderType::FRAGMENT));
+		VkShaderModule vertShaderModule;// = CreateShaderModule(CompileShader("Assets/Shaders/HelloTriangle.vert", ShaderType::VERTEX));
+		VkShaderModule fragShaderModule;// = CreateShaderModule(CompileShader("Assets/Shaders/HelloTriangle.frag", ShaderType::FRAGMENT));
 
 		// Creates vertex shader infos
 		VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
@@ -147,7 +150,7 @@ namespace Core
 		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 		// References the Descriptors set layout (UBO) or global variables
 		pipelineLayoutInfo.setLayoutCount = 1;
-		pipelineLayoutInfo.pSetLayouts = &m_DescriptorSetLayout;
+		//pipelineLayoutInfo.pSetLayouts = &m_DescriptorSetLayout;
 		pipelineLayoutInfo.pushConstantRangeCount = 0;
 		pipelineLayoutInfo.pPushConstantRanges = nullptr;
 
@@ -198,21 +201,25 @@ namespace Core
 		vkDestroyShaderModule(device.GetLogicalDevice(), vertShaderModule, nullptr);
 	}
 
-	RHI_RESULT VulkanPipeline::DestroyPipeline()
+	RHI_RESULT VulkanPipeline::DestroyPipeline(IDevice* _Device)
 	{
-		vkDestroyPipeline(m_LogicalDevice, m_GraphicsPipeline, nullptr);
-		vkDestroyPipelineLayout(m_LogicalDevice, m_PipelineLayout, nullptr);
-		vkDestroyRenderPass(m_LogicalDevice, m_RenderPass, nullptr);
+		VulkanDevice device = *_Device->CastToVulkan();
+
+		vkDestroyPipeline(device.GetLogicalDevice(), m_GraphicsPipeline, nullptr);
+		vkDestroyPipelineLayout(device.GetLogicalDevice(), m_PipelineLayout, nullptr);
+		vkDestroyRenderPass(device.GetLogicalDevice(), m_RenderPass, nullptr);
 
 		return RHI_SUCCESS;
 	}
 
-	void VulkanPipeline::CreateRenderPass()
+	void VulkanPipeline::CreateRenderPass(IDevice* _Device)
 	{
+		VulkanDevice device = *_Device->CastToVulkan();
+
 		// Describes the color buffer attachment
 		VkAttachmentDescription colorAttachment{};
 		// Same format as the swap chain
-		colorAttachment.format = m_SwapChainImageFormat;
+		//colorAttachment.format = m_SwapChainImageFormat;
 		// Samples (usefull for multisampling)
 		colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
 		// LoadOp and StoreOp describes how we interact with the data of the buffer before loading and after rendering
@@ -234,7 +241,7 @@ namespace Core
 
 		// Describes the depth buffer attachment - Check above for more infos (Similar to color attachment)
 		VkAttachmentDescription depthAttachment{};
-		depthAttachment.format = FindDepthFormat();
+		//depthAttachment.format = FindDepthFormat();
 		depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
 		depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 		depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
@@ -281,7 +288,7 @@ namespace Core
 		renderPassInfo.pDependencies = &dependency;
 
 		// Creates the render pass
-		VkResult result = vkCreateRenderPass(m_LogicalDevice, &renderPassInfo, nullptr, &m_RenderPass);
+		VkResult result = vkCreateRenderPass(device.GetLogicalDevice(), &renderPassInfo, nullptr, &m_RenderPass);
 
 		if (result != VK_SUCCESS)
 		{

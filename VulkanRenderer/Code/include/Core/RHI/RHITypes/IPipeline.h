@@ -7,7 +7,11 @@ namespace Core
 	class IPipeline
 	{
 	public:
-		virtual RHI_RESULT CreatePipeline() = 0;
-		virtual RHI_RESULT DestroyPipeline() = 0;
+		virtual ~IPipeline() = default;
+
+		virtual RHI_RESULT CreatePipeline(IDevice* _Device) = 0;
+		virtual RHI_RESULT DestroyPipeline(IDevice* _Device) = 0;
+
+		virtual VulkanPipeline* CastToVulkan() = 0;
 	};
 }
