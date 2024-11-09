@@ -1,5 +1,7 @@
 #include "RHI/VulkanRHI/VulkanTypes/VulkanSemaphore.h"
 
+#include "RHI/VulkanRHI/VulkanTypes/VulkanDevice.h"
+
 namespace Core
 {
 	VulkanSemaphore::~VulkanSemaphore()

@@ -7,13 +7,9 @@ namespace Core
 	VulkanPipeline::~VulkanPipeline()
 	{}
 
-	RHI_RESULT VulkanPipeline::CreatePipeline(IDevice* _Device)
+	RHI_RESULT VulkanPipeline::CreatePipeline(IDevice* _Device, IShader* _VertexShader, IShader* _FragmentShader)
 	{
 		VulkanDevice device = *_Device->CastToVulkan();
-
-		// Compiles and create the two shader modules corresponding to the vertex and fragment shader
-		VkShaderModule vertShaderModule;// = CreateShaderModule(CompileShader("Assets/Shaders/HelloTriangle.vert", ShaderType::VERTEX));
-		VkShaderModule fragShaderModule;// = CreateShaderModule(CompileShader("Assets/Shaders/HelloTriangle.frag", ShaderType::FRAGMENT));
 
 		// Creates vertex shader infos
 		VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
@@ -21,7 +17,7 @@ namespace Core
 		// Stage of the pipeline (Which momement the shader will be called)
 		vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
 		// Shader module
-		vertShaderStageInfo.module = vertShaderModule;
+		//vertShaderStageInfo.module = vertShaderModule;
 		// Start function of the shader
 		vertShaderStageInfo.pName = "main";
 
@@ -31,7 +27,7 @@ namespace Core
 		// Stage of the pipeline (Which momement the shader will be called)
 		fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
 		// Shader module
-		fragShaderStageInfo.module = fragShaderModule;
+		//fragShaderStageInfo.module = fragShaderModule;
 		// Start function of the shader
 		fragShaderStageInfo.pName = "main";
 
@@ -197,8 +193,8 @@ namespace Core
 		}
 
 		// Destroys the shader module because they are loaded on the GPU
-		vkDestroyShaderModule(device.GetLogicalDevice(), fragShaderModule, nullptr);
-		vkDestroyShaderModule(device.GetLogicalDevice(), vertShaderModule, nullptr);
+		//vkDestroyShaderModule(device.GetLogicalDevice(), fragShaderModule, nullptr);
+		//vkDestroyShaderModule(device.GetLogicalDevice(), vertShaderModule, nullptr);
 	}
 
 	RHI_RESULT VulkanPipeline::DestroyPipeline(IDevice* _Device)

@@ -2,6 +2,8 @@
 
 #include "RHI/RHITypes/RHIResult.h"
 
+#include <vector>
+
 namespace Core
 {
 	class IDevice;
@@ -36,7 +38,7 @@ namespace Core
 		/// <summary>
 		/// Creates a list of command buffers
 		/// </summary>
-		virtual std::vector<ICommandBuffer*> CreateCommandBuffers(IDevice* _Device, uint32_t _CommandBuffersNbr) = 0;
+		virtual std::vector<ICommandBuffer*> CreateCommandBuffers(IDevice* _Device, int _CommandBuffersNbr) = 0;
 
 		/// <summary>
 		/// 

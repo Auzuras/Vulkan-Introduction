@@ -32,5 +32,7 @@ namespace Core
 	const RHI_RESULT VulkanImageView::DestroyImageView(VkDevice _Device)
 	{
 		vkDestroyImageView(_Device, m_ImageView, nullptr);
+
+		return RHI_SUCCESS;
 	}
 }

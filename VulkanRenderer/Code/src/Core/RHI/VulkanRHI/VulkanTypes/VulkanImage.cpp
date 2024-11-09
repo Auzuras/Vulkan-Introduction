@@ -1,5 +1,9 @@
 #include "RHI/VulkanRHI/VulkanTypes/VulkanImage.h"
 
+#include "RHI/VulkanRHI/VulkanTypes/VulkanDevice.h"
+
+#include "RHI/VulkanRHI/VulkanTypes/VulkanBuffer.h"
+
 namespace Core
 {
 	void VulkanImage::CreateImage(IDevice* _Device, uint32_t _Width, uint32_t _Height, VkFormat _Format, VkImageTiling _Tiling, VkImageUsageFlags _Usage, VkMemoryPropertyFlags _Properties, VkImage& _Image, VkDeviceMemory& _ImageMemory)

@@ -5,7 +5,7 @@
 
 namespace Core
 {
-	const RHI_RESULT VulkanFramebuffer::CreateFramebuffer(IDevice* _Device, IPipeline* _CompatiblePipeline, uint32_t _Width, uint32_t _Height)
+	const RHI_RESULT VulkanFramebuffer::CreateFramebuffer(IDevice* _Device, IPipeline* _CompatiblePipeline, int _Width, int _Height)
 	{
 		VulkanDevice device = *_Device->CastToVulkan();
 		VulkanPipeline pipeline = *_CompatiblePipeline->CastToVulkan();
@@ -23,8 +23,8 @@ namespace Core
 		// Specifies the attachments
 		framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
 		framebufferInfo.pAttachments = attachments.data();
-		framebufferInfo.width = _Width;
-		framebufferInfo.height = _Height;
+		framebufferInfo.width = static_cast<uint32_t>(_Width);
+		framebufferInfo.height = static_cast<uint32_t>(_Height);
 		// Layer number - More than 1 for 3D stereoscopic app
 		framebufferInfo.layers = 1;
 

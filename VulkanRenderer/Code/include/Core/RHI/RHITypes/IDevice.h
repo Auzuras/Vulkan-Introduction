@@ -4,6 +4,8 @@
 
 namespace Core
 {
+	class VulkanDevice;
+
 	class IDevice
 	{
 	public:

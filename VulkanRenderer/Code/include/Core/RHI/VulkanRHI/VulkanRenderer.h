@@ -3,7 +3,6 @@
 #define NOMINMAX
 
 #include "RHI/IRendererHardware.h"
-#include "RHI/VulkanRHI/VulkanTypes/VulkanTypesWrapper.h"
 
 #include <vulkan/vulkan.h>
 
@@ -65,6 +64,6 @@ namespace Core
 		/// <param name="_Image">: Destination image </param>
 		/// <param name="_Width">: Width of the image </param>
 		/// <param name="_Height">: Height of the image </param>
-		void CopyBufferToImage(VkBuffer _Buffer, VkImage _Image, uint32_t _Width, uint32_t _Height);
+		///void CopyBufferToImage(VkBuffer _Buffer, VkImage _Image, uint32_t _Width, uint32_t _Height);
 	};
 }

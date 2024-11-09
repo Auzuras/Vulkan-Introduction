@@ -21,7 +21,7 @@ namespace Core
 		/// <summary>
 		/// Creates a simple graphics pipeline to draw on screen
 		/// </summary>
-		RHI_RESULT CreatePipeline(IDevice* _Device) override;
+		RHI_RESULT CreatePipeline(IDevice* _Device, IShader* _VertexShader, IShader* _FragmentShader) override;
 		RHI_RESULT DestroyPipeline(IDevice* _Device) override;
 
 		/// <summary>
@@ -29,9 +29,9 @@ namespace Core
 		/// </summary>
 		void CreateRenderPass(IDevice* _Device);
 
-		inline VkPipeline GetPipeline() { return m_GraphicsPipeline; }
-		inline VkRenderPass GetRenderPass() { return m_RenderPass; }
-		inline VkPipelineLayout GetPipelineLayout() { return m_PipelineLayout; }
+		inline VkPipeline GetPipeline() const { return m_GraphicsPipeline; }
+		inline VkRenderPass GetRenderPass() const { return m_RenderPass; }
+		inline VkPipelineLayout GetPipelineLayout() const { return m_PipelineLayout; }
 
 		inline VulkanPipeline* CastToVulkan() override { return this; }
 	};

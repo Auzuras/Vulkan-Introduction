@@ -147,7 +147,7 @@ namespace Core
 		{
 			VulkanImageView image;
 			// Creates an image view for each image of the swap chain
-			m_SwapChainImageViews[i] = image.CreateImageView(m_SwapChainImages[i], m_SwapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
+			//m_SwapChainImageViews[i] = image.CreateImageView(m_SwapChainImages[i], m_SwapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
 		}
 
 		return;

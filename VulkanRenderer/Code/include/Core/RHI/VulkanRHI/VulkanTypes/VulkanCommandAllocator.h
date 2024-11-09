@@ -35,7 +35,7 @@ namespace Core
 		/// <summary>
 		/// Creates a list of command buffers
 		/// </summary>
-		std::vector<ICommandBuffer*> CreateCommandBuffers(IDevice* _Device, uint32_t _CommandBuffersNbr) override;
+		std::vector<ICommandBuffer*> CreateCommandBuffers(IDevice* _Device, int _CommandBuffersNbr) override;
 
 		/// <summary>
 		/// 
@@ -47,6 +47,6 @@ namespace Core
 		/// 
 		/// </summary>
 		/// <returns></returns>
-		inline VkCommandPool GetCommandPool() { return m_CommandPool; }
+		inline VkCommandPool GetCommandPool() const { return m_CommandPool; }
 	};
 }

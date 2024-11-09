@@ -38,7 +38,7 @@ namespace Core
 		/// Creates a temporary command buffer for a single command
 		/// </summary>
 		/// <returns></returns>
-		VkCommandBuffer BeginSingleTimeCommands();
+		//VkCommandBuffer BeginSingleTimeCommands();
 
 		/// <summary>
 		/// Ends and destroy a temporary command buffer for a single command

@@ -2,6 +2,10 @@
 
 #include "RHI/VulkanRHI/VulkanTypes/VulkanCommandBuffer.h"
 
+#include "RHI/VulkanRHI/VulkanTypes/VulkanQueue.h"
+
+#include "RHI/VulkanRHI/VulkanTypes/VulkanDevice.h"
+
 namespace Core
 {
 	VulkanCommandAllocator::~VulkanCommandAllocator()
@@ -27,7 +31,10 @@ namespace Core
 		if (result != VK_SUCCESS)
 		{
 			DEBUG_ERROR("Failed to create command pool, Error Code: %d", result);
+			return RHI_FAILED_UNKNOWN;
 		}
+
+		return RHI_SUCCESS;
 	}
 
 	const RHI_RESULT VulkanCommandAllocator::DestroyCommandAllocator(IDevice* _Device)
@@ -69,7 +76,7 @@ namespace Core
 		return vkCommandBuffer;
 	}
 
-	std::vector<ICommandBuffer*> VulkanCommandAllocator::CreateCommandBuffers(IDevice* _Device, uint32_t _CommandBuffersNbr)
+	std::vector<ICommandBuffer*> VulkanCommandAllocator::CreateCommandBuffers(IDevice* _Device, int _CommandBuffersNbr)
 	{
 		VulkanDevice device = *_Device->CastToVulkan();
 
@@ -82,7 +89,7 @@ namespace Core
 		// Secondary : Can be called from primary command buffers but can't be directly sent to a queue
 		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 		// Specifies the number of command buffer to create
-		allocInfo.commandBufferCount = _CommandBuffersNbr;
+		allocInfo.commandBufferCount = static_cast<uint32_t>(_CommandBuffersNbr);
 
 		std::vector<VkCommandBuffer> cmdBuffers(_CommandBuffersNbr);
 
@@ -96,7 +103,7 @@ namespace Core
 
 		std::vector<ICommandBuffer*> finalCmdBuffers;
 
-		for (uint32_t i = 0; i < _CommandBuffersNbr; ++i)
+		for (int i = 0; i < _CommandBuffersNbr; ++i)
 		{
 			finalCmdBuffers.push_back(new VulkanCommandBuffer(cmdBuffers[i]));
 		}

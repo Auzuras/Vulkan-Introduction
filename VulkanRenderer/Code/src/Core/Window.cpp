@@ -2,7 +2,7 @@
 
 namespace Core
 {
-	Window::Window(const uint32_t _Width, const uint32_t _Height, const char* _WindowName)
+	Window::Window(const int _Width, const int _Height, const char* _WindowName)
 		:m_Width(_Width), m_Height(_Height), m_WindowName(_WindowName)
 	{}
 

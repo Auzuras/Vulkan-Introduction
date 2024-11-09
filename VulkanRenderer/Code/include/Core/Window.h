@@ -12,8 +12,8 @@ namespace Core
 	class Window
 	{
 	private:
-		uint32_t m_Width = 1280;
-		uint32_t m_Height = 720;
+		int m_Width = 1280;
+		int m_Height = 720;
 		const char* m_WindowName = "DefaultName";
 
 		GLFWwindow* m_Window = nullptr;
@@ -39,7 +39,7 @@ namespace Core
 
 		Window() = default;
 
-		Window(const uint32_t _Width, const uint32_t _Height, const char* _WindowName);
+		Window(const int _Width, const int _Height, const char* _WindowName);
 
 		///////////////////////////////////////////////////////////////////////
 
@@ -63,7 +63,7 @@ namespace Core
 		/// Sets window width
 		/// </summary>
 		/// <param name="_Width"></param>
-		inline void SetWindowWidth(const uint32_t _Width) { m_Width = _Width; }
+		inline void SetWindowWidth(const int _Width) { m_Width = _Width; }
 
 		/// <summary>
 		/// Returns window height
@@ -75,7 +75,7 @@ namespace Core
 		/// Sets window height
 		/// </summary>
 		/// <param name="_Height"></param>
-		inline void SetWindowHeight(const uint32_t _Height) { m_Height = _Height; }
+		inline void SetWindowHeight(const int _Height) { m_Height = _Height; }
 
 		/// <summary>
 		/// Returns window name

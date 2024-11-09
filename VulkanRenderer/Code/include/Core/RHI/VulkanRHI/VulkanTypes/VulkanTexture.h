@@ -10,7 +10,7 @@ namespace Core
 	class VulkanTexture : public Resources::ITexture
 	{
 	private:
-		VulkanImage m_TextureImage;
+		//VulkanImage m_TextureImage;
 
 		VkDeviceMemory m_TextureImageMemory;
 		VkSampler m_TextureSampler;
@@ -32,5 +32,8 @@ namespace Core
 		void CreateTextureSampler();
 
 		RHI_RESULT DestroyTexture();
+
+		Resources::ITexture* Load(std::filesystem::path _ResourcePath) override;
+		const bool Unload() override;
 	};
 }

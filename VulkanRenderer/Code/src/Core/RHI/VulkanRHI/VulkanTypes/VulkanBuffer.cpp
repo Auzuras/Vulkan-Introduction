@@ -1,5 +1,7 @@
 #include "RHI/VulkanRHI/VulkanTypes/VulkanBuffer.h"
 
+#include "RHI/VulkanRHI/VulkanTypes/VulkanDevice.h"
+
 namespace Core
 {
 	uint32_t VulkanBuffer::FindMemoryType(VkPhysicalDevice _PhysicalDevice, uint32_t _TypeFilter, VkMemoryPropertyFlags _Properties)

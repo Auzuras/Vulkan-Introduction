@@ -1,5 +1,7 @@
 #include "RHI/VulkanRHI/VulkanTypes/VulkanFence.h"
 
+#include "RHI/VulkanRHI/VulkanTypes/VulkanDevice.h"
+
 namespace Core
 {
 	VulkanFence::~VulkanFence()

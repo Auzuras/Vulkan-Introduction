@@ -1,5 +1,8 @@
 #include "RHI/VulkanRHI/VulkanRenderer.h"
 
+#include "RHI/VulkanRHI/VulkanTypes/VulkanDevice.h"
+#include "RHI/VulkanRHI/VulkanTypes/VulkanShader.h"
+
 #include <cstring>
 #include <set>
 

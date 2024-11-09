@@ -154,7 +154,6 @@
     <ClCompile Include="Code\src\Core\RHI\VulkanRHI\VulkanTypes\VulkanFramebuffer.cpp" />
     <ClCompile Include="Code\src\Core\RHI\VulkanRHI\VulkanTypes\VulkanImage.cpp" />
     <ClCompile Include="Code\src\Core\RHI\VulkanRHI\VulkanTypes\VulkanQueue.cpp" />
-    <ClCompile Include="Code\src\Core\RHI\OpenGLRHI\OpenGLRenderer.cpp" />
     <ClCompile Include="Code\src\Core\Debug\Log.cpp" />
     <ClCompile Include="Code\src\Core\RHI\Vertex.cpp" />
     <ClCompile Include="Code\src\Core\RHI\VulkanRHI\VulkanRenderer.cpp" />
@@ -192,7 +191,6 @@
     <ClInclude Include="Code\include\Core\Maths\Vectors\Vector3.h" />
     <ClInclude Include="Code\include\Core\Maths\Vectors\Vector4.h" />
     <ClInclude Include="Code\include\Core\Renderer.h" />
-    <ClInclude Include="Code\include\Core\RHI\OpenGLRHI\OpenGLRenderer.h" />
     <ClInclude Include="Code\include\Core\RHI\IRendererHardware.h" />
     <ClInclude Include="Code\include\Core\RHI\RHITypes.h" />
     <ClInclude Include="Code\include\Core\RHI\RHITypes\IBuffer.h" />

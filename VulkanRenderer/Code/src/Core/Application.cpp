@@ -9,7 +9,6 @@ namespace Core
 		switch (m_RendererType)
 		{
 		case Core::OPENGL:
-			m_Renderer = new Core::OpenGLRenderer;
 			break;
 		case Core::VULKAN: default:
 			m_Renderer = new Core::VulkanRenderer;
@@ -60,6 +59,5 @@ namespace Core
 
 	void Application::Draw()
 	{
-		m_Renderer->DrawFrame(&m_Window);
 	}
 }

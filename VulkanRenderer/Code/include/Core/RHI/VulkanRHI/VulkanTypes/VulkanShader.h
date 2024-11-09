@@ -4,6 +4,8 @@
 
 #include "RHI/VulkanRHI/VulkanRenderer.h"
 
+#include <shaderc/shaderc.hpp>
+
 namespace Core
 {
 	struct CompilationInfos

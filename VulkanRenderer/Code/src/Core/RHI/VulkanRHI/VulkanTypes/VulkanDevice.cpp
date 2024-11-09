@@ -218,6 +218,8 @@ namespace Core
 			DEBUG_ERROR("Failed to find a suitable GPU");
 			return RHI_FAILED_UNKNOWN;
 		}
+
+		return RHI_SUCCESS;
     }
 
 	const bool VulkanDevice::IsDeviceSuitable(VkPhysicalDevice _Device)
@@ -394,6 +396,8 @@ namespace Core
 		CreateSurface(_Window);
 		PickPhysicalDevice();
 		CreateLogicalDevice();
+
+		return RHI_SUCCESS;
     }
 
 	const RHI_RESULT VulkanDevice::Terminate()
@@ -407,5 +411,7 @@ namespace Core
 
 		vkDestroySurfaceKHR(m_VulkanInstance, m_Surface, nullptr);
 		vkDestroyInstance(m_VulkanInstance, nullptr);
+
+		return RHI_SUCCESS;
     }
 }

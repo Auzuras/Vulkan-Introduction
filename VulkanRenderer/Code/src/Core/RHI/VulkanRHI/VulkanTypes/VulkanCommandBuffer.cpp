@@ -106,29 +106,29 @@ namespace Core
 		//}
 	}
 
-	VkCommandBuffer VulkanCommandBuffer::BeginSingleTimeCommands()
-	{
-		//// Command buffer allocation infos
-		//VkCommandBufferAllocateInfo allocInfo{};
-		//allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		//allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		//allocInfo.commandPool = m_CommandPool;
-		//allocInfo.commandBufferCount = 1;
+	//VkCommandBuffer VulkanCommandBuffer::BeginSingleTimeCommands()
+	//{
+	//	// Command buffer allocation infos
+	//	VkCommandBufferAllocateInfo allocInfo{};
+	//	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	//	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	//	allocInfo.commandPool = m_CommandPool;
+	//	allocInfo.commandBufferCount = 1;
 
-		//// Allocates the command buffer
-		//VkCommandBuffer commandBuffer;
-		//vkAllocateCommandBuffers(m_LogicalDevice, &allocInfo, &commandBuffer);
+	//	//// Allocates the command buffer
+	//	VkCommandBuffer commandBuffer;
+	//	vkAllocateCommandBuffers(m_LogicalDevice, &allocInfo, &commandBuffer);
 
-		//// Begin info specifing VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT which means the command buffer will be used for a single command
-		//VkCommandBufferBeginInfo beginInfo{};
-		//beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		//beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+	//	//// Begin info specifing VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT which means the command buffer will be used for a single command
+	//	//VkCommandBufferBeginInfo beginInfo{};
+	//	//beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	//	//beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
-		//// Start recording the command
-		//vkBeginCommandBuffer(commandBuffer, &beginInfo);
+	//	//// Start recording the command
+	//	//vkBeginCommandBuffer(commandBuffer, &beginInfo);
 
-		//return commandBuffer;
-	}
+	//	return commandBuffer;
+	//}
 
 	void VulkanCommandBuffer::EndSingleTimeCommands(VkCommandBuffer _CommandBuffer)
 	{
