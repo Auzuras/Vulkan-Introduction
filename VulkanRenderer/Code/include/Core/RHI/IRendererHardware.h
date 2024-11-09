@@ -56,11 +56,47 @@ namespace Core
 		/// <returns></returns>
 		virtual const bool Terminate() = 0;
 
+		///////////////////////////////////////////////////////////////////////
+
+		/// Device related methods
+
+		///////////////////////////////////////////////////////////////////////
+
 		/// <summary>
 		/// Creates a device
 		/// </summary>
 		/// <returns></returns>
-		virtual IDevice* CreateDevice() = 0;
+		virtual IDevice* InstanciateDevice(Window* _Window) = 0;
+
+		virtual void DestroyDevice(IDevice* _Device);
+
+		///////////////////////////////////////////////////////////////////////
+
+		/// SwapChain related methods
+
+		///////////////////////////////////////////////////////////////////////
+		
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		virtual ISwapChain* InstantiateSwapChain(Window* _Window, IDevice* _Device) = 0;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="_Device"></param>
+		virtual void DestroySwapChain(ISwapChain* _SwapChain, IDevice* _Device);
+
+		///////////////////////////////////////////////////////////////////////
+
+		/// Pipeline related methods
+
+		///////////////////////////////////////////////////////////////////////
+
+		virtual IPipeline* InstantiatePipeline(IDevice* _Device) = 0;
+
+		virtual void DestroyPipeline(IPipeline* _Pipeline, IDevice* _Device);
 
 		/// <summary>
 		/// 

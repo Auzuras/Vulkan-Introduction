@@ -14,25 +14,25 @@ namespace Core
 		return RHI_RESULT();
 	}
 
-	QueueFamilyIndices VulkanQueue::FindQueueFamilies(VulkanDevice _Device)
+	QueueFamilyIndices VulkanQueue::FindQueueFamilies(VkPhysicalDevice _Device, VkSurfaceKHR _Surface)
 	{
 		QueueFamilyIndices indices;
 
 		uint32_t queueFamilyNbr = 0;
-		vkGetPhysicalDeviceQueueFamilyProperties(_Device.GetPhysicalDevice(), &queueFamilyNbr, nullptr);
+		vkGetPhysicalDeviceQueueFamilyProperties(_Device, &queueFamilyNbr, nullptr);
 
 		// Gets all queue families of the gpu
 		std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyNbr);
-		vkGetPhysicalDeviceQueueFamilyProperties(_Device.GetPhysicalDevice(), &queueFamilyNbr, queueFamilies.data());
+		vkGetPhysicalDeviceQueueFamilyProperties(_Device, &queueFamilyNbr, queueFamilies.data());
 
 		int index = 0;
 		for (const VkQueueFamilyProperties& queueFamily : queueFamilies)
 		{
 			// Checks for a queue supporting transfer queues but that is not a graphics queue
-			if (!(queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) && (queueFamily.queueFlags & VK_QUEUE_TRANSFER_BIT))
-			{
-				indices.transfertFamily = index;
-			}
+			//if (!(queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) && (queueFamily.queueFlags & VK_QUEUE_TRANSFER_BIT))
+			//{
+			//	indices.transfertFamily = index;
+			//}
 
 			// Checks for a queue supporting graphic queues
 			if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
@@ -42,7 +42,7 @@ namespace Core
 
 			// Checks if the current queue can support presentation queues 
 			VkBool32 presentSupport = false;
-			vkGetPhysicalDeviceSurfaceSupportKHR(_Device.GetPhysicalDevice(), index, _Device.GetSurface(), &presentSupport);
+			vkGetPhysicalDeviceSurfaceSupportKHR(_Device, index, _Surface, &presentSupport);
 
 			// Reference the queue if it can support presentation
 			if (presentSupport)
@@ -60,7 +60,7 @@ namespace Core
 		}
 
 		// bool describing if the two types of families are supported on our device
-		indices.isComplete = indices.graphicsFamily.has_value() && indices.presentFamily.has_value() && indices.transfertFamily.has_value();
+		indices.isComplete = indices.graphicsFamily.has_value() && indices.presentFamily.has_value();//&& indices.transfertFamily.has_value();
 
 		return indices;
 	}

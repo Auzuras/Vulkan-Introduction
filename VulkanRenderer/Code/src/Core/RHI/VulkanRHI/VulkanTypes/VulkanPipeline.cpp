@@ -7,7 +7,7 @@ namespace Core
 	VulkanPipeline::~VulkanPipeline()
 	{}
 
-	RHI_RESULT VulkanPipeline::CreatePipeline(IDevice* _Device, IShader* _VertexShader, IShader* _FragmentShader)
+	RHI_RESULT VulkanPipeline::CreatePipeline(IDevice* _Device)
 	{
 		VulkanDevice device = *_Device->CastToVulkan();
 

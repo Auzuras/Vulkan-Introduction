@@ -4,7 +4,6 @@
 
 #include "RHI/VulkanRHI/VulkanTypes/VulkanDevice.h"
 #include "RHI/VulkanRHI/VulkanTypes/VulkanImage.h"
-#include "RHI/VulkanRHI/VulkanTypes/VulkanImageView.h"
 
 namespace Core
 {
@@ -39,33 +38,33 @@ namespace Core
 		return requiredExtensions.empty();
 	}
 
-	SwapChainSupportDetails VulkanSwapChain::QuerySwapChainSupport(VulkanDevice _Device)
+	SwapChainSupportDetails VulkanSwapChain::QuerySwapChainSupport(VkPhysicalDevice _Device, VkSurfaceKHR _Surface)
 	{
 		SwapChainSupportDetails details;
 
 		// Checks the surfaces capabilities (min / max frames in the swap chain, min / max - height / width of the images)
-		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(_Device.GetPhysicalDevice(), _Device.GetSurface(), &details.capabilities);
+		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(_Device, _Surface, &details.capabilities);
 
 		// Checks the number of format available (pixels format / colors)
 		uint32_t formatNbr;
-		vkGetPhysicalDeviceSurfaceFormatsKHR(_Device.GetPhysicalDevice(), _Device.GetSurface(), &formatNbr, nullptr);
+		vkGetPhysicalDeviceSurfaceFormatsKHR(_Device, _Surface, &formatNbr, nullptr);
 
 		// References the formats if availables
 		if (formatNbr != 0)
 		{
 			details.formats.resize(formatNbr);
-			vkGetPhysicalDeviceSurfaceFormatsKHR(_Device.GetPhysicalDevice(), _Device.GetSurface(), &formatNbr, details.formats.data());
+			vkGetPhysicalDeviceSurfaceFormatsKHR(_Device, _Surface, &formatNbr, details.formats.data());
 		}
 
 		// Checks the number of presentations modes (FIFO / Mailbox...)
 		uint32_t presentModeNbr;
-		vkGetPhysicalDeviceSurfacePresentModesKHR(_Device.GetPhysicalDevice(), _Device.GetSurface(), &presentModeNbr, nullptr);
+		vkGetPhysicalDeviceSurfacePresentModesKHR(_Device, _Surface, &presentModeNbr, nullptr);
 
 		// References the presentations modes if availables
 		if (presentModeNbr != 0)
 		{
 			details.presentModes.resize(presentModeNbr);
-			vkGetPhysicalDeviceSurfacePresentModesKHR(_Device.GetPhysicalDevice(), _Device.GetSurface(), &presentModeNbr, details.presentModes.data());
+			vkGetPhysicalDeviceSurfacePresentModesKHR(_Device, _Surface, &presentModeNbr, details.presentModes.data());
 		}
 
 		return details;
@@ -139,26 +138,31 @@ namespace Core
 		}
 	}
 
-	void VulkanSwapChain::CreateSwapChainImageViews()
+	void VulkanSwapChain::CreateSwapChainImageViews(VkDevice _Device)
 	{
 		m_SwapChainImageViews.resize(m_SwapChainImages.size());
 
 		for (size_t i = 0; i < m_SwapChainImages.size(); ++i)
 		{
-			VulkanImageView image;
 			// Creates an image view for each image of the swap chain
-			//m_SwapChainImageViews[i] = image.CreateImageView(m_SwapChainImages[i], m_SwapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
+			VulkanImageView imageView;
+			imageView.CreateImageView(_Device, m_SwapChainImages[i], m_SwapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
+
+			m_SwapChainImageViews[i] = imageView;
 		}
 
 		return;
 	}
+
+	VulkanSwapChain::~VulkanSwapChain()
+	{}
 
 	const RHI_RESULT VulkanSwapChain::CreateSwapChain(Window* _Window, IDevice* _Device)
 	{
 		VulkanDevice device = *_Device->CastToVulkan();
 
 		// Gets all the capabilities and information the swapchain can support
-		SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(device);
+		SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(device.GetPhysicalDevice(), device.GetSurface());
 
 		// Selects the best surface format
 		VkSurfaceFormatKHR surfaceFormat = ChooseSwapSurfaceFormat(swapChainSupport.formats);
@@ -192,7 +196,7 @@ namespace Core
 		createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
 		// Gets all queue families to setup up sharing mode of the images in the swap chain
-		QueueFamilyIndices indices = VulkanQueue::FindQueueFamilies(device);
+		QueueFamilyIndices indices = VulkanQueue::FindQueueFamilies(device.GetPhysicalDevice(), device.GetSurface());
 		uint32_t queueFamilyIndices[] = { indices.graphicsFamily.value(), indices.presentFamily.value() };
 
 		// If there is two different queues with one for graphic and the other for presenting we need to share the images
@@ -236,6 +240,8 @@ namespace Core
 		vkGetSwapchainImagesKHR(device.GetLogicalDevice(), m_SwapChain, &imageNbr, nullptr);
 		m_SwapChainImages.resize(imageNbr);
 		vkGetSwapchainImagesKHR(device.GetLogicalDevice(), m_SwapChain, &imageNbr, m_SwapChainImages.data());
+
+		CreateSwapChainImageViews(device.GetLogicalDevice());
 
 		return RHI_SUCCESS;
 	}
@@ -288,9 +294,9 @@ namespace Core
 			vkDestroyFramebuffer(device.GetLogicalDevice(), framebuffer, nullptr);
 		}
 
-		for (VkImageView imageView : m_SwapChainImageViews)
+		for (VulkanImageView imageView : m_SwapChainImageViews)
 		{
-			vkDestroyImageView(device.GetLogicalDevice(), imageView, nullptr);
+			imageView.DestroyImageView(device.GetLogicalDevice());
 		}
 
 		// Destroys the swap chain

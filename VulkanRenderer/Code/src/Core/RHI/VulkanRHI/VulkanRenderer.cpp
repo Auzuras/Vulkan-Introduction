@@ -1,6 +1,8 @@
 #include "RHI/VulkanRHI/VulkanRenderer.h"
 
 #include "RHI/VulkanRHI/VulkanTypes/VulkanDevice.h"
+#include "RHI/VulkanRHI/VulkanTypes/VulkanSwapChain.h"
+#include "RHI/VulkanRHI/VulkanTypes/VulkanPipeline.h"
 #include "RHI/VulkanRHI/VulkanTypes/VulkanShader.h"
 
 #include <cstring>
@@ -41,14 +43,34 @@ namespace Core
 		return true;
 	}
 
-	IDevice* VulkanRenderer::CreateDevice()
+	IDevice* VulkanRenderer::InstanciateDevice(Window* _Window)
 	{
 		VulkanDevice* vkDevice = new VulkanDevice;
-		/*if (!vkDevice->Initialize())
-			return nullptr;*/
+
+		if (!vkDevice->Initialize(_Window))
+			return nullptr;
 
 		return vkDevice;
+	}
 
+	ISwapChain* VulkanRenderer::InstantiateSwapChain(Window* _Window, IDevice* _Device)
+	{
+		VulkanSwapChain* vkSwapChain = new VulkanSwapChain;
+
+		if (!vkSwapChain->CreateSwapChain(_Window, _Device))
+			return nullptr;
+
+		return vkSwapChain;
+	}
+
+	IPipeline* VulkanRenderer::InstantiatePipeline(IDevice* _Device)
+	{
+		VulkanPipeline* vkPipeline = new VulkanPipeline;
+
+		if (!vkPipeline->CreatePipeline(_Device))
+			return nullptr;
+
+		return vkPipeline;
 	}
 
 	Resources::IShader* VulkanRenderer::CompileShader(std::string _ShaderSourceCode, ShaderType _ShaderType)

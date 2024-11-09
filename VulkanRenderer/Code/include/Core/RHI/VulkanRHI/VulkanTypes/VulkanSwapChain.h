@@ -4,6 +4,8 @@
 
 #include "RHI/VulkanRHI/VulkanRenderer.h"
 
+#include "RHI/VulkanRHI/VulkanTypes/VulkanImageView.h"
+
 namespace Core
 {
 	class VulkanDevice;
@@ -25,7 +27,7 @@ namespace Core
 		VkExtent2D m_SwapChainExtent;
 
 		std::vector<VkImage> m_SwapChainImages;
-		std::vector<VkImageView> m_SwapChainImageViews;
+		std::vector<VulkanImageView> m_SwapChainImageViews;
 
 		std::vector<VkFramebuffer> m_SwapChainFramebuffers;
 
@@ -65,9 +67,11 @@ namespace Core
 		/// <summary>
 		/// Creates the image views of the swap chain
 		/// </summary>
-		void CreateSwapChainImageViews();
+		void CreateSwapChainImageViews(VkDevice _Device);
 
 	public:
+
+		~VulkanSwapChain() override;
 
 		/// <summary>
 		/// Creates the Swap chain for our program
@@ -94,6 +98,6 @@ namespace Core
 		/// <param name="_Device">: Logical device which we check if the swap chain is supported </param>
 		/// <param name="_Surface">: Rendering surface </param>
 		/// <returns></returns>
-		static SwapChainSupportDetails QuerySwapChainSupport(VulkanDevice _Device);
+		static SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice _Device, VkSurfaceKHR _Surface);
 	};
 }

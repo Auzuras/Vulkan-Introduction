@@ -34,6 +34,6 @@ namespace Core
 		/// </summary>
 		/// <param name="_Device">: Physical device containing queue families </param>
 		/// <returns></returns>
-		static QueueFamilyIndices FindQueueFamilies(VulkanDevice _Device);
+		static QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice _Device, VkSurfaceKHR _Surface);
 	};
 }

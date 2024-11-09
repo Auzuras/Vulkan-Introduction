@@ -2,8 +2,7 @@
 
 #include "Window.h"
 
-#include "RHI/IRendererHardware.h"
-#include "RHI/VulkanRHI/VulkanRenderer.h"
+#include "Renderer.h"
 
 #include "Camera.h"
 
@@ -13,10 +12,7 @@ namespace Core
 	{
 	private:
 		Window m_Window;
-
-		static inline Core::IRendererHardware* m_Renderer = nullptr;
-
-		static inline RendererType m_RendererType = RendererType::VULKAN;
+		Renderer m_Renderer;
 
 	public:
 		static inline LowRenderer::Camera appCamera;
@@ -30,7 +26,7 @@ namespace Core
 		/// <summary>
 		/// Application default constructor
 		/// </summary>
-		Application() = default;
+		Application();
 
 		/// <summary>
 		/// Application default destructor

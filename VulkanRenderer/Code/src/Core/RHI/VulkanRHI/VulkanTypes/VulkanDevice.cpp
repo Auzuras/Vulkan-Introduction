@@ -62,6 +62,8 @@ namespace Core
 			return RHI_FAILED_UNKNOWN;
 		}
 
+		DEBUG_LOG("Vulkan instance successfully created");
+
 		return RHI_SUCCESS;
 	}
 
@@ -219,6 +221,10 @@ namespace Core
 			return RHI_FAILED_UNKNOWN;
 		}
 
+		VkPhysicalDeviceProperties deviceProperties;
+		vkGetPhysicalDeviceProperties(m_PhysicalDevice, &deviceProperties);
+
+		DEBUG_LOG("Physical device: %s, successfully picked", deviceProperties.deviceName);
 		return RHI_SUCCESS;
     }
 
@@ -235,7 +241,7 @@ namespace Core
 		vkGetPhysicalDeviceFeatures(_Device, &deviceFeatures);
 
 		// Gets required familie queues
-		QueueFamilyIndices indices = VulkanQueue::FindQueueFamilies(*this);
+		QueueFamilyIndices indices = VulkanQueue::FindQueueFamilies(_Device, m_Surface);
 
 		// Checks if all the extensions we need are availables
 		bool areExtensionsSupported = CheckDeviceExtensionSupport(_Device);
@@ -245,7 +251,7 @@ namespace Core
 		if (areExtensionsSupported)
 		{
 			// Checks if the SwapChain is supported by our device
-			SwapChainSupportDetails swapChainSupport = VulkanSwapChain::QuerySwapChainSupport(*this);
+			SwapChainSupportDetails swapChainSupport = VulkanSwapChain::QuerySwapChainSupport(_Device, m_Surface);
 			// Sets the swapchain adequate bool according to the formats and present modes
 			isSwapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
 		}
@@ -267,10 +273,10 @@ namespace Core
 	const RHI_RESULT VulkanDevice::CreateLogicalDevice()
 	{
 		// Gets all queue families to reference the number of queues required for our application
-		QueueFamilyIndices indices = VulkanQueue::FindQueueFamilies(*this);
+		QueueFamilyIndices indices = VulkanQueue::FindQueueFamilies(m_PhysicalDevice, m_Surface);
 		float queuePriority = 1.0f;
 
-		std::set<uint32_t> uniqueQueueFamilies = { indices.graphicsFamily.value(), indices.presentFamily.value(), indices.transfertFamily.value() };
+		std::set<uint32_t> uniqueQueueFamilies = { indices.graphicsFamily.value(), indices.presentFamily.value() };
 
 		// References our queues in a create info for the device
 		std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
@@ -321,7 +327,7 @@ namespace Core
 		// References the queues
 		vkGetDeviceQueue(m_LogicalDevice, indices.graphicsFamily.value(), 0, &m_GraphicsQueue);
 		vkGetDeviceQueue(m_LogicalDevice, indices.presentFamily.value(), 0, &m_PresentationQueue);
-		vkGetDeviceQueue(m_LogicalDevice, indices.transfertFamily.value(), 0, &m_TransferQueue);
+		//vkGetDeviceQueue(m_LogicalDevice, indices.transfertFamily.value(), 0, &m_TransferQueue);
 
 		return RHI_SUCCESS;
 	}

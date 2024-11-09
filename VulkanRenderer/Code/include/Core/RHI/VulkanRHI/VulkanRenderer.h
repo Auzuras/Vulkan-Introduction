@@ -42,28 +42,38 @@ namespace Core
 		/// <returns></returns>
 		const bool Terminate() override;
 
+		///////////////////////////////////////////////////////////////////////
+
+		/// Device related methods
+
+		///////////////////////////////////////////////////////////////////////
+
 		/// <summary>
 		/// Creates a device
 		/// </summary>
 		/// <returns></returns>
-		IDevice* CreateDevice();
+		IDevice* InstanciateDevice(Window* _Window) override;
 
-		Resources::IShader* CompileShader(std::string _ShaderSourceCode, ShaderType _) override;
+		///////////////////////////////////////////////////////////////////////
 
-		///// <summary>
-		///// Creates a shader module object with a shader source code
-		///// </summary>
-		///// <param name="_ShaderSourceCode">: Source code of the shader </param>
-		///// <returns></returns>
-		//VkShaderModule CreateShaderModule(const std::vector<uint32_t>& _ShaderSourceCode);
+		/// SwapChain related methods
+
+		///////////////////////////////////////////////////////////////////////
 
 		/// <summary>
-		/// Allows to move an image from a src buffer to a dest image
+		/// 
 		/// </summary>
-		/// <param name="_Buffer">: Source buffer </param>
-		/// <param name="_Image">: Destination image </param>
-		/// <param name="_Width">: Width of the image </param>
-		/// <param name="_Height">: Height of the image </param>
-		///void CopyBufferToImage(VkBuffer _Buffer, VkImage _Image, uint32_t _Width, uint32_t _Height);
+		/// <returns></returns>
+		ISwapChain* InstantiateSwapChain(Window* _Window, IDevice* _Device) override;
+
+		///////////////////////////////////////////////////////////////////////
+
+		/// SwapChain related methods
+		
+		///////////////////////////////////////////////////////////////////////
+
+		IPipeline* InstantiatePipeline(IDevice* _Device) override;
+
+		Resources::IShader* CompileShader(std::string _ShaderSourceCode, ShaderType _) override;
 	};
 }

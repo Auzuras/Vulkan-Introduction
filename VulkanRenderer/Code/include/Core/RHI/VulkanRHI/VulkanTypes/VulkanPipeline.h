@@ -21,7 +21,7 @@ namespace Core
 		/// <summary>
 		/// Creates a simple graphics pipeline to draw on screen
 		/// </summary>
-		RHI_RESULT CreatePipeline(IDevice* _Device, IShader* _VertexShader, IShader* _FragmentShader) override;
+		RHI_RESULT CreatePipeline(IDevice* _Device) override;
 		RHI_RESULT DestroyPipeline(IDevice* _Device) override;
 
 		/// <summary>

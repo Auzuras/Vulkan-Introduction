@@ -120,6 +120,12 @@
     <ClCompile Include="Code\src\Core\RHI\VulkanRHI\VulkanTypes\VulkanImageView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Code\src\Core\RHI\Renderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\src\Core\RHI\IRendererHardware.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\include\Core\Maths\Matrices\Matrix2.h">
