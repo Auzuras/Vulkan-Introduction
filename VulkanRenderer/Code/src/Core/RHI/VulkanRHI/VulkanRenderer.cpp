@@ -92,47 +92,49 @@ namespace Core
 
 	Resources::IShader* VulkanRenderer::CompileShader(IDevice* _Device, const char* _ShaderName, std::string _ShaderSourceCode, ShaderType _ShaderType)
 	{
-		VulkanShader* shader = new VulkanShader();
-		VulkanDevice device = *_Device->CastToVulkan();
+		// TODO: Move this in shader class directly
 
-		// Causes memory leaks, thx
-		shaderc::Compiler compiler;
+		//VulkanShader* shader = new VulkanShader();
+		//VulkanDevice device = *_Device->CastToVulkan();
 
-		// Fill a struct of informations about the shader
-		CompilationInfos infos{};
-		infos.fileName = _ShaderName;
-		infos.sourceCode = &_ShaderSourceCode;
-		// TODO: Checks the optimizations
-		//infos.options.SetOptimizationLevel(shaderc_optimization_level_performance);
-		//infos.options.SetTargetEnvironment(shaderc_target_env_vulkan, shaderc_env_version_vulkan_1_3);
+		//// Causes memory leaks, thx
+		//shaderc::Compiler compiler;
 
-		switch (_ShaderType)
-		{
-		case VERTEX: default:
-			infos.shaderKind = shaderc_vertex_shader;
-			break;
-		case FRAGMENT:
-			infos.shaderKind = shaderc_fragment_shader;
-			break;
-		case GEOMETRY:
-			infos.shaderKind = shaderc_geometry_shader;
-			break;
-		}
+		//// Fill a struct of informations about the shader
+		//CompilationInfos infos{};
+		//infos.fileName = _ShaderName;
+		//infos.sourceCode = &_ShaderSourceCode;
+		//// TODO: Checks the optimizations
+		////infos.options.SetOptimizationLevel(shaderc_optimization_level_performance);
+		////infos.options.SetTargetEnvironment(shaderc_target_env_vulkan, shaderc_env_version_vulkan_1_3);
 
-		if (!shader->PreprocessShader(compiler, infos))
-			return nullptr;
+		//switch (_ShaderType)
+		//{
+		//case VERTEX: default:
+		//	infos.shaderKind = shaderc_vertex_shader;
+		//	break;
+		//case FRAGMENT:
+		//	infos.shaderKind = shaderc_fragment_shader;
+		//	break;
+		//case GEOMETRY:
+		//	infos.shaderKind = shaderc_geometry_shader;
+		//	break;
+		//}
 
-		if (!shader->SpirVAssemblyCompilation(compiler, infos))
-			return nullptr;
+		//if (!shader->PreprocessShader(compiler, infos))
+		//	return nullptr;
 
-		std::vector<uint32_t> compiledShader = shader->SpirVBinaryCompilation(compiler, infos);
+		//if (!shader->SpirVAssemblyCompilation(compiler, infos))
+		//	return nullptr;
 
-		if (compiledShader.empty())
-			return nullptr;
+		//std::vector<uint32_t> compiledShader = shader->SpirVBinaryCompilation(compiler, infos);
+
+		//if (compiledShader.empty())
+		//	return nullptr;
 
 		//shader->CreateShaderModule();
 
-		return shader;
+		//return shader;
 	}
 
 	//VkShaderModule VulkanRenderer::CreateShaderModule(const std::vector<uint32_t>& _ShaderSourceCode)

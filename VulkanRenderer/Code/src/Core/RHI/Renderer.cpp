@@ -31,10 +31,10 @@ namespace Core
 	void Renderer::CreateSimplePipeline()
 	{
 		Resources::IShader* vertShader = m_RHI->CreateShader();
-		vertShader->Load("Assets/Shaders/HelloTriangle.vert");
+		vertShader->Load(m_Device, "Assets/Shaders/HelloTriangle.vert");
 
 		Resources::IShader* fragShader = m_RHI->CreateShader();
-		vertShader->Load("Assets/Shaders/HelloTriangle.frag");
+		vertShader->Load(m_Device, "Assets/Shaders/HelloTriangle.frag");
 
 		PipelineShaderInfos vert;
 		vert.shader;

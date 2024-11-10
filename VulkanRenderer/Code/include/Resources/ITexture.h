@@ -13,7 +13,7 @@ namespace Resources
 		/// </summary>
 		/// <param name="_ResourcePath">: Path of the 3D model </param>
 		/// <returns></returns>
-		virtual const bool Load(std::filesystem::path _ResourcePath) override = 0;
+		virtual const bool Load(Core::IDevice* _Device, std::filesystem::path _ResourcePath) override = 0;
 
 		/// <summary>
 		/// Unloads the 3D model

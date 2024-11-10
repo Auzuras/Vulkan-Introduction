@@ -4,7 +4,7 @@
 
 namespace Resources
 {
-	const bool IShader::Load(std::filesystem::path _ResourcePath)
+	const bool IShader::Load(Core::IDevice* _Device, std::filesystem::path _ResourcePath)
 	{
 		const char* ext = _ResourcePath.extension().string().c_str();
 		const char* name = _ResourcePath.filename().string().c_str();
@@ -47,7 +47,7 @@ namespace Resources
 
 		shaderFile.close();
 
-		//Core::Renderer::GetRHI()->CompileShader();
+		Core::Renderer::GetRHI()->CompileShader(_Device, name, shaderCode, type);
 
 		return true;
 	}

@@ -32,8 +32,5 @@ namespace Core
 		void CreateTextureSampler();
 
 		RHI_RESULT DestroyTexture();
-
-		const bool Load(std::filesystem::path _ResourcePath) override;
-		const bool Unload() override;
 	};
 }

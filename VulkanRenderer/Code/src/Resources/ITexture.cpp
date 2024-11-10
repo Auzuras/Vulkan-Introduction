@@ -5,7 +5,7 @@
 
 namespace Resources
 {
-	const bool ITexture::Load(std::filesystem::path _ResourcePath)
+	const bool ITexture::Load(Core::IDevice* _Device, std::filesystem::path _ResourcePath)
 	{
 		int textWidth, textHeight, textChannels;
 		stbi_set_flip_vertically_on_load(true);

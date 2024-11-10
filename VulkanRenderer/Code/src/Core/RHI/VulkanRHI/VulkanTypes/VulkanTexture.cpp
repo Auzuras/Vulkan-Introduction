@@ -90,14 +90,4 @@ namespace Core
 
 		return RHI_RESULT();
 	}
-
-	const bool VulkanTexture::Load(std::filesystem::path _ResourcePath)
-	{
-		return false;
-	}
-
-	const bool VulkanTexture::Unload()
-	{
-		return false;
-	}
 }

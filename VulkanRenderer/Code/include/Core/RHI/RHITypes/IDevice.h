@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RHI/RHITypes/RHIResult.h"
+#include "Window.h"
 
 namespace Core
 {

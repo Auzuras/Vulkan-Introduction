@@ -7,7 +7,7 @@
 
 namespace Resources
 {
-	const bool IMesh::Load(std::filesystem::path _ResourcePath)
+	const bool IMesh::Load(Core::IDevice* _Device, std::filesystem::path _ResourcePath)
 	{
 		tinyobj::attrib_t attrib;
 		std::vector<tinyobj::shape_t> shapes;
