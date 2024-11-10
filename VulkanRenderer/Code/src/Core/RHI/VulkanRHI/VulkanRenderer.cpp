@@ -3,6 +3,7 @@
 #include "RHI/VulkanRHI/VulkanTypes/VulkanDevice.h"
 #include "RHI/VulkanRHI/VulkanTypes/VulkanSwapChain.h"
 #include "RHI/VulkanRHI/VulkanTypes/VulkanPipeline.h"
+#include "RHI/VulkanRHI/VulkanTypes/VulkanCommandAllocator.h"
 #include "RHI/VulkanRHI/VulkanTypes/VulkanShader.h"
 
 #include <cstring>
@@ -63,26 +64,47 @@ namespace Core
 		return vkSwapChain;
 	}
 
-	IPipeline* VulkanRenderer::InstantiatePipeline(IDevice* _Device)
+	IPipeline* VulkanRenderer::InstantiatePipeline(IDevice* _Device, ISwapChain* _Swapchain)
 	{
 		VulkanPipeline* vkPipeline = new VulkanPipeline;
 
-		if (!vkPipeline->CreatePipeline(_Device))
+		if (!vkPipeline->CreatePipeline(_Device, _Swapchain))
 			return nullptr;
 
 		return vkPipeline;
 	}
 
-	Resources::IShader* VulkanRenderer::CompileShader(std::string _ShaderSourceCode, ShaderType _ShaderType)
+	ICommandAllocator* VulkanRenderer::InstantiateCommandAllocator(IDevice* _Device)
 	{
-		VulkanShader* shader = new VulkanShader;
+		VulkanCommandAllocator* vkCmdAllocator = new VulkanCommandAllocator;
+
+		if (!vkCmdAllocator->CreateCommandAllocator(_Device))
+			return nullptr;
+
+		return vkCmdAllocator;
+	}
+
+	Resources::IShader* VulkanRenderer::CreateShader()
+	{
+		VulkanShader* vkShader = new VulkanShader;
+		return vkShader;
+	}
+
+	Resources::IShader* VulkanRenderer::CompileShader(IDevice* _Device, const char* _ShaderName, std::string _ShaderSourceCode, ShaderType _ShaderType)
+	{
+		VulkanShader* shader = new VulkanShader();
+		VulkanDevice device = *_Device->CastToVulkan();
 
 		// Causes memory leaks, thx
 		shaderc::Compiler compiler;
 
 		// Fill a struct of informations about the shader
 		CompilationInfos infos{};
-		infos.fileName;// = _ShaderPath.filename().string().c_str();
+		infos.fileName = _ShaderName;
+		infos.sourceCode = &_ShaderSourceCode;
+		// TODO: Checks the optimizations
+		//infos.options.SetOptimizationLevel(shaderc_optimization_level_performance);
+		//infos.options.SetTargetEnvironment(shaderc_target_env_vulkan, shaderc_env_version_vulkan_1_3);
 
 		switch (_ShaderType)
 		{
@@ -97,12 +119,6 @@ namespace Core
 			break;
 		}
 
-		// TODO: Checks the optimizations
-		//infos.options.SetOptimizationLevel(shaderc_optimization_level_performance);
-		//infos.options.SetTargetEnvironment(shaderc_target_env_vulkan, shaderc_env_version_vulkan_1_3);
-
-		infos.sourceCode = &_ShaderSourceCode;
-
 		if (!shader->PreprocessShader(compiler, infos))
 			return nullptr;
 
@@ -114,7 +130,7 @@ namespace Core
 		if (compiledShader.empty())
 			return nullptr;
 
-		// Create shadermodule
+		//shader->CreateShaderModule();
 
 		return shader;
 	}

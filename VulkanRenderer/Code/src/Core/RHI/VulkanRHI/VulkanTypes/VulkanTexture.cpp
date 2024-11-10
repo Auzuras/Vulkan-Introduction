@@ -91,9 +91,9 @@ namespace Core
 		return RHI_RESULT();
 	}
 
-	Resources::ITexture* VulkanTexture::Load(std::filesystem::path _ResourcePath)
+	const bool VulkanTexture::Load(std::filesystem::path _ResourcePath)
 	{
-		return nullptr;
+		return false;
 	}
 
 	const bool VulkanTexture::Unload()

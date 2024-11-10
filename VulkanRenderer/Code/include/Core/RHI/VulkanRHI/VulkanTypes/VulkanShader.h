@@ -19,9 +19,15 @@ namespace Core
 	class VulkanShader : public Resources::IShader
 	{
 	private:
+		VkShaderModule m_ShaderModule;
+
 	public:
+		inline VkShaderModule GetShaderModule() { return m_ShaderModule; }
+
 		RHI_RESULT PreprocessShader(shaderc::Compiler& _Compiler, CompilationInfos _Infos);
 		RHI_RESULT SpirVAssemblyCompilation(shaderc::Compiler& _Compiler, CompilationInfos _Infos);
 		std::vector<uint32_t> SpirVBinaryCompilation(shaderc::Compiler& _Compiler, CompilationInfos _Infos);
+
+		RHI_RESULT CreateShaderModule(VulkanDevice _Device, const std::vector<uint32_t>& _ShaderBinaryCode);
 	};
 }

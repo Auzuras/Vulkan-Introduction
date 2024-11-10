@@ -15,7 +15,7 @@ namespace Resources
 		/// </summary>
 		/// <param name="_ResourcePath">: Path of the resource </param>
 		/// <returns></returns>
-		virtual IResource* Load(std::filesystem::path _ResourcePath) = 0;
+		virtual const bool Load(std::filesystem::path _ResourcePath) = 0;
 
 		/// <summary>
 		/// Unloads the resource in the memory

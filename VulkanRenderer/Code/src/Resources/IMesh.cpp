@@ -7,7 +7,7 @@
 
 namespace Resources
 {
-	IMesh* IMesh::Load(std::filesystem::path _ResourcePath)
+	const bool IMesh::Load(std::filesystem::path _ResourcePath)
 	{
 		tinyobj::attrib_t attrib;
 		std::vector<tinyobj::shape_t> shapes;
@@ -49,7 +49,7 @@ namespace Resources
 		// TODO: Create Vertex buffer
 		// TODO: Create Index buffer
 
-		return nullptr;
+		return false;
 	}
 
 	const bool IMesh::Unload()

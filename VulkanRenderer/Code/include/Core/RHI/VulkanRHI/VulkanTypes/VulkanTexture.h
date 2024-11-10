@@ -33,7 +33,7 @@ namespace Core
 
 		RHI_RESULT DestroyTexture();
 
-		Resources::ITexture* Load(std::filesystem::path _ResourcePath) override;
+		const bool Load(std::filesystem::path _ResourcePath) override;
 		const bool Unload() override;
 	};
 }

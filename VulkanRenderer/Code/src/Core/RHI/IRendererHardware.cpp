@@ -25,4 +25,18 @@ namespace Core
         delete _Pipeline;
         _Pipeline = nullptr;
     }
+
+    void IRendererHardware::DestroyCommandAllocator(ICommandAllocator* _CommandAllocator, IDevice* _Device)
+    {
+        _CommandAllocator->DestroyCommandAllocator(_Device);
+
+        delete _CommandAllocator;
+        _CommandAllocator = nullptr;
+    }
+
+    void IRendererHardware::DestroyShader(Resources::IShader* _Shader, IDevice* _Device)
+    {
+        delete _Shader;
+        _Shader = nullptr;
+    }
 }

@@ -5,7 +5,7 @@
 
 namespace Resources
 {
-	ITexture* ITexture::Load(std::filesystem::path _ResourcePath)
+	const bool ITexture::Load(std::filesystem::path _ResourcePath)
 	{
 		int textWidth, textHeight, textChannels;
 		stbi_set_flip_vertically_on_load(true);
@@ -15,10 +15,10 @@ namespace Resources
 		if (!texture)
 		{
 			DEBUG_ERROR("Failed to load texture");
-			return nullptr;
+			return false;
 		}
 
-		return nullptr;
+		return false;
 	}
 
 	const bool ITexture::Unload()

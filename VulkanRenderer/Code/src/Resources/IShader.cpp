@@ -1,17 +1,34 @@
 #include "IShader.h"
 
+#include "Renderer.h"
+
 namespace Resources
 {
-	IShader* IShader::Load(std::filesystem::path _ResourcePath)
+	const bool IShader::Load(std::filesystem::path _ResourcePath)
 	{
 		const char* ext = _ResourcePath.extension().string().c_str();
+		const char* name = _ResourcePath.filename().string().c_str();
+
+		Core::ShaderType type;
 
 		// Checks shader extension
 		// TODO: add frag verification
-		if (_ResourcePath.extension() != ".vert")
+		if (_ResourcePath.extension() == ".vert")
+		{
+			type = Core::ShaderType::VERTEX;
+		}
+		else if (_ResourcePath.extension() == ".frag")
+		{
+			type = Core::ShaderType::FRAGMENT;
+		}
+		else if (_ResourcePath.extension() == ".geo")
+		{
+			type = Core::ShaderType::GEOMETRY;
+		}
+		else
 		{
 			DEBUG_ERROR("Cannot load shader due to unsuported extension: %s", ext);
-			return nullptr;
+			return false;
 		}
 
 		std::ifstream shaderFile(_ResourcePath);
@@ -29,10 +46,10 @@ namespace Resources
 			shaderCode += line + "\n";
 
 		shaderFile.close();
-		
-		// TODO: Compile shader
 
-		return nullptr;
+		//Core::Renderer::GetRHI()->CompileShader();
+
+		return true;
 	}
 
 	const bool IShader::Unload()

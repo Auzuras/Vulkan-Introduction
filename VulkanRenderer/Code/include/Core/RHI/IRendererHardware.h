@@ -12,6 +12,7 @@
 #include "RHI/RHITypes.h"
 
 #include "RHI/RHITypes/RHITypesWrapper.h"
+
 #include "IShader.h"
 #include "IMesh.h"
 #include "ITexture.h"
@@ -94,16 +95,39 @@ namespace Core
 
 		///////////////////////////////////////////////////////////////////////
 
-		virtual IPipeline* InstantiatePipeline(IDevice* _Device) = 0;
+		virtual IPipeline* InstantiatePipeline(IDevice* _Device, ISwapChain* _Swapchain) = 0;
 
 		virtual void DestroyPipeline(IPipeline* _Pipeline, IDevice* _Device);
+
+		///////////////////////////////////////////////////////////////////////
+
+		/// Command allocator related methods
+
+		///////////////////////////////////////////////////////////////////////
 
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="_ShaderSourceCode"></param>
-		/// <param name="_ShaderType"></param>
+		/// <param name="_Device"></param>
 		/// <returns></returns>
-		virtual Resources::IShader* CompileShader(std::string _ShaderSourceCode, ShaderType _ShaderType) = 0;
+		virtual ICommandAllocator* InstantiateCommandAllocator(IDevice* _Device) = 0;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="_CommandAllocator"></param>
+		/// <param name="_Device"></param>
+		virtual void DestroyCommandAllocator(ICommandAllocator* _CommandAllocator, IDevice* _Device);
+
+		///////////////////////////////////////////////////////////////////////
+
+		/// Shader related methods
+		
+		///////////////////////////////////////////////////////////////////////
+
+		virtual Resources::IShader* CreateShader() = 0;
+		virtual Resources::IShader* CompileShader(IDevice* _Device, const char* _ShaderName, std::string _ShaderSourceCode, ShaderType _ShaderType) = 0;
+		virtual void DestroyShader(Resources::IShader* _Shader, IDevice* _Device);
+
 	};
 }

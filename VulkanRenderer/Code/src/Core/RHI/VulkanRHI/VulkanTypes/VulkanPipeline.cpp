@@ -1,13 +1,14 @@
 #include "RHI/VulkanRHI/VulkanTypes/VulkanPipeline.h"
 
 #include "RHI/VulkanRHI/VulkanTypes/VulkanDevice.h"
+#include "RHI/VulkanRHI/VulkanTypes/VulkanSwapChain.h"
 
 namespace Core
 {
 	VulkanPipeline::~VulkanPipeline()
 	{}
 
-	RHI_RESULT VulkanPipeline::CreatePipeline(IDevice* _Device)
+	RHI_RESULT VulkanPipeline::CreatePipeline(IDevice* _Device, ISwapChain* _Swapchain)
 	{
 		VulkanDevice device = *_Device->CastToVulkan();
 
@@ -195,6 +196,8 @@ namespace Core
 		// Destroys the shader module because they are loaded on the GPU
 		//vkDestroyShaderModule(device.GetLogicalDevice(), fragShaderModule, nullptr);
 		//vkDestroyShaderModule(device.GetLogicalDevice(), vertShaderModule, nullptr);
+
+		return RHI_SUCCESS;
 	}
 
 	RHI_RESULT VulkanPipeline::DestroyPipeline(IDevice* _Device)
@@ -208,14 +211,15 @@ namespace Core
 		return RHI_SUCCESS;
 	}
 
-	void VulkanPipeline::CreateRenderPass(IDevice* _Device)
+	void VulkanPipeline::CreateRenderPass(IDevice* _Device, ISwapChain* _Swapchain)
 	{
 		VulkanDevice device = *_Device->CastToVulkan();
+		VulkanSwapChain swapchain = *_Swapchain->CastToVulkan();
 
 		// Describes the color buffer attachment
 		VkAttachmentDescription colorAttachment{};
 		// Same format as the swap chain
-		//colorAttachment.format = m_SwapChainImageFormat;
+		colorAttachment.format = swapchain.GetSwapChainFormat();
 		// Samples (usefull for multisampling)
 		colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
 		// LoadOp and StoreOp describes how we interact with the data of the buffer before loading and after rendering

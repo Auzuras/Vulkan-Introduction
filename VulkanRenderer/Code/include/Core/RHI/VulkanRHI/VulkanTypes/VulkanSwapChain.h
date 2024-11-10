@@ -73,6 +73,8 @@ namespace Core
 
 		~VulkanSwapChain() override;
 
+		inline VkFormat GetSwapChainFormat() { return m_SwapChainImageFormat; }
+
 		/// <summary>
 		/// Creates the Swap chain for our program
 		/// </summary>
@@ -91,6 +93,8 @@ namespace Core
 		/// Destroys all data linked to the swap chain and the swap chain
 		/// </summary>
 		const RHI_RESULT DestroySwapChain(IDevice* _Device) override;
+
+		inline VulkanSwapChain* CastToVulkan() override { return this; }
 
 		/// <summary>
 		/// Checks if the SwapChain is supported bu our GPU

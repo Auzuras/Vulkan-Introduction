@@ -2,10 +2,6 @@
 
 namespace Core
 {
-	Renderer::Renderer(RendererType _RendererType)
-		:m_RendererType(_RendererType)
-	{}
-
 	const bool Renderer::Initialize(Window* _Window)
 	{
 		switch (m_RendererType)
@@ -25,13 +21,38 @@ namespace Core
 
 		m_SwapChain = m_RHI->InstantiateSwapChain(_Window, m_Device);
 
-		m_SimplePipeline = m_RHI->InstantiatePipeline(m_Device);
+		CreateSimplePipeline();
+
+		m_CommandAllocator = m_RHI->InstantiateCommandAllocator(m_Device);
 
 		return true;
 	}
 
+	void Renderer::CreateSimplePipeline()
+	{
+		Resources::IShader* vertShader = m_RHI->CreateShader();
+		vertShader->Load("Assets/Shaders/HelloTriangle.vert");
+
+		Resources::IShader* fragShader = m_RHI->CreateShader();
+		vertShader->Load("Assets/Shaders/HelloTriangle.frag");
+
+		PipelineShaderInfos vert;
+		vert.shader;
+		vert.shaderType = VERTEX;
+		vert.functionEntry = "main";
+
+		PipelineShaderInfos frag;
+		vert.shader;
+		vert.shaderType = FRAGMENT;
+		vert.functionEntry = "main";
+
+		m_SimplePipeline = m_RHI->InstantiatePipeline(m_Device, m_SwapChain);
+	}
+
 	const bool Renderer::Terminate()
 	{
+		m_RHI->DestroyCommandAllocator(m_CommandAllocator, m_Device);
+
 		m_RHI->DestroyPipeline(m_SimplePipeline, m_Device);
 
 		m_RHI->DestroySwapChain(m_SwapChain, m_Device);

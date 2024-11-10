@@ -5,15 +5,16 @@
 #include "RHI/IRendererHardware.h"
 
 #include <vulkan/vulkan.h>
+#include <shaderc/shaderc.hpp>
 
 #include <vector>
 #include <optional>
 #include <string>
 #include <filesystem>
+
 #include "RHI/Vertex.h"
 #include "Matrices/Matrix4.h"
 
-#include <shaderc/shaderc.hpp>
 
 namespace Core
 {
@@ -68,12 +69,27 @@ namespace Core
 
 		///////////////////////////////////////////////////////////////////////
 
-		/// SwapChain related methods
+		/// Pipeline related methods
 		
 		///////////////////////////////////////////////////////////////////////
 
-		IPipeline* InstantiatePipeline(IDevice* _Device) override;
+		IPipeline* InstantiatePipeline(IDevice* _Device, ISwapChain* _Swapchain) override;
 
-		Resources::IShader* CompileShader(std::string _ShaderSourceCode, ShaderType _) override;
+		///////////////////////////////////////////////////////////////////////
+
+		/// Command allocator related methods
+
+		///////////////////////////////////////////////////////////////////////
+
+		ICommandAllocator* InstantiateCommandAllocator(IDevice* _Device) override;
+
+		///////////////////////////////////////////////////////////////////////
+
+		/// Shader related methods
+
+		///////////////////////////////////////////////////////////////////////
+
+		Resources::IShader* CreateShader() override;
+		Resources::IShader* CompileShader(IDevice* _Device, const char* _ShaderName, std::string _ShaderSourceCode, ShaderType _ShaderType) override;
 	};
 }

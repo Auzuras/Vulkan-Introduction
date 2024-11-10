@@ -13,7 +13,7 @@ namespace Resources
 		/// </summary>
 		/// <param name="_ResourcePath">: Path of the 3D model </param>
 		/// <returns></returns>
-		IMesh* Load(std::filesystem::path _ResourcePath) override;
+		const bool Load(std::filesystem::path _ResourcePath) override;
 		
 		/// <summary>
 		/// Unloads the 3D model

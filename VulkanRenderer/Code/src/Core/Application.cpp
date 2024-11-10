@@ -7,8 +7,6 @@ namespace Core
 
 	const bool Application::Initialize()
 	{
-		m_Renderer = Renderer(RendererType::VULKAN);
-
 		Debug::Log::OpenFile("Logs/LogFile.log");
 
 		m_Window.Initialize(m_Renderer.GetRendererType());

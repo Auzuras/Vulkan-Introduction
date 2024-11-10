@@ -1,6 +1,7 @@
 #pragma once
 
 #include "IResource.h"
+#include "RHI/RHITypes.h"
 
 namespace Resources
 {
@@ -13,7 +14,7 @@ namespace Resources
 		/// </summary>
 		/// <param name="_ResourcePath">: Path of the 3D model </param>
 		/// <returns></returns>
-		IShader* Load(std::filesystem::path _ResourcePath) override;
+		virtual const bool Load(std::filesystem::path _ResourcePath) override;
 
 		/// <summary>
 		/// Unloads the 3D model

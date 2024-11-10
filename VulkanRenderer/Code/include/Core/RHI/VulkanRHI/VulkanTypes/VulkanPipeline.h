@@ -21,13 +21,13 @@ namespace Core
 		/// <summary>
 		/// Creates a simple graphics pipeline to draw on screen
 		/// </summary>
-		RHI_RESULT CreatePipeline(IDevice* _Device) override;
+		RHI_RESULT CreatePipeline(IDevice* _Device, ISwapChain* _Swapchain) override;
 		RHI_RESULT DestroyPipeline(IDevice* _Device) override;
 
 		/// <summary>
 		/// Creates a render pass object that will descibes the attachments of a framebuffer
 		/// </summary>
-		void CreateRenderPass(IDevice* _Device);
+		void CreateRenderPass(IDevice* _Device, ISwapChain* _Swapchain);
 
 		inline VkPipeline GetPipeline() const { return m_GraphicsPipeline; }
 		inline VkRenderPass GetRenderPass() const { return m_RenderPass; }

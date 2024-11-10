@@ -1,5 +1,7 @@
 #include "RHI/VulkanRHI/VulkanTypes/VulkanShader.h"
 
+#include "RHI/VulkanRHI/VulkanTypes/VulkanDevice.h"
+
 namespace Core
 {
 	RHI_RESULT VulkanShader::PreprocessShader(shaderc::Compiler& _Compiler, CompilationInfos _Infos)
@@ -59,5 +61,25 @@ namespace Core
 		memcpy(output.data(), srcBinary, wordCount * sizeof(uint32_t));
 
 		return output;
+	}
+
+	RHI_RESULT VulkanShader::CreateShaderModule(VulkanDevice _Device, const std::vector<uint32_t>& _ShaderBinaryCode)
+	{
+		// Create info of the shader
+		VkShaderModuleCreateInfo createInfo{};
+		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+		// Specifies the size and the code of the source code
+		createInfo.codeSize = _ShaderBinaryCode.size() * sizeof(uint32_t);
+		createInfo.pCode = _ShaderBinaryCode.data();
+
+		VkResult result = vkCreateShaderModule(_Device.GetLogicalDevice(), &createInfo, nullptr, &m_ShaderModule);
+
+		if (result != VK_SUCCESS)
+		{
+			DEBUG_ERROR("Failed to create shader module, Error Code: %d", result);
+			return RHI_FAILED_UNKNOWN;
+		}
+
+		return RHI_SUCCESS;
 	}
 }
