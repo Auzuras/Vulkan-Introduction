@@ -5,7 +5,7 @@
 
 #include "RHI/Vertex.h"
 
-namespace Resources
+namespace Core
 {
 	const bool IMesh::Load(Core::IDevice* _Device, std::filesystem::path _ResourcePath)
 	{

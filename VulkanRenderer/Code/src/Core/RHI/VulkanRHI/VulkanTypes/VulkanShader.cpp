@@ -63,6 +63,50 @@ namespace Core
 		return output;
 	}
 
+	const bool VulkanShader::CompileShader(Core::IDevice* _Device, const char* _ShaderName, std::string _ShaderSourceCode, Core::ShaderType _ShaderType)
+	{
+		VulkanDevice device = *_Device->CastToVulkan();
+
+		// Causes memory leaks, thx
+		shaderc::Compiler compiler;
+
+		// Fill a struct of informations about the shader
+		CompilationInfos infos{};
+		infos.fileName = _ShaderName;
+		infos.sourceCode = &_ShaderSourceCode;
+		// TODO: Checks the optimizations
+		//infos.options.SetOptimizationLevel(shaderc_optimization_level_performance);
+		//infos.options.SetTargetEnvironment(shaderc_target_env_vulkan, shaderc_env_version_vulkan_1_3);
+
+		switch (_ShaderType)
+		{
+		case VERTEX: default:
+			infos.shaderKind = shaderc_vertex_shader;
+			break;
+		case FRAGMENT:
+			infos.shaderKind = shaderc_fragment_shader;
+			break;
+		case GEOMETRY:
+			infos.shaderKind = shaderc_geometry_shader;
+			break;
+		}
+
+		if (!PreprocessShader(compiler, infos))
+			return false;
+
+		if (!SpirVAssemblyCompilation(compiler, infos))
+			return false;
+
+		std::vector<uint32_t> compiledShader = SpirVBinaryCompilation(compiler, infos);
+
+		if (compiledShader.empty())
+			return false;
+
+		CreateShaderModule(device, compiledShader);
+
+		return true;
+	}
+
 	RHI_RESULT VulkanShader::CreateShaderModule(VulkanDevice _Device, const std::vector<uint32_t>& _ShaderBinaryCode)
 	{
 		// Create info of the shader

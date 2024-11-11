@@ -1,6 +1,7 @@
 #include "RHI/VulkanRHI/VulkanTypes/VulkanPipeline.h"
 
 #include "RHI/VulkanRHI/VulkanTypes/VulkanDevice.h"
+#include "RHI/VulkanRHI/VulkanTypes/VulkanShader.h"
 #include "RHI/VulkanRHI/VulkanTypes/VulkanSwapChain.h"
 
 namespace Core
@@ -8,32 +9,39 @@ namespace Core
 	VulkanPipeline::~VulkanPipeline()
 	{}
 
-	RHI_RESULT VulkanPipeline::CreatePipeline(IDevice* _Device, ISwapChain* _Swapchain)
+	RHI_RESULT VulkanPipeline::CreatePipeline(IDevice* _Device, ISwapChain* _Swapchain, std::vector<PipelineShaderInfos> _ShadersInfos)
 	{
 		VulkanDevice device = *_Device->CastToVulkan();
 
-		// Creates vertex shader infos
-		VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
-		vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-		// Stage of the pipeline (Which momement the shader will be called)
-		vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
-		// Shader module
-		//vertShaderStageInfo.module = vertShaderModule;
-		// Start function of the shader
-		vertShaderStageInfo.pName = "main";
+		std::vector<VkPipelineShaderStageCreateInfo> shaderStages(_ShadersInfos.size());
 
-		// Creates fragment shader infos
-		VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
-		fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-		// Stage of the pipeline (Which momement the shader will be called)
-		fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-		// Shader module
-		//fragShaderStageInfo.module = fragShaderModule;
-		// Start function of the shader
-		fragShaderStageInfo.pName = "main";
+		for (PipelineShaderInfos shaderInfos : _ShadersInfos)
+		{
+			// Creates vertex shader infos
+			VkPipelineShaderStageCreateInfo shaderStageInfo{};
+			shaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+			// Stage of the pipeline (Which momement the shader will be called)
 
-		// List of all the shaders of the pipeline
-		VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
+			switch (shaderInfos.shaderType)
+			{
+			case VERTEX: default:
+				shaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
+				break;
+			case FRAGMENT:
+				shaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+				break;
+			case GEOMETRY:
+				shaderStageInfo.stage = VK_SHADER_STAGE_GEOMETRY_BIT;
+				break;
+			}
+
+			// Shader module
+			shaderStageInfo.module = shaderInfos.shader->CastToVulkan()->GetShaderModule();;
+			// Start function of the shader
+			shaderStageInfo.pName = shaderInfos.functionEntry;
+
+			shaderStages.push_back(shaderStageInfo);
+		}
 
 		// Gets the vertex binding and attribute descriptions
 		VkVertexInputBindingDescription bindingDescription = Core::Vertex::GetBindingDescription();
@@ -164,8 +172,8 @@ namespace Core
 		VkGraphicsPipelineCreateInfo pipelineInfo{};
 		pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 		// Describes the number of stages (shaders in our pipeline)
-		pipelineInfo.stageCount = 2;
-		pipelineInfo.pStages = shaderStages;
+		pipelineInfo.stageCount = static_cast<uint32_t>(shaderStages.size());
+		pipelineInfo.pStages = shaderStages.data();
 		// Specifies all the information previously created
 		pipelineInfo.pVertexInputState = &vertexInputInfo;
 		pipelineInfo.pInputAssemblyState = &inputAssembly;
@@ -192,10 +200,6 @@ namespace Core
 			DEBUG_ERROR("Failed to create graphics pipeline, Error Code: %d", result);
 			return RHI_FAILED_UNKNOWN;
 		}
-
-		// Destroys the shader module because they are loaded on the GPU
-		//vkDestroyShaderModule(device.GetLogicalDevice(), fragShaderModule, nullptr);
-		//vkDestroyShaderModule(device.GetLogicalDevice(), vertShaderModule, nullptr);
 
 		return RHI_SUCCESS;
 	}

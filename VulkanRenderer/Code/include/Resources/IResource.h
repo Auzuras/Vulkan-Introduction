@@ -5,7 +5,7 @@
 
 #include "RHI/RHITypes/IDevice.h"
 
-namespace Resources
+namespace Core
 {
 	class IResource
 	{

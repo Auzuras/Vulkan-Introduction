@@ -2,7 +2,7 @@
 
 #include "IResource.h"
 
-namespace Resources
+namespace Core
 {
 	class ITexture : public IResource
 	{

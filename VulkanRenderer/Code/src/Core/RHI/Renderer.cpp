@@ -30,23 +30,25 @@ namespace Core
 
 	void Renderer::CreateSimplePipeline()
 	{
-		Resources::IShader* vertShader = m_RHI->CreateShader();
+		IShader* vertShader = m_RHI->CreateShader();
 		vertShader->Load(m_Device, "Assets/Shaders/HelloTriangle.vert");
 
-		Resources::IShader* fragShader = m_RHI->CreateShader();
+		IShader* fragShader = m_RHI->CreateShader();
 		vertShader->Load(m_Device, "Assets/Shaders/HelloTriangle.frag");
 
 		PipelineShaderInfos vert;
-		vert.shader;
+		vert.shader = vertShader;
 		vert.shaderType = VERTEX;
 		vert.functionEntry = "main";
 
 		PipelineShaderInfos frag;
-		vert.shader;
-		vert.shaderType = FRAGMENT;
-		vert.functionEntry = "main";
+		frag.shader = fragShader;
+		frag.shaderType = FRAGMENT;
+		frag.functionEntry = "main";
 
-		m_SimplePipeline = m_RHI->InstantiatePipeline(m_Device, m_SwapChain);
+		std::vector<PipelineShaderInfos> shadersInfos = { vert, frag };
+
+		m_SimplePipeline = m_RHI->InstantiatePipeline(m_Device, m_SwapChain, shadersInfos);
 	}
 
 	const bool Renderer::Terminate()

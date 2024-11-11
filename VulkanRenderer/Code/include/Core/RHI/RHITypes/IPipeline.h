@@ -3,6 +3,8 @@
 #include "RHI/RHITypes/RHIResult.h"
 #include "RHI/RHITypes.h"
 
+#include <vector>
+
 namespace Core
 {
 	class IDevice;
@@ -22,7 +24,7 @@ namespace Core
 	public:
 		virtual ~IPipeline() = default;
 
-		virtual RHI_RESULT CreatePipeline(IDevice* _Device, ISwapChain* _Swapchain) = 0;
+		virtual RHI_RESULT CreatePipeline(IDevice* _Device, ISwapChain* _Swapchain, std::vector<PipelineShaderInfos> _ShadersInfos) = 0;
 		virtual RHI_RESULT DestroyPipeline(IDevice* _Device) = 0;
 
 		virtual VulkanPipeline* CastToVulkan() = 0;

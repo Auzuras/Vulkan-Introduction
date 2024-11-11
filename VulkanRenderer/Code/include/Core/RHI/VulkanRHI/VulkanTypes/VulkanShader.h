@@ -16,7 +16,7 @@ namespace Core
 		shaderc::CompileOptions options;
 	};
 
-	class VulkanShader : public Resources::IShader
+	class VulkanShader : public IShader
 	{
 	private:
 		VkShaderModule m_ShaderModule;
@@ -28,6 +28,10 @@ namespace Core
 		RHI_RESULT SpirVAssemblyCompilation(shaderc::Compiler& _Compiler, CompilationInfos _Infos);
 		std::vector<uint32_t> SpirVBinaryCompilation(shaderc::Compiler& _Compiler, CompilationInfos _Infos);
 
+		const bool CompileShader(Core::IDevice* _Device, const char* _ShaderName, std::string _ShaderSourceCode, Core::ShaderType _ShaderType) override;
+
 		RHI_RESULT CreateShaderModule(VulkanDevice _Device, const std::vector<uint32_t>& _ShaderBinaryCode);
+
+		inline VulkanShader* CastToVulkan() override { return this; }
 	};
 }

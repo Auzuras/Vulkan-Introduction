@@ -14,10 +14,12 @@ namespace Core
 
 	public:
 
+		~VulkanDescriptor() override;
+
 		/// <summary>
 		/// Creates all the descriptor set layout to describe the UBO or global variables
 		/// </summary>
-		void CreateDescriptorSetLayout();
+		const RHI_RESULT CreateDescriptorLayout(IDevice* _Device) override;
 
 		/// <summary>
 		/// Creates all Descriptor Sets

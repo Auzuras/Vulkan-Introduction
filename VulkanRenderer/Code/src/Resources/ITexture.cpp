@@ -3,7 +3,7 @@
 //#define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-namespace Resources
+namespace Core
 {
 	const bool ITexture::Load(Core::IDevice* _Device, std::filesystem::path _ResourcePath)
 	{

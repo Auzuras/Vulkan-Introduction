@@ -73,7 +73,7 @@ namespace Core
 		
 		///////////////////////////////////////////////////////////////////////
 
-		IPipeline* InstantiatePipeline(IDevice* _Device, ISwapChain* _Swapchain) override;
+		IPipeline* InstantiatePipeline(IDevice* _Device, ISwapChain* _Swapchain, std::vector<PipelineShaderInfos> _ShadersInfos) override;
 
 		///////////////////////////////////////////////////////////////////////
 
@@ -89,7 +89,6 @@ namespace Core
 
 		///////////////////////////////////////////////////////////////////////
 
-		Resources::IShader* CreateShader() override;
-		Resources::IShader* CompileShader(IDevice* _Device, const char* _ShaderName, std::string _ShaderSourceCode, ShaderType _ShaderType) override;
+		IShader* CreateShader() override;
 	};
 }

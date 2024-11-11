@@ -2,7 +2,7 @@
 
 #include "Renderer.h"
 
-namespace Resources
+namespace Core
 {
 	const bool IShader::Load(Core::IDevice* _Device, std::filesystem::path _ResourcePath)
 	{
@@ -47,7 +47,7 @@ namespace Resources
 
 		shaderFile.close();
 
-		Core::Renderer::GetRHI()->CompileShader(_Device, name, shaderCode, type);
+		CompileShader(_Device, name, shaderCode, type);
 
 		return true;
 	}

@@ -34,7 +34,7 @@ namespace Core
         _CommandAllocator = nullptr;
     }
 
-    void IRendererHardware::DestroyShader(Resources::IShader* _Shader, IDevice* _Device)
+    void IRendererHardware::DestroyShader(IShader* _Shader, IDevice* _Device)
     {
         delete _Shader;
         _Shader = nullptr;

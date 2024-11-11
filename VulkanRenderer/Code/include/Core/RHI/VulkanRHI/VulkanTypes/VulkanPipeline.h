@@ -21,7 +21,7 @@ namespace Core
 		/// <summary>
 		/// Creates a simple graphics pipeline to draw on screen
 		/// </summary>
-		RHI_RESULT CreatePipeline(IDevice* _Device, ISwapChain* _Swapchain) override;
+		RHI_RESULT CreatePipeline(IDevice* _Device, ISwapChain* _Swapchain, std::vector<PipelineShaderInfos> _ShadersInfos) override;
 		RHI_RESULT DestroyPipeline(IDevice* _Device) override;
 
 		/// <summary>

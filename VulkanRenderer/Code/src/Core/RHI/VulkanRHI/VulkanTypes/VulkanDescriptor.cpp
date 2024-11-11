@@ -1,43 +1,56 @@
 #include "RHI/VulkanRHI/VulkanTypes/VulkanDescriptor.h"
 
+#include "RHI/VulkanRHI/VulkanTypes/VulkanDevice.h"
+
 namespace Core
 {
-	void VulkanDescriptor::CreateDescriptorSetLayout()
+	VulkanDescriptor::~VulkanDescriptor()
+	{}
+
+	const RHI_RESULT VulkanDescriptor::CreateDescriptorLayout(IDevice* _Device)
 	{
-		//// Descriptor Set layout binding for ubo
-		//VkDescriptorSetLayoutBinding uboLayoutBinding{};
-		//uboLayoutBinding.binding = 0;
-		//uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		//uboLayoutBinding.descriptorCount = 1;
-		//// Describes which stages can access the UBO can also be VK_SHADER_STAGE_ALL_GRAPHICS
-		//uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+		VulkanDevice device = *_Device->CastToVulkan();
 
-		//// Descriptor Set layout binding for sampler
-		//VkDescriptorSetLayoutBinding samplerLayoutBinding{};
-		//samplerLayoutBinding.binding = 1;
-		//samplerLayoutBinding.descriptorCount = 1;
-		//samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		//samplerLayoutBinding.pImmutableSamplers = nullptr;
-		//samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+		// Descriptor Set layout binding for ubo
+		VkDescriptorSetLayoutBinding uboLayoutBinding{};
+		// Describe the biding of the descriptors sets (binding = 0 but for ubo samplers etc)
+		uboLayoutBinding.binding = 0;
+		uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		// Can specifies if it is an array of descriptor
+		uboLayoutBinding.descriptorCount = 1;
+		// Describes which stages can access the UBO can also be VK_SHADER_STAGE_ALL_GRAPHICS
+		uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
-		//// Describes all the bindings possibles
-		//std::array<VkDescriptorSetLayoutBinding, 2> bindings = { uboLayoutBinding, samplerLayoutBinding };
+		// Descriptor Set layout binding for sampler
+		VkDescriptorSetLayoutBinding samplerLayoutBinding{};
+		samplerLayoutBinding.binding = 1;
+		samplerLayoutBinding.descriptorCount = 1;
+		samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		// Specifies a sampler already created to avoid specification
+		samplerLayoutBinding.pImmutableSamplers = nullptr;
+		samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-		//// Layou infos
-		//VkDescriptorSetLayoutCreateInfo layoutInfo{};
-		//layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-		//// Nbr of bindings
-		//layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());;
-		//// Bindings data
-		//layoutInfo.pBindings = bindings.data();
+		// Describes all the bindings possibles
+		std::array<VkDescriptorSetLayoutBinding, 2> bindings = { uboLayoutBinding, samplerLayoutBinding };
 
-		//// Creates the Descriptor set layout
-		//VkResult result = vkCreateDescriptorSetLayout(m_LogicalDevice, &layoutInfo, nullptr, &m_DescriptorSetLayout);
+		// Layou infos
+		VkDescriptorSetLayoutCreateInfo layoutInfo{};
+		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+		// Nbr of bindings
+		layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());;
+		// Bindings data
+		layoutInfo.pBindings = bindings.data();
 
-		//if (result != VK_SUCCESS)
-		//{
-		//	DEBUG_ERROR("Failed to create descriptor set layout, Error Code: %d", result);
-		//}
+		// Creates the Descriptor set layout
+		VkResult result = vkCreateDescriptorSetLayout(device.GetLogicalDevice(), &layoutInfo, nullptr, &m_DescriptorSetLayout);
+
+		if (result != VK_SUCCESS)
+		{
+			DEBUG_ERROR("Failed to create descriptor set layout, Error Code: %d", result);
+			return RHI_FAILED_UNKNOWN;
+		}
+
+		return RHI_SUCCESS;
 	}
 
 	void VulkanDescriptor::CreateDescriptorSets()

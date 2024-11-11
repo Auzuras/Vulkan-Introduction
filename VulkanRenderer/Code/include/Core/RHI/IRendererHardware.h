@@ -95,7 +95,7 @@ namespace Core
 
 		///////////////////////////////////////////////////////////////////////
 
-		virtual IPipeline* InstantiatePipeline(IDevice* _Device, ISwapChain* _Swapchain) = 0;
+		virtual IPipeline* InstantiatePipeline(IDevice* _Device, ISwapChain* _Swapchain, std::vector<PipelineShaderInfos> _ShadersInfos) = 0;
 
 		virtual void DestroyPipeline(IPipeline* _Pipeline, IDevice* _Device);
 
@@ -125,9 +125,8 @@ namespace Core
 		
 		///////////////////////////////////////////////////////////////////////
 
-		virtual Resources::IShader* CreateShader() = 0;
-		virtual Resources::IShader* CompileShader(IDevice* _Device, const char* _ShaderName, std::string _ShaderSourceCode, ShaderType _ShaderType) = 0;
-		virtual void DestroyShader(Resources::IShader* _Shader, IDevice* _Device);
+		virtual IShader* CreateShader() = 0;
+		virtual void DestroyShader(IShader* _Shader, IDevice* _Device);
 
 	};
 }

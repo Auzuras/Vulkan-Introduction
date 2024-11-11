@@ -3,8 +3,10 @@
 #include "IResource.h"
 #include "RHI/RHITypes.h"
 
-namespace Resources
+namespace Core
 {
+	class VulkanShader;
+
 	class IShader : public IResource
 	{
 	private:
@@ -21,5 +23,17 @@ namespace Resources
 		/// </summary>
 		/// <returns></returns>
 		const bool Unload() override;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="_Device"></param>
+		/// <param name="_ShaderName"></param>
+		/// <param name="_ShaderSourceCode"></param>
+		/// <param name="_ShaderType"></param>
+		/// <returns></returns>
+		virtual const bool CompileShader(Core::IDevice* _Device, const char* _ShaderName, std::string _ShaderSourceCode, Core::ShaderType _ShaderType) = 0;
+
+		virtual VulkanShader* CastToVulkan() = 0;
 	};
 }

@@ -7,7 +7,7 @@
 
 namespace Core
 {
-	class VulkanTexture : public Resources::ITexture
+	class VulkanTexture : public ITexture
 	{
 	private:
 		//VulkanImage m_TextureImage;
