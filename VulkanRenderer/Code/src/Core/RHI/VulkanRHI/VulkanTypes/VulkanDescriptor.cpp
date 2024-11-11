@@ -73,7 +73,7 @@ namespace Core
 		//if (result != VK_SUCCESS)
 		//{
 		//	DEBUG_ERROR("Failed to allocate descriptor sets, Error Code: %d", result);
-		//}
+		//} 
 
 		//// Specifies parameters for all descriptors
 		//for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)

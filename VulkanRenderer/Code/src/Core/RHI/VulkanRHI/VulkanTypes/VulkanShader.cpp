@@ -19,7 +19,7 @@ namespace Core
 		const char* src = result.cbegin();
 		size_t newSize = result.cend() - src;
 		_Infos.sourceCode->resize(newSize);
-		memcpy(&_Infos.sourceCode, src, newSize);
+		memcpy(_Infos.sourceCode->data(), src, newSize);
 
 		return RHI_SUCCESS;
 	}
