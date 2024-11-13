@@ -25,7 +25,5 @@ namespace Core
 	{
 	public:
 		virtual ~IDescriptor() = default;
-
-		virtual const RHI_RESULT CreateDescriptorLayout(IDevice* _Device) = 0;
 	};
 }

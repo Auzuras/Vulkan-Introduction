@@ -13,7 +13,10 @@ namespace Core
 	private:
 		VkPipeline m_GraphicsPipeline;
 		VkRenderPass m_RenderPass;
+
 		VkPipelineLayout m_PipelineLayout;
+
+		std::vector<VkDescriptorSetLayout> m_DescriptorSetLayouts;
 
 	public:
 		~VulkanPipeline() override;
@@ -25,9 +28,14 @@ namespace Core
 		RHI_RESULT DestroyPipeline(IDevice* _Device) override;
 
 		/// <summary>
+		/// Creates all the descriptor set layout to describe the UBO or global variables
+		/// </summary>
+		const RHI_RESULT CreateDescriptorSetLayout(VulkanDevice* _Device);
+
+		/// <summary>
 		/// Creates a render pass object that will descibes the attachments of a framebuffer
 		/// </summary>
-		void CreateRenderPass(IDevice* _Device, ISwapChain* _Swapchain);
+		void CreateRenderPass(VulkanDevice* _Device, VulkanSwapChain* _Swapchain);
 
 		inline VkPipeline GetPipeline() const { return m_GraphicsPipeline; }
 		inline VkRenderPass GetRenderPass() const { return m_RenderPass; }

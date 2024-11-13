@@ -3,6 +3,7 @@
 #include "RHI/VulkanRHI/VulkanTypes/VulkanDevice.h"
 #include "RHI/VulkanRHI/VulkanTypes/VulkanShader.h"
 #include "RHI/VulkanRHI/VulkanTypes/VulkanSwapChain.h"
+#include "RHI/VulkanRHI/VulkanTypes/VulkanImage.h"
 
 namespace Core
 {
@@ -12,17 +13,22 @@ namespace Core
 	RHI_RESULT VulkanPipeline::CreatePipeline(IDevice* _Device, ISwapChain* _Swapchain, std::vector<PipelineShaderInfos> _ShadersInfos)
 	{
 		VulkanDevice device = *_Device->CastToVulkan();
+		VulkanSwapChain swapchain = *_Swapchain->CastToVulkan();
 
-		std::vector<VkPipelineShaderStageCreateInfo> shaderStages(_ShadersInfos.size());
+		CreateRenderPass(&device, &swapchain);
 
-		for (PipelineShaderInfos shaderInfos : _ShadersInfos)
+		CreateDescriptorSetLayout(&device);
+
+		std::vector<VkPipelineShaderStageCreateInfo> shaderStages;
+
+		for (size_t i = 0; i < _ShadersInfos.size(); ++i)
 		{
 			// Creates vertex shader infos
 			VkPipelineShaderStageCreateInfo shaderStageInfo{};
 			shaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 			// Stage of the pipeline (Which momement the shader will be called)
 
-			switch (shaderInfos.shaderType)
+			switch (_ShadersInfos[i].shaderType)
 			{
 			case VERTEX: default:
 				shaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
@@ -36,9 +42,9 @@ namespace Core
 			}
 
 			// Shader module
-			shaderStageInfo.module = shaderInfos.shader->CastToVulkan()->GetShaderModule();;
+			shaderStageInfo.module = _ShadersInfos[i].shader->CastToVulkan()->GetShaderModule();
 			// Start function of the shader
-			shaderStageInfo.pName = shaderInfos.functionEntry;
+			shaderStageInfo.pName = _ShadersInfos[i].functionEntry;
 
 			shaderStages.push_back(shaderStageInfo);
 		}
@@ -154,8 +160,8 @@ namespace Core
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 		// References the Descriptors set layout (UBO) or global variables
-		pipelineLayoutInfo.setLayoutCount = 1;
-		//pipelineLayoutInfo.pSetLayouts = &m_DescriptorSetLayout;
+		pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(m_DescriptorSetLayouts.size());
+		pipelineLayoutInfo.pSetLayouts = m_DescriptorSetLayouts.data();
 		pipelineLayoutInfo.pushConstantRangeCount = 0;
 		pipelineLayoutInfo.pPushConstantRanges = nullptr;
 
@@ -208,6 +214,11 @@ namespace Core
 	{
 		VulkanDevice device = *_Device->CastToVulkan();
 
+		for (VkDescriptorSetLayout descriptorSetLayout : m_DescriptorSetLayouts)
+		{
+			vkDestroyDescriptorSetLayout(device.GetLogicalDevice(), descriptorSetLayout, nullptr);
+		}
+
 		vkDestroyPipeline(device.GetLogicalDevice(), m_GraphicsPipeline, nullptr);
 		vkDestroyPipelineLayout(device.GetLogicalDevice(), m_PipelineLayout, nullptr);
 		vkDestroyRenderPass(device.GetLogicalDevice(), m_RenderPass, nullptr);
@@ -215,15 +226,85 @@ namespace Core
 		return RHI_SUCCESS;
 	}
 
-	void VulkanPipeline::CreateRenderPass(IDevice* _Device, ISwapChain* _Swapchain)
+	const RHI_RESULT VulkanPipeline::CreateDescriptorSetLayout(VulkanDevice* _Device)
 	{
-		VulkanDevice device = *_Device->CastToVulkan();
-		VulkanSwapChain swapchain = *_Swapchain->CastToVulkan();
+		m_DescriptorSetLayouts.resize(3);
 
+		// Descriptor Set layout binding for ubo
+		VkDescriptorSetLayoutBinding fuboLayoutBinding{};
+		// Describe the biding of the descriptors sets (binding = 0 but for ubo samplers etc)
+		fuboLayoutBinding.binding = 0;
+		fuboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		// Can specifies if it is an array of descriptor
+		fuboLayoutBinding.descriptorCount = 1;
+		// Describes which stages can access the UBO can also be VK_SHADER_STAGE_ALL_GRAPHICS
+		fuboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+
+		// Layout info
+		VkDescriptorSetLayoutCreateInfo layoutInfo{};
+		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+		// Nbr of bindings
+		layoutInfo.bindingCount = 1;
+		// Bindings data
+		layoutInfo.pBindings = &fuboLayoutBinding;
+
+		// Creates the Descriptor set layout
+		VkResult result = vkCreateDescriptorSetLayout(_Device->GetLogicalDevice(), &layoutInfo, nullptr, &m_DescriptorSetLayouts[0]);
+
+		if (result != VK_SUCCESS)
+		{
+			DEBUG_ERROR("Failed to create descriptor set layout, Error Code: %d", result);
+			return RHI_FAILED_UNKNOWN;
+		}
+
+		VkDescriptorSetLayoutBinding suboLayoutBinding{};
+		suboLayoutBinding.binding = 0;
+		suboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		suboLayoutBinding.descriptorCount = 1;
+		suboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+
+		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+		layoutInfo.bindingCount = 1;
+		layoutInfo.pBindings = &suboLayoutBinding;
+
+		result = vkCreateDescriptorSetLayout(_Device->GetLogicalDevice(), &layoutInfo, nullptr, &m_DescriptorSetLayouts[1]);
+
+		if (result != VK_SUCCESS)
+		{
+			DEBUG_ERROR("Failed to create descriptor set layout, Error Code: %d", result);
+			return RHI_FAILED_UNKNOWN;
+		}
+
+		// Descriptor Set layout binding for sampler
+		VkDescriptorSetLayoutBinding samplerLayoutBinding{};
+		samplerLayoutBinding.binding = 0;
+		samplerLayoutBinding.descriptorCount = 1;
+		samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		// Specifies a sampler already created to avoid specification
+		samplerLayoutBinding.pImmutableSamplers = nullptr;
+		samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+		layoutInfo.bindingCount = 1;
+		layoutInfo.pBindings = &samplerLayoutBinding;
+
+		result = vkCreateDescriptorSetLayout(_Device->GetLogicalDevice(), &layoutInfo, nullptr, &m_DescriptorSetLayouts[2]);
+
+		if (result != VK_SUCCESS)
+		{
+			DEBUG_ERROR("Failed to create descriptor set layout, Error Code: %d", result);
+			return RHI_FAILED_UNKNOWN;
+		}
+
+		return RHI_SUCCESS;
+	}
+
+	void VulkanPipeline::CreateRenderPass(VulkanDevice* _Device, VulkanSwapChain* _Swapchain)
+	{
 		// Describes the color buffer attachment
 		VkAttachmentDescription colorAttachment{};
 		// Same format as the swap chain
-		colorAttachment.format = swapchain.GetSwapChainFormat();
+		colorAttachment.format = _Swapchain->GetSwapChainFormat();
 		// Samples (usefull for multisampling)
 		colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
 		// LoadOp and StoreOp describes how we interact with the data of the buffer before loading and after rendering
@@ -245,7 +326,7 @@ namespace Core
 
 		// Describes the depth buffer attachment - Check above for more infos (Similar to color attachment)
 		VkAttachmentDescription depthAttachment{};
-		//depthAttachment.format = FindDepthFormat();
+		depthAttachment.format = VulkanImage::FindDepthFormat(_Device->GetPhysicalDevice());
 		depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
 		depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 		depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
@@ -292,7 +373,7 @@ namespace Core
 		renderPassInfo.pDependencies = &dependency;
 
 		// Creates the render pass
-		VkResult result = vkCreateRenderPass(device.GetLogicalDevice(), &renderPassInfo, nullptr, &m_RenderPass);
+		VkResult result = vkCreateRenderPass(_Device->GetLogicalDevice(), &renderPassInfo, nullptr, &m_RenderPass);
 
 		if (result != VK_SUCCESS)
 		{

@@ -34,7 +34,7 @@ namespace Core
 		vertShader->Load(m_Device, "Assets/Shaders/HelloTriangle.vert");
 
 		IShader* fragShader = m_RHI->CreateShader();
-		vertShader->Load(m_Device, "Assets/Shaders/HelloTriangle.frag");
+		fragShader->Load(m_Device, "Assets/Shaders/HelloTriangle.frag");
 
 		PipelineShaderInfos vert;
 		vert.shader = vertShader;

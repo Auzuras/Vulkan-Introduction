@@ -16,7 +16,7 @@ namespace Core
 		VulkanDevice device = *_Device->CastToVulkan();
 
 		// Gets the queue families
-		QueueFamilyIndices queueFamilyIndices;// = FindQueueFamilies(m_PhysicalDevice, m_Surface);
+		QueueFamilyIndices queueFamilyIndices = VulkanQueue::FindQueueFamilies(device.GetPhysicalDevice(), device.GetSurface());
 
 		// Creates the pool infos
 		VkCommandPoolCreateInfo poolInfo{};
