@@ -47,6 +47,6 @@ namespace Core
 		/// 
 		/// </summary>
 		/// <returns></returns>
-		inline VkCommandPool GetCommandPool() const { return m_CommandPool; }
+		inline VkCommandPool& GetCommandAllocator() { return m_CommandPool; }
 	};
 }

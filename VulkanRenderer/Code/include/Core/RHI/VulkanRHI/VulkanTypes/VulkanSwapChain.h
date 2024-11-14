@@ -67,7 +67,7 @@ namespace Core
 		/// <summary>
 		/// Creates the image views of the swap chain
 		/// </summary>
-		void CreateSwapChainImageViews(VkDevice _Device);
+		void CreateSwapChainImageViews(VkDevice& _Device);
 
 	public:
 

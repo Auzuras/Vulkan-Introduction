@@ -31,6 +31,7 @@ namespace Core
 		const bool CompileShader(Core::IDevice* _Device, const char* _ShaderName, std::string _ShaderSourceCode, Core::ShaderType _ShaderType) override;
 
 		RHI_RESULT CreateShaderModule(VulkanDevice _Device, const std::vector<uint32_t>& _ShaderBinaryCode);
+		RHI_RESULT DestroyShaderModule(Core::IDevice* _Device) override;
 
 		inline VulkanShader* CastToVulkan() override { return this; }
 	};

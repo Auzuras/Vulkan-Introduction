@@ -16,11 +16,12 @@ namespace Core
 		IDevice* m_Device = nullptr;
 		ISwapChain* m_SwapChain = nullptr;
 		IPipeline* m_SimplePipeline = nullptr;
-		ICommandAllocator* m_CommandAllocator = nullptr;
+		static inline ICommandAllocator* m_CommandAllocator = nullptr;
 
 	public:
 		static inline IRendererHardware* GetRHI() { return m_RHI; }
 		static inline RendererType GetRHIType() { return m_RendererType; }
+		static inline ICommandAllocator* GetCommandAllocator() { return m_CommandAllocator; }
 
 		Renderer() = default;
 

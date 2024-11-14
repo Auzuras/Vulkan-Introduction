@@ -1,5 +1,6 @@
 #include "RHI/VulkanRHI/VulkanTypes/VulkanCommandBuffer.h"
 
+#include "RHI/VulkanRHI/VulkanTypes/VulkanDevice.h"
 #include "RHI/VulkanRHI/VulkanTypes/VulkanCommandAllocator.h"
 
 namespace Core
@@ -106,48 +107,48 @@ namespace Core
 		//}
 	}
 
-	//VkCommandBuffer VulkanCommandBuffer::BeginSingleTimeCommands()
-	//{
-	//	// Command buffer allocation infos
-	//	VkCommandBufferAllocateInfo allocInfo{};
-	//	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-	//	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	//	allocInfo.commandPool = m_CommandPool;
-	//	allocInfo.commandBufferCount = 1;
-
-	//	//// Allocates the command buffer
-	//	VkCommandBuffer commandBuffer;
-	//	vkAllocateCommandBuffers(m_LogicalDevice, &allocInfo, &commandBuffer);
-
-	//	//// Begin info specifing VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT which means the command buffer will be used for a single command
-	//	//VkCommandBufferBeginInfo beginInfo{};
-	//	//beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-	//	//beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
-	//	//// Start recording the command
-	//	//vkBeginCommandBuffer(commandBuffer, &beginInfo);
-
-	//	return commandBuffer;
-	//}
-
-	void VulkanCommandBuffer::EndSingleTimeCommands(VkCommandBuffer _CommandBuffer)
+	VkCommandBuffer VulkanCommandBuffer::BeginSingleTimeCommands(VulkanDevice* _Device, VulkanCommandAllocator* _CommandAllocator)
 	{
-		//// Ends recording the command
-		//vkEndCommandBuffer(_CommandBuffer);
+		// Command buffer allocation infos
+		VkCommandBufferAllocateInfo allocInfo{};
+		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		allocInfo.commandPool = _CommandAllocator->GetCommandAllocator();
+		allocInfo.commandBufferCount = 1;
 
-		//// Submit infos
-		//VkSubmitInfo submitInfo{};
-		//submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-		//submitInfo.commandBufferCount = 1;
-		//submitInfo.pCommandBuffers = &_CommandBuffer;
+		//// Allocates the command buffer
+		VkCommandBuffer commandBuffer;
+		vkAllocateCommandBuffers(_Device->GetLogicalDevice(), &allocInfo, &commandBuffer);
 
-		//// Sumbit the queue
-		//vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+		//// Begin info specifing VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT which means the command buffer will be used for a single command
+		VkCommandBufferBeginInfo beginInfo{};
+		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
-		//// Wait for the actions to finish before destroying it
-		//vkQueueWaitIdle(m_GraphicsQueue);
+		//// Start recording the command
+		vkBeginCommandBuffer(commandBuffer, &beginInfo);
 
-		//// Free and destroy the command buffer
-		//vkFreeCommandBuffers(m_LogicalDevice, m_CommandPool, 1, &_CommandBuffer);
+		return commandBuffer;
+	}
+
+	void VulkanCommandBuffer::EndSingleTimeCommands(VulkanDevice* _Device, VulkanCommandAllocator* _CommandAllocator, VkCommandBuffer _CommandBuffer)
+	{
+		// Ends recording the command
+		vkEndCommandBuffer(_CommandBuffer);
+
+		// Submit infos
+		VkSubmitInfo submitInfo{};
+		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+		submitInfo.commandBufferCount = 1;
+		submitInfo.pCommandBuffers = &_CommandBuffer;
+
+		// Sumbit the queue
+		vkQueueSubmit(_Device->GetGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE);
+
+		// Wait for the actions to finish before destroying it
+		vkQueueWaitIdle(_Device->GetGraphicsQueue());
+
+		// Free and destroy the command buffer
+		vkFreeCommandBuffers(_Device->GetLogicalDevice(), _CommandAllocator->GetCommandAllocator(), 1, &_CommandBuffer);
 	}
 }

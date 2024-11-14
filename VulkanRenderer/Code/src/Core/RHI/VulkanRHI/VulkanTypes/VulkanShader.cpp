@@ -126,4 +126,13 @@ namespace Core
 
 		return RHI_SUCCESS;
 	}
+
+	RHI_RESULT VulkanShader::DestroyShaderModule(Core::IDevice* _Device)
+	{
+		VulkanDevice device = *_Device->CastToVulkan();
+
+		vkDestroyShaderModule(device.GetLogicalDevice(), m_ShaderModule, nullptr);
+
+		return RHI_SUCCESS;
+	}
 }

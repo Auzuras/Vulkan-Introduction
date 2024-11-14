@@ -4,6 +4,10 @@
 
 #include "RHI/VulkanRHI/VulkanTypes/VulkanBuffer.h"
 
+#include "RHI/VulkanRHI/VulkanTypes/VulkanCommandBuffer.h"
+
+#include "Renderer.h"
+
 namespace Core
 {
 	void VulkanImage::CreateImage(IDevice* _Device, uint32_t _Width, uint32_t _Height, VkFormat _Format, VkImageTiling _Tiling, VkImageUsageFlags _Usage, VkMemoryPropertyFlags _Properties, VkImage& _Image, VkDeviceMemory& _ImageMemory)
@@ -61,17 +65,17 @@ namespace Core
 		vkBindImageMemory(device.GetLogicalDevice(), _Image, _ImageMemory, 0);
 	}
 
-	void VulkanImage::TransitionImageLayout(VkImage _Image, VkFormat _Format, VkImageLayout _OldLayout, VkImageLayout _NewLayout)
+	void VulkanImage::TransitionImageLayout(VulkanDevice* _Device, VkImage _Image, VkFormat _Format, VkImageLayout _OldLayout, VkImageLayout _NewLayout)
 	{
 		// Starts recording command buffer
-		//VkCommandBuffer commandBuffer = BeginSingleTimeCommands();
+		VkCommandBuffer commandBuffer = VulkanCommandBuffer::BeginSingleTimeCommands(_Device, Core::Renderer::GetCommandAllocator()->CastToVulkan());
 
 		// Creates a memory barrier
 		// Is here to garanty that we will not modify the memory while the GPU is using it or already writing in it
 		VkImageMemoryBarrier barrier{};
-		barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER; \
-			// Specifies the old layout and the new layout
-			barrier.oldLayout = _OldLayout;
+		barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+		// Specifies the old layout and the new layout
+		barrier.oldLayout = _OldLayout;
 		barrier.newLayout = _NewLayout;
 		// Used to change queue families
 		barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
@@ -130,10 +134,10 @@ namespace Core
 			DEBUG_ERROR("Unsupported layout transition !");
 		}
 
-		//vkCmdPipelineBarrier(commandBuffer, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+		vkCmdPipelineBarrier(commandBuffer, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
 
 		// Ends recording the command buffer
-		//EndSingleTimeCommands(commandBuffer);
+		VulkanCommandBuffer::EndSingleTimeCommands(_Device, Core::Renderer::GetCommandAllocator()->CastToVulkan(), commandBuffer);
 	}
 
 	void VulkanImage::CreateDepthRessources()

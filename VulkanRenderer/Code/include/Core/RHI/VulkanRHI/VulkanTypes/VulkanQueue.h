@@ -29,6 +29,8 @@ namespace Core
 		RHI_RESULT CreateQueue();
 		RHI_RESULT DestroyQueue();
 
+		inline VkQueue& GetQueue() { return m_Queue; }
+
 		/// <summary>
 		/// Find all queue famillies suporting features required by the application (Graphics and presentation)
 		/// </summary>

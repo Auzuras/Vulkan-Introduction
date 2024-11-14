@@ -25,6 +25,20 @@ namespace Core
 
 		m_CommandAllocator = m_RHI->InstantiateCommandAllocator(m_Device);
 
+		IMesh* mesh = m_RHI->CreateMesh();
+		mesh->Load(m_Device, "Assets/Meshes/viking_room.obj");
+		
+		mesh->Unload(m_Device);
+
+		m_RHI->DestroyMesh(mesh);
+
+		ITexture* texture = m_RHI->CreateTexture();
+		texture->Load(m_Device, "Assets/Textures/viking_room.png");
+
+		texture->Unload(m_Device);
+
+		m_RHI->DestroyTexture(texture);
+
 		return true;
 	}
 
@@ -49,6 +63,12 @@ namespace Core
 		std::vector<PipelineShaderInfos> shadersInfos = { vert, frag };
 
 		m_SimplePipeline = m_RHI->InstantiatePipeline(m_Device, m_SwapChain, shadersInfos);
+
+		fragShader->Unload(m_Device);
+		vertShader->Unload(m_Device);
+
+		m_RHI->DestroyShader(vertShader);
+		m_RHI->DestroyShader(fragShader);
 	}
 
 	const bool Renderer::Terminate()

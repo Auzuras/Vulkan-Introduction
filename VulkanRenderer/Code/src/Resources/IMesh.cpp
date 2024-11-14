@@ -46,14 +46,16 @@ namespace Core
 			}
 		}
 
-		// TODO: Create Vertex buffer
-		// TODO: Create Index buffer
+		CreateVertexBuffer(_Device, vertices);
+		CreateIndexBuffer(_Device, indices);
 
-		return false;
+		return true;
 	}
 
-	const bool IMesh::Unload()
+	const bool IMesh::Unload(Core::IDevice* _Device)
 	{
-		return false;
+		DestroyBuffers(_Device);
+
+		return true;
 	}
 }

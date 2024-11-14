@@ -2,7 +2,7 @@
 
 namespace Core
 {
-	const RHI_RESULT VulkanImageView::CreateImageView(VkDevice _Device, VkImage _Image, VkFormat _Format, VkImageAspectFlags _AspectFlags)
+	const RHI_RESULT VulkanImageView::CreateImageView(VkDevice& _Device, VkImage _Image, VkFormat _Format, VkImageAspectFlags _AspectFlags)
 	{
 		VkImageViewCreateInfo viewInfo{};
 		viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;

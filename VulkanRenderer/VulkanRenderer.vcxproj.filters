@@ -126,6 +126,9 @@
     <ClCompile Include="Code\src\Core\RHI\IRendererHardware.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Code\src\Core\RHI\VulkanRHI\VulkanTypes\VulkanMesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\include\Core\Maths\Matrices\Matrix2.h">
@@ -303,6 +306,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanImageView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanMesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

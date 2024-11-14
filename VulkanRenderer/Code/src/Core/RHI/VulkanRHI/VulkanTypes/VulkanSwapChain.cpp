@@ -138,7 +138,7 @@ namespace Core
 		}
 	}
 
-	void VulkanSwapChain::CreateSwapChainImageViews(VkDevice _Device)
+	void VulkanSwapChain::CreateSwapChainImageViews(VkDevice& _Device)
 	{
 		m_SwapChainImageViews.resize(m_SwapChainImages.size());
 
@@ -273,9 +273,9 @@ namespace Core
 		// Recreates the swap chain
 		RHI_RESULT result = CreateSwapChain(_Window, _Device);
 
-		//CreateSwapChainImageViews();
+		CreateSwapChainImageViews(device.GetLogicalDevice());
 		//CreateDepthRessources();
-		//CreateSwapChainFramebuffers();
+		CreateSwapChainFramebuffers();
 
 		return result;
 	}

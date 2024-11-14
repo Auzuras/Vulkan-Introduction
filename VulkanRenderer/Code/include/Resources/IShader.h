@@ -22,7 +22,7 @@ namespace Core
 		/// Unloads the 3D model
 		/// </summary>
 		/// <returns></returns>
-		const bool Unload() override;
+		const bool Unload(Core::IDevice* _Device) override;
 
 		/// <summary>
 		/// 
@@ -33,6 +33,13 @@ namespace Core
 		/// <param name="_ShaderType"></param>
 		/// <returns></returns>
 		virtual const bool CompileShader(Core::IDevice* _Device, const char* _ShaderName, std::string _ShaderSourceCode, Core::ShaderType _ShaderType) = 0;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="_Device"></param>
+		/// <returns></returns>
+		virtual RHI_RESULT DestroyShaderModule(Core::IDevice* _Device) = 0;
 
 		virtual VulkanShader* CastToVulkan() = 0;
 	};

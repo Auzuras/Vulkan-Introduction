@@ -38,12 +38,14 @@ namespace Core
 		/// Creates a temporary command buffer for a single command
 		/// </summary>
 		/// <returns></returns>
-		//VkCommandBuffer BeginSingleTimeCommands();
+		static VkCommandBuffer BeginSingleTimeCommands(VulkanDevice* _Device, VulkanCommandAllocator* _CommandAllocator);
 
 		/// <summary>
 		/// Ends and destroy a temporary command buffer for a single command
 		/// </summary>
 		/// <param name="_CommandBuffer">: Command buffer to destroy </param>
-		void EndSingleTimeCommands(VkCommandBuffer _CommandBuffer);
+		static void EndSingleTimeCommands(VulkanDevice* _Device, VulkanCommandAllocator* _CommandAllocator, VkCommandBuffer _CommandBuffer);
+
+		inline VkCommandBuffer& GetCommandBuffer() { return m_CommandBuffer;  }
 	};
 }

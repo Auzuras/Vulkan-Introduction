@@ -52,10 +52,9 @@ namespace Core
 		return true;
 	}
 
-	const bool IShader::Unload()
+	const bool IShader::Unload(Core::IDevice* _Device)
 	{
-		// TODO: Unload/Destroy shader 
-
+		DestroyShaderModule(_Device);
 		return false;
 	}
 }

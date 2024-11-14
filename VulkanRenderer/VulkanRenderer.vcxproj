@@ -144,6 +144,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Code\src\Core\RHI\VulkanRHI\VulkanTypes\VulkanMesh.cpp" />
     <ClCompile Include="Code\src\Core\RHI\IRendererHardware.cpp" />
     <ClCompile Include="Code\src\Core\RHI\Renderer.cpp" />
     <ClCompile Include="Code\src\Core\RHI\VulkanRHI\VulkanTypes\VulkanImageView.cpp" />
@@ -221,6 +222,7 @@
     <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanFramebuffer.h" />
     <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanImage.h" />
     <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanImageView.h" />
+    <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanMesh.h" />
     <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanPipeline.h" />
     <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanQueue.h" />
     <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanSemaphore.h" />

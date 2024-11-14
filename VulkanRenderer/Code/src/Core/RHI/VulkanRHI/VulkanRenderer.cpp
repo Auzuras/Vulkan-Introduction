@@ -5,6 +5,8 @@
 #include "RHI/VulkanRHI/VulkanTypes/VulkanPipeline.h"
 #include "RHI/VulkanRHI/VulkanTypes/VulkanCommandAllocator.h"
 #include "RHI/VulkanRHI/VulkanTypes/VulkanShader.h"
+#include "RHI/VulkanRHI/VulkanTypes/VulkanMesh.h"
+#include "RHI/VulkanRHI/VulkanTypes/VulkanTexture.h"
 
 #include <cstring>
 #include <set>
@@ -88,5 +90,17 @@ namespace Core
 	{
 		VulkanShader* vkShader = new VulkanShader;
 		return vkShader;
+	}
+	
+	IMesh* VulkanRenderer::CreateMesh()
+	{
+		VulkanMesh* vkMesh = new VulkanMesh;
+		return vkMesh;
+	}
+
+	ITexture* VulkanRenderer::CreateTexture()
+	{
+		VulkanTexture* vkTexture = new VulkanTexture;
+		return vkTexture;
 	}
 }

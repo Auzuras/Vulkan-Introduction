@@ -6,20 +6,14 @@
 
 namespace Core
 {
+	class VulkanImage;
+
 	class VulkanBuffer : public IBuffer
 	{
 	private:
 
 		VkBuffer m_Buffer;
 		VkDeviceMemory m_BufferMemory;
-
-		/// <summary>
-		/// Copies a buffer from a source buffer to a destination buffer
-		/// </summary>
-		/// <param name="_SourceBuffer">: First buffer you want to copy </param>
-		/// <param name="_DestinationBuffer">: Second buffer receiving the first one </param>
-		/// <param name="_Size">: Size of the buffer </param>
-		void CopyBuffer(VkBuffer _SourceBuffer, VkBuffer _DestinationBuffer, VkDeviceSize _Size);
 
 	public:
 
@@ -34,19 +28,14 @@ namespace Core
 		void CreateBuffer(IDevice* _Device, VkDeviceSize _Size, VkBufferUsageFlags _Usage, VkMemoryPropertyFlags _Properties, VkBuffer& _Buffer, VkDeviceMemory& _BufferMemory);
 
 		/// <summary>
-		/// Creates a vertex buffer
+		/// Copies a buffer from a source buffer to a destination buffer
 		/// </summary>
-		void CreateVertexBuffer();
+		/// <param name="_SourceBuffer">: First buffer you want to copy </param>
+		/// <param name="_DestinationBuffer">: Second buffer receiving the first one </param>
+		/// <param name="_Size">: Size of the buffer </param>
+		static void CopyBuffer(VulkanDevice* _Device, VulkanCommandAllocator* _CommandAllocator, VkBuffer& _SourceBuffer, VkBuffer& _DestinationBuffer, VkDeviceSize _Size);
 
-		/// <summary>
-		/// Creates an index buffer
-		/// </summary>
-		void CreateIndexBuffer();
-
-		/// <summary>
-		/// Creates an uniform buffer
-		/// </summary>
-		void CreateUniformBuffers();
+		static void CopyBufferToImage(VulkanDevice* _Device, VulkanCommandAllocator* _CommandAllocator, VkBuffer& _SourceBuffer, VulkanImage& _Image, uint32_t _Width, uint32_t _Height);
 
 		/// <summary>
 		/// Selects the best memory type for an allocation
@@ -57,5 +46,8 @@ namespace Core
 		static uint32_t FindMemoryType(VkPhysicalDevice _PhysicalDevice, uint32_t _TypeFilter, VkMemoryPropertyFlags _Properties);
 
 		void DestroyBuffer(IDevice* _Device);
+
+		inline VkBuffer& GetBuffer() { return m_Buffer; }
+		inline VkDeviceMemory& GetBufferMemory() { return m_BufferMemory; }
 	};
 }

@@ -23,6 +23,6 @@ namespace Core
 		/// Unloads the resource in the memory
 		/// </summary>
 		/// <returns></returns>
-		virtual const bool Unload() = 0;
+		virtual const bool Unload(Core::IDevice* _Device) = 0;
 	};
 }

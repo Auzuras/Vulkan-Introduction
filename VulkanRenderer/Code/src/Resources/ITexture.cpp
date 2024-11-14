@@ -10,7 +10,7 @@ namespace Core
 		int textWidth, textHeight, textChannels;
 		stbi_set_flip_vertically_on_load(true);
 
-		stbi_uc* texture = stbi_load(_ResourcePath.string().c_str(), &textWidth, &textHeight, &textChannels, STBI_rgb_alpha);
+		unsigned char* texture = stbi_load(_ResourcePath.string().c_str(), &textWidth, &textHeight, &textChannels, STBI_rgb_alpha);
 
 		if (!texture)
 		{
@@ -18,11 +18,17 @@ namespace Core
 			return false;
 		}
 
-		return false;
+		CreateTexture(_Device, texture, textWidth, textHeight);
+
+		// Free the texture on the CPU
+		stbi_image_free(texture);
+
+		return true;
 	}
 
-	const bool ITexture::Unload()
+	const bool ITexture::Unload(Core::IDevice* _Device)
 	{
-		return false;
+		DestroyTexture(_Device);
+		return true;
 	}
 }

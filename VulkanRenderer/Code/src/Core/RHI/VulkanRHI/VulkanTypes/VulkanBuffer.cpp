@@ -1,6 +1,8 @@
 #include "RHI/VulkanRHI/VulkanTypes/VulkanBuffer.h"
 
 #include "RHI/VulkanRHI/VulkanTypes/VulkanDevice.h"
+#include "RHI/VulkanRHI/VulkanTypes/VulkanCommandBuffer.h"
+#include "RHI/VulkanRHI/VulkanTypes/VulkanImage.h"
 
 namespace Core
 {
@@ -26,20 +28,46 @@ namespace Core
 		return 0;
 	}
 
-	void VulkanBuffer::CopyBuffer(VkBuffer _SourceBuffer, VkBuffer _DestinationBuffer, VkDeviceSize _Size)
+	void VulkanBuffer::CopyBuffer(VulkanDevice* _Device, VulkanCommandAllocator* _CommandAllocator, VkBuffer& _SourceBuffer, VkBuffer& _DestinationBuffer, VkDeviceSize _Size)
 	{
 		// Creates a temporary command buffer for transfer
-		//VkCommandBuffer commandBuffer = BeginSingleTimeCommands();
+		VkCommandBuffer commandBuffer = VulkanCommandBuffer::BeginSingleTimeCommands(_Device, _CommandAllocator);
 
 		// Buffer Copy infos
 		VkBufferCopy copyRegion{};
 		copyRegion.size = _Size;
 
 		// Copies a buffer from a source buffer to a destination one
-		//vkCmdCopyBuffer(commandBuffer, _SourceBuffer, _DestinationBuffer, 1, &copyRegion);
+		vkCmdCopyBuffer(commandBuffer, _SourceBuffer, _DestinationBuffer, 1, &copyRegion);
 
 		// Ends and destroys the buffer
-		//EndSingleTimeCommands(commandBuffer);
+		VulkanCommandBuffer::EndSingleTimeCommands(_Device, _CommandAllocator, commandBuffer);
+	}
+
+	void VulkanBuffer::CopyBufferToImage(VulkanDevice* _Device, VulkanCommandAllocator* _CommandAllocator, VkBuffer& _SourceBuffer, VulkanImage& _Image, uint32_t _Width, uint32_t _Height)
+	{
+		// Creates a temporary command buffer for transfer
+		VkCommandBuffer commandBuffer = VulkanCommandBuffer::BeginSingleTimeCommands(_Device, _CommandAllocator);
+
+		// Creates the region to copy
+		VkBufferImageCopy region{};
+		region.bufferOffset = 0;
+		region.bufferRowLength = 0;
+		region.bufferImageHeight = 0;
+
+		region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		region.imageSubresource.mipLevel = 0;
+		region.imageSubresource.baseArrayLayer = 0;
+		region.imageSubresource.layerCount = 1;
+
+		region.imageOffset = { 0, 0, 0 };
+		region.imageExtent = { _Width, _Height, 1 };
+
+		// Copies the buffer to the image
+		vkCmdCopyBufferToImage(commandBuffer, _SourceBuffer, _Image.GetImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+
+		// Ends recording the command buffer
+		VulkanCommandBuffer::EndSingleTimeCommands(_Device, _CommandAllocator, commandBuffer);
 	}
 
 	void VulkanBuffer::CreateBuffer(IDevice* _Device, VkDeviceSize _Size, VkBufferUsageFlags _Usage, VkMemoryPropertyFlags _Properties, VkBuffer& _Buffer, VkDeviceMemory& _BufferMemory)
@@ -83,100 +111,6 @@ namespace Core
 		// Bind the buffer with allocated emplacement
 		vkBindBufferMemory(device.GetLogicalDevice(), _Buffer, _BufferMemory, 0);
 	}
-
-	void VulkanBuffer::CreateVertexBuffer()
-	{
-		//VkDeviceSize bufferSize;// = sizeof(vertices[0]) * vertices.size();
-
-		//VkBuffer stagingBuffer;
-		//VkDeviceMemory stagingBufferMemory;
-
-		//// Creates a transfer buffer
-		//// VK_BUFFER_USAGE_TRANSFER_SRC_BIT specifies that the buffer can be used as a source buffer and be copied in the memory
-		//// VK_MEMORY_PROPERTY_HOST_COHERENT_BIT specifies that the memory is the same CPU and GPU side so easily accessible by both but not optimized
-		//// This is why we are using staging buffer and we copy it in the VRAM
-		//CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
-
-		//// Maps the data into the GPU Memory and copy the data into the memory
-		//void* data;
-		//vkMapMemory(m_LogicalDevice, stagingBufferMemory, 0, bufferSize, 0, &data);
-		//memcpy(data, vertices.data(), (size_t)bufferSize);
-		//vkUnmapMemory(m_LogicalDevice, stagingBufferMemory);
-
-		//// Creates the vertex buffer
-		//// VK_BUFFER_USAGE_TRANSFER_DST_BIT specifies that the buffer can only receive data from memory of the GPU and that it is a VERTEX_BUFFER
-		//// VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT specifies that the memory is only for GPU and optimized for GPU
-		//CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_VertexBuffer, m_VertexBufferMemory);
-
-		//// Copies the data from the staging buffer to the vertex buffer
-		//CopyBuffer(stagingBuffer, m_VertexBuffer, bufferSize);
-
-		//// Destroys the stagging buffer and free the memory
-		//vkDestroyBuffer(m_LogicalDevice, stagingBuffer, nullptr);
-		//vkFreeMemory(m_LogicalDevice, stagingBufferMemory, nullptr);
-	}
-
-	void VulkanBuffer::CreateIndexBuffer()
-	{
-		//// Same idea as the vertex buffer so please check the CreateVertexBuffer for more information
-
-		//VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
-
-		//VkBuffer stagingBuffer;
-		//VkDeviceMemory stagingBufferMemory;
-
-		//// Creates a transfer buffer
-		//CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
-
-		//// Maps the data into the GPU Memory and copy the data into the memory
-		//void* data;
-		//vkMapMemory(m_LogicalDevice, stagingBufferMemory, 0, bufferSize, 0, &data);
-		//memcpy(data, indices.data(), (size_t)bufferSize);
-		//vkUnmapMemory(m_LogicalDevice, stagingBufferMemory);
-
-		//// Creates the index buffer
-		//CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_IndexBuffer, m_IndexBufferMemory);
-
-		//// Copies the data from the staging buffer to the index buffer
-		//CopyBuffer(stagingBuffer, m_IndexBuffer, bufferSize);
-
-		//// Destroys the stagging buffer and free the memory
-		//vkDestroyBuffer(m_LogicalDevice, stagingBuffer, nullptr);
-		//vkFreeMemory(m_LogicalDevice, stagingBufferMemory, nullptr);
-	}
-
-	void VulkanBuffer::CreateUniformBuffers()
-	{
-		//VkDeviceSize bufferSize = sizeof(UniformMVP);
-
-		//m_UniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
-		//m_UniformBufferMemory.resize(MAX_FRAMES_IN_FLIGHT);
-		//m_UniformBuffersMapped.resize(MAX_FRAMES_IN_FLIGHT);
-
-		//// Creates a single uniform buffer for each frames
-		//// We do not use staging buffer because the data will be updated every frame
-		//for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
-		//{
-		//	// Creates a Uniform buffer
-		//	CreateBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, m_UniformBuffers[i], m_UniformBufferMemory[i]);
-		//	// Maps the Memory
-		//	vkMapMemory(m_LogicalDevice, m_UniformBufferMemory[i], 0, bufferSize, 0, &m_UniformBuffersMapped[i]);
-		//}
-	}
-
-	//void VulkanRenderer::UpdateUniformBuffer(uint32_t _CurrentImage, Math::Matrix4 _ModelMatrix)
-	//{
-	//	// Creates a MVP
-	//	UniformMVP mvp{};
-
-	//	// Updates the MVP
-	//	mvp.model = _ModelMatrix.Transpose();
-	//	mvp.view = Core::Application::appCamera.viewMatrix.Transpose();
-	//	mvp.projection = Core::Application::appCamera.projectionMatrix.Transpose();
-
-	//	// Copies the data into the buffer
-	//	memcpy(m_UniformBuffersMapped[_CurrentImage], &mvp, sizeof(mvp));
-	//}
 
 	void VulkanBuffer::DestroyBuffer(IDevice* _Device)
 	{

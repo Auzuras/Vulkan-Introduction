@@ -2,7 +2,9 @@
 
 #include "IResource.h"
 
-namespace Core
+#include "RHI/Vertex.h"
+
+namespace Core 
 {
 	class IMesh : public IResource
 	{
@@ -19,6 +21,11 @@ namespace Core
 		/// Unloads the 3D model
 		/// </summary>
 		/// <returns></returns>
-		const bool Unload() override;
+		const bool Unload(Core::IDevice* _Device) override;
+
+		virtual RHI_RESULT CreateVertexBuffer(Core::IDevice* _Device, std::vector<Vertex>& _VerticesList) = 0;
+		virtual RHI_RESULT CreateIndexBuffer(Core::IDevice* _Device, std::vector<uint32_t>& _IndicesList) = 0;
+		
+		virtual RHI_RESULT DestroyBuffers(Core::IDevice* _Device) = 0;
 	};
 }

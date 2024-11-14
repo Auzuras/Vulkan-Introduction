@@ -31,7 +31,7 @@ namespace Core
 		/// <param name="_Format">: Format of the image </param>
 		/// <param name="_OldLayout">: Old layout of the image </param>
 		/// <param name="_NewLayout">: New layout of the image </param>
-		void TransitionImageLayout(VkImage _Image, VkFormat _Format, VkImageLayout _OldLayout, VkImageLayout _NewLayout);
+		void TransitionImageLayout(VulkanDevice* _Device, VkImage _Image, VkFormat _Format, VkImageLayout _OldLayout, VkImageLayout _NewLayout);
 
 		/// <summary>
 		/// Creates a depth texture to store the depth buffer
@@ -61,5 +61,7 @@ namespace Core
 		static bool HasStencilComponent(VkFormat _Format);
 
 		RHI_RESULT DestroyImage(VkDevice _Device);
+
+		inline VkImage& GetImage() { return m_Image; }
 	};
 }

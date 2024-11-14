@@ -179,6 +179,10 @@ namespace Core
 
 		inline VkSurfaceKHR& GetSurface() { return m_Surface; }
 
+		inline VkQueue& GetGraphicsQueue() { return m_GraphicsQueue; }
+		inline VkQueue& GetPresentationQueue() { return m_PresentationQueue; }
+		inline VkQueue& GetTransferQueue() { return m_TransferQueue; }
+
 		///////////////////////////////////////////////////////////////////////
 
 		/// Initialization and termination methods
