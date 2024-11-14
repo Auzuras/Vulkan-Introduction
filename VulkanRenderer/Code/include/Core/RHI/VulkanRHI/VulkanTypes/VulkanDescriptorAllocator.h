@@ -25,5 +25,7 @@ namespace Core
 		/// </summary>
 		/// <returns></returns>
 		const RHI_RESULT DestroyDescriptorAllocator(IDevice* _Device) override;
+
+		std::vector<IDescriptor*> CreateDescriptor(IDevice* _Device, int _DescriptorNbr) override;
 	};
 }

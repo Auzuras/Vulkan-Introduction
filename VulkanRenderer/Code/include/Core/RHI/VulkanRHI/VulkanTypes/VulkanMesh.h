@@ -13,6 +13,8 @@ namespace Core
 		VulkanBuffer m_VertexBuffer;
 		VulkanBuffer m_IndexBuffer;
 
+		size_t m_IndexNbr = 0;
+
 	public:
 
 		RHI_RESULT CreateVertexBuffer(Core::IDevice* _Device, std::vector<Vertex>& _VerticesList) override;
@@ -23,5 +25,6 @@ namespace Core
 		inline VulkanMesh* CastToVulkan() override { return this; }
 		inline VulkanBuffer GetVertexBuffer() { return m_VertexBuffer; }
 		inline VulkanBuffer GetIndexBuffer() { return m_IndexBuffer; }
+		inline size_t GetIndexNumber() { return m_IndexNbr; }
 	};
 }

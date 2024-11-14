@@ -92,4 +92,12 @@ namespace Core
         delete _Fence;
         _Fence = nullptr;
     }
+    
+    void IRendererHardware::DestroyBuffer(IBuffer* _Buffer, IDevice* _Device)
+    {
+        _Buffer->DestroyBuffer(_Device);
+
+        delete _Buffer;
+        _Buffer = nullptr;
+    }
 }

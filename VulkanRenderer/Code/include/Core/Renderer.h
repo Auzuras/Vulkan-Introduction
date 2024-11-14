@@ -3,8 +3,6 @@
 #include "RHI/IRendererHardware.h"
 #include "RHI/RHITypes.h"
 
-#include "RHI/VulkanRHI/VulkanRenderer.h"
-
 namespace Core
 {
 	class Renderer
@@ -13,7 +11,7 @@ namespace Core
 		static inline IRendererHardware* m_RHI = nullptr;
 		static inline RendererType m_RendererType = VULKAN;
 
-		IDevice* m_Device = nullptr;
+		static inline IDevice* m_Device = nullptr;
 		ISwapChain* m_SwapChain = nullptr;
 		IPipeline* m_SimplePipeline = nullptr;
 		static inline ICommandAllocator* m_CommandAllocator = nullptr;
@@ -29,10 +27,12 @@ namespace Core
 		unsigned int imageIndex = 0;
 
 	public:
-		const int MAX_FRAMES_IN_FLIGHT = 2;
+		static inline IMesh* model = nullptr;
+		static inline const int MAX_FRAMES_IN_FLIGHT = 2;
 
 		static inline IRendererHardware* GetRHI() { return m_RHI; }
 		static inline RendererType GetRHIType() { return m_RendererType; }
+		static inline IDevice* GetDevice() { return m_Device; }
 		static inline ICommandAllocator* GetCommandAllocator() { return m_CommandAllocator; }
 		static inline IDescriptorAllocator* GetDescriptorAllocator() { return m_DescriptorAllocator; }
 

@@ -12,4 +12,8 @@ namespace LowRenderer
         viewMatrix = Math::Matrix4::ViewMatrix(position, look, Math::Vector3::up);
         projectionMatrix = Math::Matrix4::ProjectionPerspectiveMatrix(0.01f, 100.f, 1920.f/1080.f, 45.f);
     }
+
+    void Camera::Draw()
+    {
+    }
 }

@@ -42,7 +42,7 @@ namespace Core
 		m_Renderer.StartFrame(&m_Window);
 		m_Renderer.SetupTexturedModelPass();
 
-		//m_Renderer.TexturedModelPass();
+		m_Renderer.TexturedModelPass(Core::Renderer::model);
 
 		m_Renderer.FinishTexturedModelPass();
 		m_Renderer.EndFrame(&m_Window);

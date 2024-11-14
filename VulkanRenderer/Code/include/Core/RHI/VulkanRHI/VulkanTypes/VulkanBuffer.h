@@ -12,10 +12,14 @@ namespace Core
 	{
 	private:
 
+	public:
 		VkBuffer m_Buffer;
 		VkDeviceMemory m_BufferMemory;
 
-	public:
+		const RHI_RESULT CreateBuffer(IDevice* _Device, BufferType _BufferType, size_t _BufferSize) override;
+		const RHI_RESULT DestroyBuffer(IDevice* _Device) override;
+
+		const RHI_RESULT CreateUniformBuffer(IDevice* _Device, size_t _BufferSize);
 
 		/// <summary>
 		/// Creates and allocate a buffer in memory
@@ -53,12 +57,6 @@ namespace Core
 		/// <param name="_Properties">: Properties needed for the buffer </param>
 		/// <returns></returns>
 		static uint32_t FindMemoryType(VkPhysicalDevice _PhysicalDevice, uint32_t _TypeFilter, VkMemoryPropertyFlags _Properties);
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="_Device"></param>
-		void DestroyBuffer(IDevice* _Device);
 
 		/// <summary>
 		/// 

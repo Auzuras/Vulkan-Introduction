@@ -16,6 +16,7 @@ namespace LowRenderer
 		Math::Matrix4 viewMatrix = Math::Matrix4::identity;
 		Math::Matrix4 projectionMatrix = Math::Matrix4::identity;
 
-		void Update();
+		void Update() override;
+		void Draw() override;
 	};
 }

@@ -14,11 +14,6 @@ namespace Core
 	public:
 
 		~VulkanDescriptor() override;
-
-		/// <summary>
-		/// Creates all Descriptor Sets
-		/// </summary>
-		void CreateDescriptorSets();
 		
 		void DestroyDescriptorSets();
 

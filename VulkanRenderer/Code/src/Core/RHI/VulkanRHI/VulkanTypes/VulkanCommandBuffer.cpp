@@ -176,13 +176,14 @@ namespace Core
 
 		// Binds the index buffer
 		vkCmdBindIndexBuffer(m_CommandBuffer, buffer, 0, VK_INDEX_TYPE_UINT32);
-
 	}
 
 	void VulkanCommandBuffer::DrawIndexed(IMesh* _Mesh) const
 	{
+		VulkanMesh mesh = *_Mesh->CastToVulkan();
+
 		// Draws the vertex buffer with indices
-		//vkCmdDrawIndexed(m_CommandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+		vkCmdDrawIndexed(m_CommandBuffer, static_cast<uint32_t>(mesh.GetIndexNumber()), 1, 0, 0, 0);
 	}
 
 	void VulkanCommandBuffer::EndRenderPass() const

@@ -176,6 +176,7 @@
     <ClCompile Include="Code\src\Core\Time\Time.cpp" />
     <ClCompile Include="Code\src\Core\Window.cpp" />
     <ClCompile Include="Code\src\LowRenderer\Camera.cpp" />
+    <ClCompile Include="Code\src\LowRenderer\Model.cpp" />
     <ClCompile Include="Code\src\LowRenderer\Object.cpp" />
     <ClCompile Include="Code\src\main.cpp" />
     <ClCompile Include="Code\src\Physics\Transform.cpp" />
@@ -233,6 +234,7 @@
     <ClInclude Include="Code\include\Core\Time\Time.h" />
     <ClInclude Include="Code\include\Core\Window.h" />
     <ClInclude Include="Code\include\LowRenderer\Camera.h" />
+    <ClInclude Include="Code\include\LowRenderer\Model.h" />
     <ClInclude Include="Code\include\LowRenderer\Object.h" />
     <ClInclude Include="Code\include\Physics\Transform.h" />
     <ClInclude Include="Code\include\Resources\IResource.h" />

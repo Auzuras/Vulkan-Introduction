@@ -257,6 +257,16 @@ namespace Core
 
 		virtual IFence* InstantiateFence(IDevice* _Device) = 0;
 		virtual void DestroyFence(IFence* _Fence, IDevice* _Device);
+
+
+		///////////////////////////////////////////////////////////////////////
+
+		/// Buffer related methods
+
+		///////////////////////////////////////////////////////////////////////
+
+		virtual IBuffer* CreateBuffer(IDevice* _Device, BufferType _BufferType, size_t _BufferSize) = 0;
+		virtual void DestroyBuffer(IBuffer* _Buffer, IDevice* _Device);
 	};
 }
 

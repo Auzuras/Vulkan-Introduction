@@ -15,4 +15,11 @@ namespace Core
 		FRAGMENT,
 		GEOMETRY
 	};
+
+	enum BufferType
+	{
+		RHI_VERTEX_BUFFER,
+		RHI_INDEX_BUFFER,
+		RHI_UNIFORM_BUFFER
+	};
 }

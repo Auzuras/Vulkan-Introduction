@@ -137,4 +137,14 @@ namespace Core
 
 		return vkFence;
 	}
+
+	IBuffer* VulkanRenderer::CreateBuffer(IDevice* _Device, BufferType _BufferType, size_t _BufferSize)
+	{
+		VulkanBuffer* vkBuffer = new VulkanBuffer;
+
+		if (!vkBuffer->CreateBuffer(_Device, _BufferType, _BufferSize))
+			return nullptr;
+
+		return vkBuffer;
+	}
 }

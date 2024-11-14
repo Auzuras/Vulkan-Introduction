@@ -70,6 +70,41 @@ namespace Core
 		VulkanCommandBuffer::EndSingleTimeCommands(_Device, _CommandAllocator, commandBuffer);
 	}
 
+	const RHI_RESULT VulkanBuffer::CreateBuffer(IDevice* _Device, BufferType _BufferType, size_t _BufferSize)
+	{
+		RHI_RESULT result;
+
+		switch (_BufferType)
+		{
+		case Core::RHI_VERTEX_BUFFER: default:
+			break;
+		case Core::RHI_INDEX_BUFFER:
+			break;
+		case Core::RHI_UNIFORM_BUFFER:
+			result = CreateUniformBuffer(_Device, _BufferSize);
+			break;
+		}
+
+		return result;
+	}
+
+	const RHI_RESULT VulkanBuffer::DestroyBuffer(IDevice* _Device)
+	{
+		VulkanDevice device = *_Device->CastToVulkan();
+
+		vkDestroyBuffer(device.GetLogicalDevice(), m_Buffer, nullptr);
+		vkFreeMemory(device.GetLogicalDevice(), m_BufferMemory, nullptr);
+
+		return RHI_SUCCESS;
+	}
+
+	const RHI_RESULT VulkanBuffer::CreateUniformBuffer(IDevice* _Device, size_t _BufferSize)
+	{
+		CreateBuffer(_Device, static_cast<VkDeviceSize>(_BufferSize), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, m_Buffer, m_BufferMemory);
+
+		return RHI_SUCCESS;
+	}
+
 	void VulkanBuffer::CreateBuffer(IDevice* _Device, VkDeviceSize _Size, VkBufferUsageFlags _Usage, VkMemoryPropertyFlags _Properties, VkBuffer& _Buffer, VkDeviceMemory& _BufferMemory)
 	{
 		VulkanDevice device = *_Device->CastToVulkan();
@@ -110,13 +145,5 @@ namespace Core
 
 		// Bind the buffer with allocated emplacement
 		vkBindBufferMemory(device.GetLogicalDevice(), _Buffer, _BufferMemory, 0);
-	}
-
-	void VulkanBuffer::DestroyBuffer(IDevice* _Device)
-	{
-		VulkanDevice device = *_Device->CastToVulkan();
-
-		vkDestroyBuffer(device.GetLogicalDevice(), m_Buffer, nullptr);
-		vkFreeMemory(device.GetLogicalDevice(), m_BufferMemory, nullptr);
 	}
 }

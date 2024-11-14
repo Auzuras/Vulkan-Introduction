@@ -6,6 +6,7 @@ namespace Core
 {
 	class IDevice;
 	class ISwapChain;
+	class IDescriptor;
 
 	class IDescriptorAllocator
 	{
@@ -14,5 +15,7 @@ namespace Core
 
 		virtual const RHI_RESULT CreateDescriptorAllocator(IDevice* _Device, ISwapChain* _Swapchain) = 0;
 		virtual const RHI_RESULT DestroyDescriptorAllocator(IDevice* _Device) = 0;
+
+		virtual std::vector<IDescriptor*> CreateDescriptor(IDevice* _Device, int _CommandBuffersNbr) = 0;
 	};
 }

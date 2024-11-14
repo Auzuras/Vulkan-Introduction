@@ -1,5 +1,7 @@
 #include "Renderer.h"
 
+#include "RHI/VulkanRHI/VulkanRenderer.h"
+
 namespace Core
 {
 	const bool Renderer::Initialize(Window* _Window)
@@ -25,12 +27,8 @@ namespace Core
 
 		m_CommandAllocator = m_RHI->InstantiateCommandAllocator(m_Device);
 
-		IMesh* mesh = m_RHI->CreateMesh();
-		mesh->Load(m_Device, "Assets/Meshes/viking_room.obj");
-		
-		mesh->Unload(m_Device);
-
-		m_RHI->DestroyMesh(mesh);
+		model = m_RHI->CreateMesh();
+		model->Load(m_Device, "Assets/Meshes/viking_room.obj");
 
 		ITexture* texture = m_RHI->CreateTexture();
 		texture->Load(m_Device, "Assets/Textures/viking_room.png");
@@ -44,8 +42,6 @@ namespace Core
 		m_DescriptorAllocator = m_RHI->InstantiateDescriptorAllocator(m_Device, m_SwapChain);
 
 		m_SwapChain->RecreateSwapChain(_Window, m_Device, m_SimplePipeline);
-
-		m_SwapChain->CreateSwapChainFramebuffers(m_Device, m_SimplePipeline);
 
 		m_ImageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
 		m_RenderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
@@ -113,7 +109,7 @@ namespace Core
 
 	void Renderer::SetupTexturedModelPass()
 	{
-		m_CommandBuffers[m_CurrentFrame]->StartRenderPass(m_SimplePipeline, m_SwapChain, imageIndex, Math::Vector4(0.1f, 1.f, 0.f, 1.f));
+		m_CommandBuffers[m_CurrentFrame]->StartRenderPass(m_SimplePipeline, m_SwapChain, imageIndex, Math::Vector4(0.1f, 0.3f, 1.f, 1.f));
 		m_CommandBuffers[m_CurrentFrame]->BindPipeline(m_SimplePipeline);
 		m_CommandBuffers[m_CurrentFrame]->SetViewport(Math::Vector2::zero, m_SwapChain, 0.f, 1.f);
 		m_CommandBuffers[m_CurrentFrame]->SetScissor(Math::Vector2::zero, m_SwapChain);
@@ -134,6 +130,10 @@ namespace Core
 
 	const bool Renderer::Terminate()
 	{
+		model->Unload(m_Device);
+
+		m_RHI->DestroyMesh(model);
+
 		m_Device->WaitDeviceIdle();
 
 		m_RHI->DestroySwapChain(m_SwapChain, m_Device);
