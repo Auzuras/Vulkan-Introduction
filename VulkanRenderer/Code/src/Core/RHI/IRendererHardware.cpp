@@ -51,4 +51,29 @@ namespace Core
         delete _Texture;
         _Texture = nullptr;
     }
+
+    void IRendererHardware::DestroyCommandBuffer(IDevice* _Device, ICommandBuffer* _CommandBuffer)
+    {
+        delete _CommandBuffer;
+        _CommandBuffer = nullptr;
+    }
+
+    void IRendererHardware::DestroyCommandBuffers(IDevice* _Device, std::vector<ICommandBuffer*> _CommandBuffers)
+    {
+        for (ICommandBuffer* commandBuffer : _CommandBuffers)
+        {
+            delete commandBuffer;
+            commandBuffer = nullptr;
+        }
+
+        _CommandBuffers.clear();
+    }
+
+    void IRendererHardware::DestroyDescriptorAllocator(IDescriptorAllocator* _DescriptorAllocator, IDevice* _Device)
+    {
+        _DescriptorAllocator->DestroyDescriptorAllocator(_Device);
+
+        delete _DescriptorAllocator;
+        _DescriptorAllocator = nullptr;
+    }
 }

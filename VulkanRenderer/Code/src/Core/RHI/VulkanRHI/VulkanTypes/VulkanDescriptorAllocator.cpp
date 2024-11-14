@@ -2,24 +2,27 @@
 
 #include "RHI/VulkanRHI/VulkanTypes/VulkanDevice.h"
 
+#include "RHI/VulkanRHI/VulkanTypes/VulkanSwapChain.h"
+
 namespace Core
 {
 
 	VulkanDescriptorAllocator::~VulkanDescriptorAllocator()
 	{}
 
-	const RHI_RESULT VulkanDescriptorAllocator::CreateDescriptorAllocator(IDevice* _Device)
+	const RHI_RESULT VulkanDescriptorAllocator::CreateDescriptorAllocator(IDevice* _Device, ISwapChain* _Swapchain)
 	{
 		VulkanDevice device = *_Device->CastToVulkan();
+		VulkanSwapChain swapchain = *_Swapchain->CastToVulkan();
 
 		// Describes the pool size
 		std::array<VkDescriptorPoolSize, 2> poolSizes{};
 		// UBO
 		poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		poolSizes[0].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+		poolSizes[0].descriptorCount = static_cast<uint32_t>(swapchain.GetSwapchainImagesNbr());
 		// Sampler
 		poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		poolSizes[1].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+		poolSizes[1].descriptorCount = static_cast<uint32_t>(swapchain.GetSwapchainImagesNbr());
 
 		// Pool infos
 		VkDescriptorPoolCreateInfo poolInfo{};
@@ -27,7 +30,7 @@ namespace Core
 		// All Descriptors size
 		poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
 		poolInfo.pPoolSizes = poolSizes.data();
-		poolInfo.maxSets = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+		poolInfo.maxSets = static_cast<uint32_t>(swapchain.GetSwapchainImagesNbr());
 
 		// Creates a descriptor pool
 		VkResult result = vkCreateDescriptorPool(device.GetLogicalDevice(), &poolInfo, nullptr, &m_DescriptorPool);

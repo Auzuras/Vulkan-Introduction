@@ -13,6 +13,7 @@ namespace Core
 
 	public:
 
+		VulkanCommandBuffer() = default;
 		VulkanCommandBuffer(VkCommandBuffer _CommandBuffer);
 
 		/// <summary>

@@ -69,6 +69,10 @@ namespace Core
 		/// <returns></returns>
 		virtual IDevice* InstanciateDevice(Window* _Window) = 0;
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="_Device"></param>
 		virtual void DestroyDevice(IDevice* _Device);
 
 		///////////////////////////////////////////////////////////////////////
@@ -95,8 +99,20 @@ namespace Core
 
 		///////////////////////////////////////////////////////////////////////
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="_Device"></param>
+		/// <param name="_Swapchain"></param>
+		/// <param name="_ShadersInfos"></param>
+		/// <returns></returns>
 		virtual IPipeline* InstantiatePipeline(IDevice* _Device, ISwapChain* _Swapchain, std::vector<PipelineShaderInfos> _ShadersInfos) = 0;
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="_Pipeline"></param>
+		/// <param name="_Device"></param>
 		virtual void DestroyPipeline(IPipeline* _Pipeline, IDevice* _Device);
 
 		///////////////////////////////////////////////////////////////////////
@@ -125,7 +141,16 @@ namespace Core
 		
 		///////////////////////////////////////////////////////////////////////
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
 		virtual IShader* CreateShader() = 0;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="_Shader"></param>
 		virtual void DestroyShader(IShader* _Shader);
 
 		///////////////////////////////////////////////////////////////////////
@@ -134,17 +159,74 @@ namespace Core
 		
 		///////////////////////////////////////////////////////////////////////
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
 		virtual IMesh* CreateMesh() = 0;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="_Mesh"></param>
 		virtual void DestroyMesh(IMesh* _Mesh);
 
 		///////////////////////////////////////////////////////////////////////
 
-		/// TExture related methods
+		/// Texture related methods
 
 		///////////////////////////////////////////////////////////////////////
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
 		virtual ITexture* CreateTexture() = 0;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="_Texture"></param>
 		virtual void DestroyTexture(ITexture* _Texture);
 
+		///////////////////////////////////////////////////////////////////////
+
+		/// Command Buffer related methods
+
+		///////////////////////////////////////////////////////////////////////
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="_Device"></param>
+		/// <param name="_CommandBuffer"></param>
+		virtual void DestroyCommandBuffer(IDevice* _Device, ICommandBuffer* _CommandBuffer);
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="_Device"></param>
+		/// <param name="_CommandBuffers"></param>
+		virtual void DestroyCommandBuffers(IDevice* _Device, std::vector<ICommandBuffer*> _CommandBuffers);
+
+		///////////////////////////////////////////////////////////////////////
+
+		/// Descriptor allocator related methods
+
+		///////////////////////////////////////////////////////////////////////
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="_Device"></param>
+		/// <returns></returns>
+		virtual IDescriptorAllocator* InstantiateDescriptorAllocator(IDevice* _Device, ISwapChain* _Swapchain) = 0;
+		
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="_DescriptorAllocator"></param>
+		/// <param name="_Device"></param>
+		virtual void DestroyDescriptorAllocator(IDescriptorAllocator* _DescriptorAllocator, IDevice* _Device);
 	};
 }

@@ -17,11 +17,17 @@ namespace Core
 		ISwapChain* m_SwapChain = nullptr;
 		IPipeline* m_SimplePipeline = nullptr;
 		static inline ICommandAllocator* m_CommandAllocator = nullptr;
+		static inline IDescriptorAllocator* m_DescriptorAllocator = nullptr;
+
+		std::vector<ICommandBuffer*> m_CommandBuffers;
 
 	public:
+		const int MAX_FRAMES_IN_FLIGHT = 2;
+
 		static inline IRendererHardware* GetRHI() { return m_RHI; }
 		static inline RendererType GetRHIType() { return m_RendererType; }
 		static inline ICommandAllocator* GetCommandAllocator() { return m_CommandAllocator; }
+		static inline IDescriptorAllocator* GetDescriptorAllocator() { return m_DescriptorAllocator; }
 
 		Renderer() = default;
 

@@ -6,6 +6,8 @@
 
 #include "RHI/VulkanRHI/VulkanTypes/VulkanCommandBuffer.h"
 
+#include "RHI/VulkanRHI/VulkanTypes/VulkanImageView.h"
+
 #include "Renderer.h"
 
 namespace Core
@@ -140,17 +142,19 @@ namespace Core
 		VulkanCommandBuffer::EndSingleTimeCommands(_Device, Core::Renderer::GetCommandAllocator()->CastToVulkan(), commandBuffer);
 	}
 
-	void VulkanImage::CreateDepthRessources()
+	void VulkanImage::CreateDepthRessources(IDevice* _Device, uint32_t _Width, uint32_t _Height, VulkanImage* _DepthImage, VulkanImageView* _DepthImageView, VkDeviceMemory& _DepthImageMemory)
 	{
-		//// Check for the best depth format available
-		//VkFormat depthFormat = FindDepthFormat();
+		VulkanDevice device = *_Device->CastToVulkan();
 
-		//// Creates an image of the size of our rendering viewport (swap chain) - Creates also the image view to have access to the depth buffer
-		//CreateImage(m_SwapChainExtent.width, m_SwapChainExtent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_DepthImage, m_DepthImageMemory);
-		//m_DepthImageView = CreateImageView(m_DepthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
+		// Check for the best depth format available
+		VkFormat depthFormat = FindDepthFormat(device.GetPhysicalDevice());
 
-		//// Transition the layout
-		//TransitionImageLayout(m_DepthImage, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+		// Creates an image of the size of our rendering viewport (swap chain) - Creates also the image view to have access to the depth buffer
+		_DepthImage->CreateImage(_Device, _Width, _Height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _DepthImage->GetImage(), _DepthImageMemory);
+		_DepthImageView->CreateImageView(device.GetLogicalDevice(), _DepthImage->GetImage(), depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
+
+		// Transition the layout
+		_DepthImage->TransitionImageLayout(&device, _DepthImage->GetImage(), depthFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 	}
 
 	VkFormat VulkanImage::FindSupportedFormat(VkPhysicalDevice _PhysicalDevice, const std::vector<VkFormat>& _Candidates, VkImageTiling _Tiling, VkFormatFeatureFlags _Features)
@@ -174,6 +178,8 @@ namespace Core
 		}
 
 		DEBUG_ERROR("Failed to find supported format!");
+
+		return VK_FORMAT_UNDEFINED;
 	}
 
 	VkFormat VulkanImage::FindDepthFormat(VkPhysicalDevice _PhysicalDevice)

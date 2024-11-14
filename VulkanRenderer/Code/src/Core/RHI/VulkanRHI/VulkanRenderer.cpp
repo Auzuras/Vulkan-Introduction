@@ -7,6 +7,8 @@
 #include "RHI/VulkanRHI/VulkanTypes/VulkanShader.h"
 #include "RHI/VulkanRHI/VulkanTypes/VulkanMesh.h"
 #include "RHI/VulkanRHI/VulkanTypes/VulkanTexture.h"
+#include "RHI/VulkanRHI/VulkanTypes/VulkanCommandBuffer.h"
+#include "RHI/VulkanRHI/VulkanTypes/VulkanDescriptorAllocator.h"
 
 #include <cstring>
 #include <set>
@@ -102,5 +104,15 @@ namespace Core
 	{
 		VulkanTexture* vkTexture = new VulkanTexture;
 		return vkTexture;
+	}
+
+	IDescriptorAllocator* VulkanRenderer::InstantiateDescriptorAllocator(IDevice* _Device, ISwapChain* _Swapchain)
+	{
+		VulkanDescriptorAllocator* vkDescriptorAllocator = new VulkanDescriptorAllocator;
+
+		if (!vkDescriptorAllocator->CreateDescriptorAllocator(_Device, _Swapchain))
+			return nullptr;
+
+		return vkDescriptorAllocator;
 	}
 }

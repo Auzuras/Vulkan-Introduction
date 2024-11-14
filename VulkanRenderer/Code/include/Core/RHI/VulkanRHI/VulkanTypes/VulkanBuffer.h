@@ -35,6 +35,15 @@ namespace Core
 		/// <param name="_Size">: Size of the buffer </param>
 		static void CopyBuffer(VulkanDevice* _Device, VulkanCommandAllocator* _CommandAllocator, VkBuffer& _SourceBuffer, VkBuffer& _DestinationBuffer, VkDeviceSize _Size);
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="_Device"></param>
+		/// <param name="_CommandAllocator"></param>
+		/// <param name="_SourceBuffer"></param>
+		/// <param name="_Image"></param>
+		/// <param name="_Width"></param>
+		/// <param name="_Height"></param>
 		static void CopyBufferToImage(VulkanDevice* _Device, VulkanCommandAllocator* _CommandAllocator, VkBuffer& _SourceBuffer, VulkanImage& _Image, uint32_t _Width, uint32_t _Height);
 
 		/// <summary>
@@ -45,9 +54,22 @@ namespace Core
 		/// <returns></returns>
 		static uint32_t FindMemoryType(VkPhysicalDevice _PhysicalDevice, uint32_t _TypeFilter, VkMemoryPropertyFlags _Properties);
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="_Device"></param>
 		void DestroyBuffer(IDevice* _Device);
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
 		inline VkBuffer& GetBuffer() { return m_Buffer; }
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
 		inline VkDeviceMemory& GetBufferMemory() { return m_BufferMemory; }
 	};
 }

@@ -4,6 +4,8 @@
 
 namespace Core
 {
+	class VulkanImageView;
+
 	class VulkanImage
 	{
 	private:
@@ -36,7 +38,7 @@ namespace Core
 		/// <summary>
 		/// Creates a depth texture to store the depth buffer
 		/// </summary>
-		void CreateDepthRessources();
+		static void CreateDepthRessources(IDevice* _Device, uint32_t _Width, uint32_t _Height, VulkanImage* _DepthImage, VulkanImageView* _DepthImageView, VkDeviceMemory& _DepthImageMemory);
 
 		/// <summary>
 		/// Find a supported Format between many candidates

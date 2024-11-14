@@ -18,7 +18,7 @@ namespace Core
 		/// <summary>
 		/// Creates all descriptor pool
 		/// </summary>
-		const RHI_RESULT CreateDescriptorAllocator(IDevice* _Device) override;
+		const RHI_RESULT CreateDescriptorAllocator(IDevice* _Device, ISwapChain* _Swapchain) override;
 
 		/// <summary>
 		/// 

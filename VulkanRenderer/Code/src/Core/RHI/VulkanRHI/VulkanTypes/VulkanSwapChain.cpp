@@ -4,6 +4,7 @@
 
 #include "RHI/VulkanRHI/VulkanTypes/VulkanDevice.h"
 #include "RHI/VulkanRHI/VulkanTypes/VulkanImage.h"
+#include "RHI/RHITypes/IPipeline.h"
 
 namespace Core
 {
@@ -135,6 +136,7 @@ namespace Core
 		// Loop going through every image view of the swap chain
 		for (size_t i = 0; i < m_SwapChainImageViews.size(); ++i)
 		{
+
 		}
 	}
 
@@ -242,11 +244,12 @@ namespace Core
 		vkGetSwapchainImagesKHR(device.GetLogicalDevice(), m_SwapChain, &imageNbr, m_SwapChainImages.data());
 
 		CreateSwapChainImageViews(device.GetLogicalDevice());
+		//VulkanImage::CreateDepthRessources(_Device, m_SwapChainExtent.width, m_SwapChainExtent.height, &m_DepthImage, &m_DepthImageView, m_DepthImageMemory);
 
 		return RHI_SUCCESS;
 	}
 
-	const RHI_RESULT VulkanSwapChain::RecreateSwapChain(Window* _Window, IDevice* _Device)
+	const RHI_RESULT VulkanSwapChain::RecreateSwapChain(Window* _Window, IDevice* _Device, IPipeline* _Pipeline)
 	{
 		VulkanDevice device = *_Device->CastToVulkan();
 
@@ -274,7 +277,7 @@ namespace Core
 		RHI_RESULT result = CreateSwapChain(_Window, _Device);
 
 		CreateSwapChainImageViews(device.GetLogicalDevice());
-		//CreateDepthRessources();
+		VulkanImage::CreateDepthRessources(_Device, m_SwapChainExtent.width, m_SwapChainExtent.height, &m_DepthImage, &m_DepthImageView, m_DepthImageMemory);
 		CreateSwapChainFramebuffers();
 
 		return result;
@@ -285,9 +288,9 @@ namespace Core
 		VulkanDevice device = *_Device->CastToVulkan();
 
 		// Destroys data linked to the swap chain
-		//vkDestroyImageView(_LogicalDevice, m_DepthImageView, nullptr);
-		//vkDestroyImage(_LogicalDevice, m_DepthImage, nullptr);
-		//vkFreeMemory(_LogicalDevice, m_DepthImageMemory, nullptr);
+		vkDestroyImageView(device.GetLogicalDevice(), m_DepthImageView.GetImageView(), nullptr);
+		vkDestroyImage(device.GetLogicalDevice(), m_DepthImage.GetImage(), nullptr);
+		vkFreeMemory(device.GetLogicalDevice(), m_DepthImageMemory, nullptr);
 
 		for (auto framebuffer : m_SwapChainFramebuffers)
 		{

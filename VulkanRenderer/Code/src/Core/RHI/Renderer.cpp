@@ -39,6 +39,10 @@ namespace Core
 
 		m_RHI->DestroyTexture(texture);
 
+		m_CommandBuffers = m_CommandAllocator->CreateCommandBuffers(m_Device, MAX_FRAMES_IN_FLIGHT);
+
+		m_DescriptorAllocator = m_RHI->InstantiateDescriptorAllocator(m_Device, m_SwapChain);
+
 		return true;
 	}
 
@@ -73,6 +77,10 @@ namespace Core
 
 	const bool Renderer::Terminate()
 	{
+		m_RHI->DestroyDescriptorAllocator(m_DescriptorAllocator, m_Device);
+
+		m_RHI->DestroyCommandBuffers(m_Device, m_CommandBuffers);
+
 		m_RHI->DestroyCommandAllocator(m_CommandAllocator, m_Device);
 
 		m_RHI->DestroyPipeline(m_SimplePipeline, m_Device);

@@ -4,6 +4,8 @@
 
 #include "RHI/VulkanRHI/VulkanRenderer.h"
 
+#include "RHI/VulkanRHI/VulkanTypes/VulkanImage.h"
+
 #include "RHI/VulkanRHI/VulkanTypes/VulkanImageView.h"
 
 namespace Core
@@ -30,6 +32,10 @@ namespace Core
 		std::vector<VulkanImageView> m_SwapChainImageViews;
 
 		std::vector<VkFramebuffer> m_SwapChainFramebuffers;
+
+		VulkanImage m_DepthImage;
+		VulkanImageView m_DepthImageView;
+		VkDeviceMemory m_DepthImageMemory;
 
 		/// <summary>
 		/// Checks if the extensions needed for our program are supported by our GPU
@@ -87,7 +93,7 @@ namespace Core
 		/// Recreates the Swap chain
 		/// </summary>
 		/// <param name="_Window">: Current window context </param>
-		const RHI_RESULT RecreateSwapChain(Window* _Window, IDevice* _Device) override;
+		const RHI_RESULT RecreateSwapChain(Window* _Window, IDevice* _Device, IPipeline* _Pipeline) override;
 
 		/// <summary>
 		/// Destroys all data linked to the swap chain and the swap chain
@@ -95,6 +101,8 @@ namespace Core
 		const RHI_RESULT DestroySwapChain(IDevice* _Device) override;
 
 		inline VulkanSwapChain* CastToVulkan() override { return this; }
+
+		inline size_t GetSwapchainImagesNbr() { return m_SwapChainImages.size(); }
 
 		/// <summary>
 		/// Checks if the SwapChain is supported bu our GPU
