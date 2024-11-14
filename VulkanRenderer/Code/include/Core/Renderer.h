@@ -21,6 +21,13 @@ namespace Core
 
 		std::vector<ICommandBuffer*> m_CommandBuffers;
 
+		std::vector<ISemaphore*> m_ImageAvailableSemaphores;
+		std::vector<ISemaphore*> m_RenderFinishedSemaphores;
+		std::vector<IFence*> m_InFlightFramesFences;
+
+		unsigned int m_CurrentFrame = 0;
+		unsigned int imageIndex = 0;
+
 	public:
 		const int MAX_FRAMES_IN_FLIGHT = 2;
 
@@ -35,6 +42,14 @@ namespace Core
 
 		const bool Initialize(Window* _Window);
 		void CreateSimplePipeline();
+
+		void StartFrame(Window* _Window);
+		void EndFrame();
+
+		void SetupTexturedModelPass();
+		void TexturedModelPass();
+		void FinishTexturedModelPass();
+
 		const bool Terminate();
 	};
 }

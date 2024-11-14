@@ -31,8 +31,9 @@ int main()
 	while (!glfwWindowShouldClose(app.GetWindow()->GetWindowPointer()))
 	{
 		glfwPollEvents();
-		app.Draw();
 		app.appCamera.Update();
+
+		app.Draw();
 
 		if (glfwGetKey(app.GetWindow()->GetWindowPointer(), GLFW_KEY_W) == GLFW_PRESS)
 		{

@@ -5,15 +5,15 @@
 
 namespace Core
 {
-	const RHI_RESULT VulkanFramebuffer::CreateFramebuffer(IDevice* _Device, IPipeline* _CompatiblePipeline, int _Width, int _Height)
+	const RHI_RESULT VulkanFramebuffer::CreateFramebuffer(IDevice* _Device, IPipeline* _CompatiblePipeline, int _Width, int _Height, VkImageView& _ColorBufer, VkImageView& _DepthBuffer)
 	{
 		VulkanDevice device = *_Device->CastToVulkan();
 		VulkanPipeline pipeline = *_CompatiblePipeline->CastToVulkan();
 
 		// Specifies the attachments for each frame buffer
 		std::array<VkImageView, 2> attachments = {
-			//m_SwapChainImageViews[i],			// ColorBuffer
-			//m_DepthImageView					// Depth Buffer
+			_ColorBufer,					// ColorBuffer
+			_DepthBuffer					// Depth Buffer
 		};
 
 		VkFramebufferCreateInfo framebufferInfo{};

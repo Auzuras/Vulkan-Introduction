@@ -43,6 +43,21 @@ namespace Core
 
 		m_DescriptorAllocator = m_RHI->InstantiateDescriptorAllocator(m_Device, m_SwapChain);
 
+		m_SwapChain->RecreateSwapChain(_Window, m_Device, m_SimplePipeline);
+
+		m_SwapChain->CreateSwapChainFramebuffers(m_Device, m_SimplePipeline);
+
+		m_ImageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+		m_RenderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+		m_InFlightFramesFences.resize(MAX_FRAMES_IN_FLIGHT);
+
+		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+		{
+			m_ImageAvailableSemaphores[i] = m_RHI->InstantiateSemaphore(m_Device);
+			m_RenderFinishedSemaphores[i] = m_RHI->InstantiateSemaphore(m_Device);
+			m_InFlightFramesFences[i] = m_RHI->InstantiateFence(m_Device);
+		}
+
 		return true;
 	}
 
@@ -75,8 +90,49 @@ namespace Core
 		m_RHI->DestroyShader(fragShader);
 	}
 
+	void Renderer::StartFrame(Window* _Window)
+	{
+		m_InFlightFramesFences[m_CurrentFrame]->WaitFence(m_Device, UINT64_MAX);
+		m_InFlightFramesFences[m_CurrentFrame]->ResetFence(m_Device);
+		
+		m_SwapChain->AcquireNextImage(_Window, m_Device, m_SimplePipeline, UINT64_MAX, m_ImageAvailableSemaphores[m_CurrentFrame], imageIndex);
+
+		m_CommandBuffers[m_CurrentFrame]->ResetCommandBuffer();
+
+		// Setup the command buffer
+		m_CommandBuffers[m_CurrentFrame]->StartRecordingCommandBuffer();
+	}
+
+	void Renderer::EndFrame()
+	{
+	}
+
+	void Renderer::SetupTexturedModelPass()
+	{
+	}
+
+	void Renderer::TexturedModelPass()
+	{
+		m_CommandBuffers[m_CurrentFrame]->BindVertexBuffer();
+		m_CommandBuffers[m_CurrentFrame]->BindIndexBuffer();
+		m_CommandBuffers[m_CurrentFrame]->DrawIndexed();
+	}
+
+	void Renderer::FinishTexturedModelPass()
+	{
+		m_CommandBuffers[m_CurrentFrame]->EndRenderPass();
+		m_CommandBuffers[m_CurrentFrame]->StopRecordingCommandBuffer();
+	}
+
 	const bool Renderer::Terminate()
 	{
+		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+		{
+			m_RHI->DestroySemaphore(m_ImageAvailableSemaphores[i], m_Device);
+			m_RHI->DestroySemaphore(m_RenderFinishedSemaphores[i], m_Device);
+			m_RHI->DestroyFence(m_InFlightFramesFences[i], m_Device);
+		}
+
 		m_RHI->DestroyDescriptorAllocator(m_DescriptorAllocator, m_Device);
 
 		m_RHI->DestroyCommandBuffers(m_Device, m_CommandBuffers);

@@ -13,5 +13,8 @@ namespace Core
 
 		virtual RHI_RESULT CreateFenceSync(IDevice* _Device) = 0;
 		virtual RHI_RESULT DestroyFenceSync(IDevice* _Device) = 0;
+
+		virtual void WaitFence(IDevice* _Device, unsigned int _CancelDelay) = 0;
+		virtual void ResetFence(IDevice* _Device) = 0;
 	};
 }

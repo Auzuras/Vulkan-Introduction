@@ -6,6 +6,8 @@
 
 namespace Core 
 {
+	class VulkanMesh;
+
 	class IMesh : public IResource
 	{
 	private:
@@ -22,6 +24,8 @@ namespace Core
 		/// </summary>
 		/// <returns></returns>
 		const bool Unload(Core::IDevice* _Device) override;
+		
+		virtual VulkanMesh* CastToVulkan() = 0;
 
 		virtual RHI_RESULT CreateVertexBuffer(Core::IDevice* _Device, std::vector<Vertex>& _VerticesList) = 0;
 		virtual RHI_RESULT CreateIndexBuffer(Core::IDevice* _Device, std::vector<uint32_t>& _IndicesList) = 0;

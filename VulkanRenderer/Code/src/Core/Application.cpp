@@ -39,5 +39,10 @@ namespace Core
 
 	void Application::Draw()
 	{
+		m_Renderer.StartFrame(&m_Window);
+
+		// Draw
+
+		m_Renderer.EndFrame();
 	}
 }

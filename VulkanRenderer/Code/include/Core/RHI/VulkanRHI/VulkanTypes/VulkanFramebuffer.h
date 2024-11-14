@@ -5,13 +5,17 @@
 
 namespace Core
 {
-	class VulkanFramebuffer : public IFrameBuffer
+	class VulkanFramebuffer
 	{
 	private:
 		VkFramebuffer m_FrameBuffer;
 
 	public:
-		const RHI_RESULT CreateFramebuffer(IDevice* _Device, IPipeline* _CompatiblePipeline, int _Width, int _Height);
+		~VulkanFramebuffer() = default;
+
+		const RHI_RESULT CreateFramebuffer(IDevice* _Device, IPipeline* _CompatiblePipeline, int _Width, int _Height, VkImageView& _ColorBufer, VkImageView& _DepthBuffer);
 		const RHI_RESULT DestroyFramebuffer(IDevice* _Device);
+
+		inline VkFramebuffer& GetFrameBuffer() { return m_FrameBuffer; }
 	};
 }

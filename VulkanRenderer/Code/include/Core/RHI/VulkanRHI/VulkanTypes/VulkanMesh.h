@@ -19,5 +19,9 @@ namespace Core
 		RHI_RESULT CreateIndexBuffer(Core::IDevice* _Device, std::vector<uint32_t>& _IndicesList) override;
 
 		RHI_RESULT DestroyBuffers(Core::IDevice* _Device) override;
+
+		inline VulkanMesh* CastToVulkan() override { return this; }
+		inline VulkanBuffer GetVertexBuffer() { return m_VertexBuffer; }
+		inline VulkanBuffer GetIndexBuffer() { return m_IndexBuffer; }
 	};
 }

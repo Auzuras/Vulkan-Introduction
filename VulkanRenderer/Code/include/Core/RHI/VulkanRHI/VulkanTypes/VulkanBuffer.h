@@ -64,12 +64,12 @@ namespace Core
 		/// 
 		/// </summary>
 		/// <returns></returns>
-		inline VkBuffer& GetBuffer() { return m_Buffer; }
+		inline VkBuffer GetBuffer() { return m_Buffer; }
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns></returns>
-		inline VkDeviceMemory& GetBufferMemory() { return m_BufferMemory; }
+		inline VkDeviceMemory GetBufferMemory() { return m_BufferMemory; }
 	};
 }

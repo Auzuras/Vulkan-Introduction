@@ -80,7 +80,7 @@ namespace Core
 		/// SwapChain related methods
 
 		///////////////////////////////////////////////////////////////////////
-		
+
 		/// <summary>
 		/// 
 		/// </summary>
@@ -138,7 +138,7 @@ namespace Core
 		///////////////////////////////////////////////////////////////////////
 
 		/// Shader related methods
-		
+
 		///////////////////////////////////////////////////////////////////////
 
 		/// <summary>
@@ -156,7 +156,7 @@ namespace Core
 		///////////////////////////////////////////////////////////////////////
 
 		/// Mesh related methods
-		
+
 		///////////////////////////////////////////////////////////////////////
 
 		/// <summary>
@@ -221,12 +221,49 @@ namespace Core
 		/// <param name="_Device"></param>
 		/// <returns></returns>
 		virtual IDescriptorAllocator* InstantiateDescriptorAllocator(IDevice* _Device, ISwapChain* _Swapchain) = 0;
-		
+
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <param name="_DescriptorAllocator"></param>
 		/// <param name="_Device"></param>
 		virtual void DestroyDescriptorAllocator(IDescriptorAllocator* _DescriptorAllocator, IDevice* _Device);
+
+		///////////////////////////////////////////////////////////////////////
+
+		/// Semaphore related methods
+
+		///////////////////////////////////////////////////////////////////////
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="_Device"></param>
+		/// <returns></returns>
+		virtual ISemaphore* InstantiateSemaphore(IDevice* _Device) = 0;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="_Semaphore"></param>
+		/// <param name="_Device"></param>
+		virtual void DestroySemaphore(ISemaphore* _Semaphore, IDevice* _Device);
+
+		///////////////////////////////////////////////////////////////////////
+
+		/// Fence related methods
+
+		///////////////////////////////////////////////////////////////////////
+
+		virtual IFence* InstantiateFence(IDevice* _Device) = 0;
+		virtual void DestroyFence(IFence* _Fence, IDevice* _Device);
 	};
 }
+
+
+
+//{
+//	void* data;
+//	vkMapMemory(m_LogicalDevice, m_UniformBufferMemory[i], 0, bufferSize, 0, data)
+//		Memcopy
+//}

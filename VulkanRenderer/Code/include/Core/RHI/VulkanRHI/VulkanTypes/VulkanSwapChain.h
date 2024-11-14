@@ -8,6 +8,8 @@
 
 #include "RHI/VulkanRHI/VulkanTypes/VulkanImageView.h"
 
+#include "RHI/VulkanRHI/VulkanTypes/VulkanFrameBuffer.h"
+
 namespace Core
 {
 	class VulkanDevice;
@@ -31,7 +33,7 @@ namespace Core
 		std::vector<VkImage> m_SwapChainImages;
 		std::vector<VulkanImageView> m_SwapChainImageViews;
 
-		std::vector<VkFramebuffer> m_SwapChainFramebuffers;
+		std::vector<VulkanFramebuffer> m_SwapChainFramebuffers;
 
 		VulkanImage m_DepthImage;
 		VulkanImageView m_DepthImageView;
@@ -66,11 +68,6 @@ namespace Core
 		VkExtent2D ChooseSwapExtent(Window* _Window, const VkSurfaceCapabilitiesKHR& _Capabilities);
 
 		/// <summary>
-		/// Creates all the swap chain frames buffers for each image view
-		/// </summary>
-		void CreateSwapChainFramebuffers();
-
-		/// <summary>
 		/// Creates the image views of the swap chain
 		/// </summary>
 		void CreateSwapChainImageViews(VkDevice& _Device);
@@ -79,7 +76,7 @@ namespace Core
 
 		~VulkanSwapChain() override;
 
-		inline VkFormat GetSwapChainFormat() { return m_SwapChainImageFormat; }
+		inline VkFormat& GetSwapChainFormat() { return m_SwapChainImageFormat; }
 
 		/// <summary>
 		/// Creates the Swap chain for our program
@@ -105,11 +102,18 @@ namespace Core
 		inline size_t GetSwapchainImagesNbr() { return m_SwapChainImages.size(); }
 
 		/// <summary>
+		/// Creates all the swap chain frames buffers for each image view
+		/// </summary>
+		RHI_RESULT CreateSwapChainFramebuffers(IDevice* _Device, IPipeline* _Pipeline) override;
+
+		/// <summary>
 		/// Checks if the SwapChain is supported bu our GPU
 		/// </summary>
 		/// <param name="_Device">: Logical device which we check if the swap chain is supported </param>
 		/// <param name="_Surface">: Rendering surface </param>
 		/// <returns></returns>
 		static SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice _Device, VkSurfaceKHR _Surface);
+
+		void AcquireNextImage(Window* _Window, IDevice* _Device, IPipeline* _Pipeline, unsigned int _Timeout, ISemaphore* _ImageAvailableSemaphore, unsigned int& _ImageIndex);
 	};
 }

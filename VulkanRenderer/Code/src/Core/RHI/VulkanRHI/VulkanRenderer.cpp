@@ -9,6 +9,8 @@
 #include "RHI/VulkanRHI/VulkanTypes/VulkanTexture.h"
 #include "RHI/VulkanRHI/VulkanTypes/VulkanCommandBuffer.h"
 #include "RHI/VulkanRHI/VulkanTypes/VulkanDescriptorAllocator.h"
+#include "RHI/VulkanRHI/VulkanTypes/VulkanSemaphore.h"
+#include "RHI/VulkanRHI/VulkanTypes/VulkanFence.h"
 
 #include <cstring>
 #include <set>
@@ -114,5 +116,25 @@ namespace Core
 			return nullptr;
 
 		return vkDescriptorAllocator;
+	}
+
+	ISemaphore* VulkanRenderer::InstantiateSemaphore(IDevice* _Device)
+	{
+		VulkanSemaphore* vkSemaphore = new VulkanSemaphore;
+
+		if (!vkSemaphore->CreateSemaphoreSync(_Device))
+			return nullptr;
+
+		return vkSemaphore;
+	}
+
+	IFence* VulkanRenderer::InstantiateFence(IDevice* _Device)
+	{
+		VulkanFence* vkFence = new VulkanFence;
+
+		if (!vkFence->CreateFenceSync(_Device))
+			return nullptr;
+
+		return vkFence;
 	}
 }

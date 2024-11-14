@@ -16,5 +16,8 @@ namespace Core
 
 		RHI_RESULT CreateFenceSync(IDevice* _Device) override;
 		RHI_RESULT DestroyFenceSync(IDevice* _Device) override;
+
+		void WaitFence(IDevice* _Device, unsigned int _CancelDelay) override;
+		void ResetFence(IDevice* _Device) override;
 	};
 }

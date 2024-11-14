@@ -10,3 +10,5 @@
 #include "RHI/RHITypes/IPipeline.h"
 #include "RHI/RHITypes/IQueue.h"
 #include "RHI/RHITypes/ISwapChain.h"
+#include "RHI/RHITypes/ISemaphore.h"
+#include "RHI/RHITypes/IFence.h"

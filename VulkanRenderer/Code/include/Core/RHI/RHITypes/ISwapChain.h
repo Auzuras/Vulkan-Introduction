@@ -4,10 +4,6 @@
 
 namespace Core
 {
-	const int MAX_FRAMES_IN_FLIGHT = 2;
-
-	//int m_CurrentFrame = 0;
-
 	class Window;
 	class IDevice;
 	class VulkanSwapChain;
@@ -23,5 +19,8 @@ namespace Core
 		virtual const RHI_RESULT DestroySwapChain(IDevice* _Device) = 0;
 
 		virtual VulkanSwapChain* CastToVulkan() = 0;
+
+		virtual RHI_RESULT CreateSwapChainFramebuffers(IDevice* _Device, IPipeline* _Pipeline) = 0;
+		virtual void AcquireNextImage(Window* _Window, IDevice* _Device, IPipeline* _Pipeline, unsigned int _Timeout, ISemaphore* _ImageAvailableSemaphore, unsigned int& _ImageIndex) = 0;
 	};
 }

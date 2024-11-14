@@ -5,6 +5,7 @@
 namespace Core
 {
 	class IDevice;
+	class VulkanSemaphore;
 
 	class ISemaphore
 	{
@@ -13,5 +14,7 @@ namespace Core
 
 		virtual RHI_RESULT CreateSemaphoreSync(IDevice* _Device) = 0;
 		virtual RHI_RESULT DestroySemaphoreSync(IDevice* _Device) = 0;
+		virtual VulkanSemaphore* CastToVulkan() = 0;
+
 	};
 }

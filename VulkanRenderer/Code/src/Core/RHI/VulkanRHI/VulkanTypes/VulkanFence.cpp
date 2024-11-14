@@ -36,4 +36,18 @@ namespace Core
 
 		return RHI_SUCCESS;
 	}
+
+	void VulkanFence::WaitFence(IDevice* _Device, unsigned int _CancelDelay)
+	{
+		VulkanDevice device = *_Device->CastToVulkan();
+
+		vkWaitForFences(device.GetLogicalDevice(), 1, &m_Fence, VK_TRUE, _CancelDelay);
+	}
+
+	void VulkanFence::ResetFence(IDevice* _Device)
+	{
+		VulkanDevice device = *_Device->CastToVulkan();
+
+		vkResetFences(device.GetLogicalDevice(), 1, &m_Fence);
+	}
 }

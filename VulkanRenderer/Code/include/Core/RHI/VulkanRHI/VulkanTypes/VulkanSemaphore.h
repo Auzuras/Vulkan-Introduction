@@ -16,5 +16,8 @@ namespace Core
 
 		RHI_RESULT CreateSemaphoreSync(IDevice* _Device) override;
 		RHI_RESULT DestroySemaphoreSync(IDevice* _Device) override;
+
+		inline VulkanSemaphore* CastToVulkan() override { return this; }
+		inline VkSemaphore& GetSemaphore() { return m_Semaphore; }
 	};
 }

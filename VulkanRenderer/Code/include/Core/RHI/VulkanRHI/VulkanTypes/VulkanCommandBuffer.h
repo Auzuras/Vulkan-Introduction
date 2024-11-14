@@ -17,25 +17,6 @@ namespace Core
 		VulkanCommandBuffer(VkCommandBuffer _CommandBuffer);
 
 		/// <summary>
-		/// Records all the commands for a command buffer
-		/// </summary>
-		/// <param name="_CommandBuffer">: Command buffer used </param>
-		/// <param name="_ImageIndex">: Current image </param>
-		void RecordDrawCommandBuffer(VkCommandBuffer _CommandBuffer, uint32_t _ImageIndex);
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="_CommandBuffer"></param>
-		void DrawCommandBuffer(VkCommandBuffer _CommandBuffer);
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="_CommandBuffer"></param>
-		void EndDrawCommandBuffer(VkCommandBuffer _CommandBuffer);
-
-		/// <summary>
 		/// Creates a temporary command buffer for a single command
 		/// </summary>
 		/// <returns></returns>
@@ -48,5 +29,15 @@ namespace Core
 		static void EndSingleTimeCommands(VulkanDevice* _Device, VulkanCommandAllocator* _CommandAllocator, VkCommandBuffer _CommandBuffer);
 
 		inline VkCommandBuffer& GetCommandBuffer() { return m_CommandBuffer;  }
+
+		void ResetCommandBuffer() override;
+
+		const RHI_RESULT StartRecordingCommandBuffer() override;
+		const RHI_RESULT StopRecordingCommandBuffer() const override;
+
+		void BindVertexBuffer(IMesh* _Mesh) const override;
+		void BindIndexBuffer(IMesh* _Mesh) const override;
+		void DrawIndexed(IMesh* _Mesh) const override;
+		void EndRenderPass() const override;
 	};
 }

@@ -1,10 +1,11 @@
 #include "RHI/VulkanRHI/VulkanTypes/VulkanSwapChain.h"
 
-#include <set>
-
 #include "RHI/VulkanRHI/VulkanTypes/VulkanDevice.h"
 #include "RHI/VulkanRHI/VulkanTypes/VulkanImage.h"
+#include "RHI/VulkanRHI/VulkanTypes/VulkanSemaphore.h"
 #include "RHI/RHITypes/IPipeline.h"
+
+#include <set>
 
 namespace Core
 {
@@ -71,6 +72,28 @@ namespace Core
 		return details;
 	}
 
+	void VulkanSwapChain::AcquireNextImage(Window* _Window, IDevice* _Device, IPipeline* _Pipeline, unsigned int _Timeout, ISemaphore* _ImageAvailableSemaphore, unsigned int& _ImageIndex)
+	{
+		VulkanDevice device = *_Device->CastToVulkan();
+		VulkanSemaphore semaphore = *_ImageAvailableSemaphore->CastToVulkan();
+
+		// Acquires an image from the swap chain
+		// third parameter is a delay before canceling if no image is available -> here it's at UINT64_MAX which disable the delay
+		// fourth and fifith parameter is the semaphore or fence that will be trigered when an image is available
+		// the last parameter is the index of the image in the swap chain
+		VkResult result = vkAcquireNextImageKHR(device.GetLogicalDevice(), m_SwapChain, _Timeout, semaphore.GetSemaphore(), VK_NULL_HANDLE, &_ImageIndex);
+
+		if (result == VK_ERROR_OUT_OF_DATE_KHR)
+		{
+			RecreateSwapChain(_Window);
+			return;
+		}
+		else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
+		{
+			DEBUG_ERROR("Failed to acquire swap chain image, Error Code: %d", result);
+		}
+	}
+
 	VkSurfaceFormatKHR VulkanSwapChain::ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& _AvailableFormats)
 	{
 		for (const VkSurfaceFormatKHR& format : _AvailableFormats)
@@ -129,15 +152,17 @@ namespace Core
 		}
 	}
 
-	void VulkanSwapChain::CreateSwapChainFramebuffers()
+	RHI_RESULT VulkanSwapChain::CreateSwapChainFramebuffers(IDevice* _Device, IPipeline* _Pipeline)
 	{
 		m_SwapChainFramebuffers.resize(m_SwapChainImageViews.size());
 
 		// Loop going through every image view of the swap chain
-		for (size_t i = 0; i < m_SwapChainImageViews.size(); ++i)
+		for (size_t i = 0; i < m_SwapChainFramebuffers.size(); ++i)
 		{
-
+			m_SwapChainFramebuffers[i].CreateFramebuffer(_Device, _Pipeline, m_SwapChainExtent.width, m_SwapChainExtent.height, m_SwapChainImageViews[i].GetImageView(), m_DepthImageView.GetImageView());
 		}
+
+		return RHI_SUCCESS;
 	}
 
 	void VulkanSwapChain::CreateSwapChainImageViews(VkDevice& _Device)
@@ -244,7 +269,6 @@ namespace Core
 		vkGetSwapchainImagesKHR(device.GetLogicalDevice(), m_SwapChain, &imageNbr, m_SwapChainImages.data());
 
 		CreateSwapChainImageViews(device.GetLogicalDevice());
-		//VulkanImage::CreateDepthRessources(_Device, m_SwapChainExtent.width, m_SwapChainExtent.height, &m_DepthImage, &m_DepthImageView, m_DepthImageMemory);
 
 		return RHI_SUCCESS;
 	}
@@ -278,7 +302,7 @@ namespace Core
 
 		CreateSwapChainImageViews(device.GetLogicalDevice());
 		VulkanImage::CreateDepthRessources(_Device, m_SwapChainExtent.width, m_SwapChainExtent.height, &m_DepthImage, &m_DepthImageView, m_DepthImageMemory);
-		CreateSwapChainFramebuffers();
+		CreateSwapChainFramebuffers(_Device, _Pipeline);
 
 		return result;
 	}
@@ -292,9 +316,9 @@ namespace Core
 		vkDestroyImage(device.GetLogicalDevice(), m_DepthImage.GetImage(), nullptr);
 		vkFreeMemory(device.GetLogicalDevice(), m_DepthImageMemory, nullptr);
 
-		for (auto framebuffer : m_SwapChainFramebuffers)
+		for (VulkanFramebuffer framebuffer : m_SwapChainFramebuffers)
 		{
-			vkDestroyFramebuffer(device.GetLogicalDevice(), framebuffer, nullptr);
+			vkDestroyFramebuffer(device.GetLogicalDevice(), framebuffer.GetFrameBuffer(), nullptr);
 		}
 
 		for (VulkanImageView imageView : m_SwapChainImageViews)

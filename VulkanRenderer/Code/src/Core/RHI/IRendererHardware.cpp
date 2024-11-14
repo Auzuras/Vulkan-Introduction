@@ -76,4 +76,20 @@ namespace Core
         delete _DescriptorAllocator;
         _DescriptorAllocator = nullptr;
     }
+
+    void IRendererHardware::DestroySemaphore(ISemaphore* _Semaphore, IDevice* _Device)
+    {
+        _Semaphore->DestroySemaphoreSync(_Device);
+
+        delete _Semaphore;
+        _Semaphore = nullptr;
+    }
+
+    void IRendererHardware::DestroyFence(IFence* _Fence, IDevice* _Device)
+    {
+        _Fence->DestroyFenceSync(_Device);
+
+        delete _Fence;
+        _Fence = nullptr;
+    }
 }
