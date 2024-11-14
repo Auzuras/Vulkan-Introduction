@@ -103,19 +103,27 @@ namespace Core
 		m_CommandBuffers[m_CurrentFrame]->StartRecordingCommandBuffer();
 	}
 
-	void Renderer::EndFrame()
+	void Renderer::EndFrame(Window* _Window)
 	{
+		m_SwapChain->SubmitGraphicsQueue(m_Device, m_CommandBuffers[m_CurrentFrame], m_ImageAvailableSemaphores[m_CurrentFrame], m_RenderFinishedSemaphores[m_CurrentFrame], m_InFlightFramesFences[m_CurrentFrame]);
+		m_SwapChain->SubmitPresentQueue(_Window, m_Device, m_SimplePipeline, m_RenderFinishedSemaphores[m_CurrentFrame], imageIndex);
+
+		m_CurrentFrame = (m_CurrentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 	}
 
 	void Renderer::SetupTexturedModelPass()
 	{
+		m_CommandBuffers[m_CurrentFrame]->StartRenderPass(m_SimplePipeline, m_SwapChain, imageIndex, Math::Vector4(0.1f, 1.f, 0.f, 1.f));
+		m_CommandBuffers[m_CurrentFrame]->BindPipeline(m_SimplePipeline);
+		m_CommandBuffers[m_CurrentFrame]->SetViewport(Math::Vector2::zero, m_SwapChain, 0.f, 1.f);
+		m_CommandBuffers[m_CurrentFrame]->SetScissor(Math::Vector2::zero, m_SwapChain);
 	}
 
-	void Renderer::TexturedModelPass()
+	void Renderer::TexturedModelPass(IMesh* _Mesh)
 	{
-		m_CommandBuffers[m_CurrentFrame]->BindVertexBuffer();
-		m_CommandBuffers[m_CurrentFrame]->BindIndexBuffer();
-		m_CommandBuffers[m_CurrentFrame]->DrawIndexed();
+		m_CommandBuffers[m_CurrentFrame]->BindVertexBuffer(_Mesh);
+		m_CommandBuffers[m_CurrentFrame]->BindIndexBuffer(_Mesh);
+		m_CommandBuffers[m_CurrentFrame]->DrawIndexed(_Mesh);
 	}
 
 	void Renderer::FinishTexturedModelPass()
@@ -126,6 +134,12 @@ namespace Core
 
 	const bool Renderer::Terminate()
 	{
+		m_Device->WaitDeviceIdle();
+
+		m_RHI->DestroySwapChain(m_SwapChain, m_Device);
+
+		m_RHI->DestroyPipeline(m_SimplePipeline, m_Device);
+
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
 		{
 			m_RHI->DestroySemaphore(m_ImageAvailableSemaphores[i], m_Device);
@@ -138,10 +152,6 @@ namespace Core
 		m_RHI->DestroyCommandBuffers(m_Device, m_CommandBuffers);
 
 		m_RHI->DestroyCommandAllocator(m_CommandAllocator, m_Device);
-
-		m_RHI->DestroyPipeline(m_SimplePipeline, m_Device);
-
-		m_RHI->DestroySwapChain(m_SwapChain, m_Device);
 
 		m_RHI->DestroyDevice(m_Device);
 

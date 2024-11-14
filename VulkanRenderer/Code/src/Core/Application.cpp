@@ -40,9 +40,11 @@ namespace Core
 	void Application::Draw()
 	{
 		m_Renderer.StartFrame(&m_Window);
+		m_Renderer.SetupTexturedModelPass();
 
-		// Draw
+		//m_Renderer.TexturedModelPass();
 
-		m_Renderer.EndFrame();
+		m_Renderer.FinishTexturedModelPass();
+		m_Renderer.EndFrame(&m_Window);
 	}
 }

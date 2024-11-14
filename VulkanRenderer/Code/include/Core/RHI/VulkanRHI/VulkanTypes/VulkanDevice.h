@@ -175,13 +175,13 @@ namespace Core
 		/// Returns vulkan logical device
 		/// </summary>
 		/// <returns></returns>
-		inline VkDevice& GetLogicalDevice() { return m_LogicalDevice; }
+		inline VkDevice GetLogicalDevice() { return m_LogicalDevice; }
 
-		inline VkSurfaceKHR& GetSurface() { return m_Surface; }
+		inline VkSurfaceKHR GetSurface() { return m_Surface; }
 
-		inline VkQueue& GetGraphicsQueue() { return m_GraphicsQueue; }
-		inline VkQueue& GetPresentationQueue() { return m_PresentationQueue; }
-		inline VkQueue& GetTransferQueue() { return m_TransferQueue; }
+		inline VkQueue GetGraphicsQueue() { return m_GraphicsQueue; }
+		inline VkQueue GetPresentationQueue() { return m_PresentationQueue; }
+		inline VkQueue GetTransferQueue() { return m_TransferQueue; }
 
 		///////////////////////////////////////////////////////////////////////
 
@@ -200,5 +200,7 @@ namespace Core
 		const RHI_RESULT Terminate() override;
 
 		inline VulkanDevice* CastToVulkan() override { return this; }
+
+		void WaitDeviceIdle() override;
 	};
 }

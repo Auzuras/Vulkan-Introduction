@@ -420,4 +420,9 @@ namespace Core
 
 		return RHI_SUCCESS;
     }
+
+	void VulkanDevice::WaitDeviceIdle()
+	{
+		vkDeviceWaitIdle(m_LogicalDevice);
+	}
 }

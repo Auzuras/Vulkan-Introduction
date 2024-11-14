@@ -1,8 +1,9 @@
 #include "RHI/VulkanRHI/VulkanTypes/VulkanCommandBuffer.h"
-
 #include "RHI/VulkanRHI/VulkanTypes/VulkanDevice.h"
+#include "RHI/VulkanRHI/VulkanTypes/VulkanSwapChain.h"
 #include "RHI/VulkanRHI/VulkanTypes/VulkanCommandAllocator.h"
 #include "RHI/VulkanRHI/VulkanTypes/VulkanMesh.h"
+#include "RHI/VulkanRHI/VulkanTypes/VulkanPipeline.h"
 
 namespace Core
 {
@@ -95,6 +96,69 @@ namespace Core
 		return RHI_SUCCESS;
 	}
 
+	void VulkanCommandBuffer::StartRenderPass(IPipeline* _Pipeline, ISwapChain* _Swapchain, unsigned int _ImageIndex, Math::Vector4 _ClearColor) const
+	{
+		VulkanPipeline pipeline = *_Pipeline->CastToVulkan();
+		VulkanSwapChain swapchain = *_Swapchain->CastToVulkan();
+
+		// Render pass infos
+		VkRenderPassBeginInfo renderPassInfo{};
+		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		// Specifies render pass and attachments (FrameBuffer)
+		renderPassInfo.renderPass = pipeline.GetRenderPass();
+		renderPassInfo.framebuffer = swapchain.GetSwapchainFramebuffers(_ImageIndex).GetFrameBuffer();
+		// Specifies render area
+		renderPassInfo.renderArea.offset = { 0, 0 };
+		renderPassInfo.renderArea.extent = swapchain.GetSwapchainExtent();
+
+		// Creates the clear values
+		std::array<VkClearValue, 2> clearValues{};
+		clearValues[0].color = { {_ClearColor[0], _ClearColor[1], _ClearColor[2], _ClearColor[3]} };	// Clear color
+		clearValues[1].depthStencil = { 1.f, 0 };														// Clear depth
+
+		// Specifies the clear values
+		renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+		renderPassInfo.pClearValues = clearValues.data();
+
+		// Starts the render pass
+		// Last parameter: declares the origin of the commands here from a primary command buffer
+		// VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFER -> for secondary command buffer
+		vkCmdBeginRenderPass(m_CommandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+	}
+
+	void VulkanCommandBuffer::BindPipeline(IPipeline* _Pipeline) const
+	{
+		VulkanPipeline pipeline = *_Pipeline->CastToVulkan();
+		vkCmdBindPipeline(m_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.GetPipeline());
+	}
+
+	void VulkanCommandBuffer::SetViewport(Math::Vector2 _Position, ISwapChain* _Swapchain, float _MinDepth, float _MaxDepth) const
+	{
+		VulkanSwapChain swapchain = *_Swapchain->CastToVulkan();
+
+		VkViewport viewport{};
+		viewport.x = _Position[0];
+		viewport.y = _Position[1];
+		viewport.width = static_cast<float>(swapchain.GetSwapchainExtent().width);
+		viewport.height = static_cast<float>(swapchain.GetSwapchainExtent().height);
+		viewport.minDepth = _MinDepth;
+		viewport.maxDepth = _MaxDepth;
+
+		vkCmdSetViewport(m_CommandBuffer, 0, 1, &viewport);
+	}
+
+	void VulkanCommandBuffer::SetScissor(Math::Vector2 _Offset, ISwapChain* _Swapchain) const
+	{
+		VulkanSwapChain swapchain = *_Swapchain->CastToVulkan();
+
+		// Describes a limit where the image can be draw (similar to the viewport)
+		VkRect2D scissor{};
+		scissor.offset = { static_cast<int>(_Offset[0]), static_cast<int>(_Offset[1]) };
+		scissor.extent = swapchain.GetSwapchainExtent();
+
+		vkCmdSetScissor(m_CommandBuffer, 0, 1, &scissor);
+	}
+
 	void VulkanCommandBuffer::BindVertexBuffer(IMesh* _Mesh) const
 	{
 		VulkanMesh mesh = *_Mesh->CastToVulkan();
@@ -118,8 +182,7 @@ namespace Core
 	void VulkanCommandBuffer::DrawIndexed(IMesh* _Mesh) const
 	{
 		// Draws the vertex buffer with indices
-		vkCmdDrawIndexed(m_CommandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
-
+		//vkCmdDrawIndexed(m_CommandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
 	}
 
 	void VulkanCommandBuffer::EndRenderPass() const

@@ -19,5 +19,9 @@ namespace Core
 
 		void WaitFence(IDevice* _Device, unsigned int _CancelDelay) override;
 		void ResetFence(IDevice* _Device) override;
+
+		inline VkFence GetType() { return m_Fence; }
+
+		inline VulkanFence* CastToVulkan() { return this; }
 	};
 }

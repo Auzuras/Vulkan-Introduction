@@ -33,7 +33,7 @@ namespace Core
 		/// <param name="_SourceBuffer">: First buffer you want to copy </param>
 		/// <param name="_DestinationBuffer">: Second buffer receiving the first one </param>
 		/// <param name="_Size">: Size of the buffer </param>
-		static void CopyBuffer(VulkanDevice* _Device, VulkanCommandAllocator* _CommandAllocator, VkBuffer& _SourceBuffer, VkBuffer& _DestinationBuffer, VkDeviceSize _Size);
+		static void CopyBuffer(VulkanDevice* _Device, VulkanCommandAllocator* _CommandAllocator, VkBuffer _SourceBuffer, VkBuffer& _DestinationBuffer, VkDeviceSize& _Size);
 
 		/// <summary>
 		/// 
@@ -44,7 +44,7 @@ namespace Core
 		/// <param name="_Image"></param>
 		/// <param name="_Width"></param>
 		/// <param name="_Height"></param>
-		static void CopyBufferToImage(VulkanDevice* _Device, VulkanCommandAllocator* _CommandAllocator, VkBuffer& _SourceBuffer, VulkanImage& _Image, uint32_t _Width, uint32_t _Height);
+		static void CopyBufferToImage(VulkanDevice* _Device, VulkanCommandAllocator* _CommandAllocator, VkBuffer _SourceBuffer, VulkanImage& _Image, uint32_t _Width, uint32_t _Height);
 
 		/// <summary>
 		/// Selects the best memory type for an allocation

@@ -44,10 +44,10 @@ namespace Core
 		void CreateSimplePipeline();
 
 		void StartFrame(Window* _Window);
-		void EndFrame();
+		void EndFrame(Window* _Window);
 
 		void SetupTexturedModelPass();
-		void TexturedModelPass();
+		void TexturedModelPass(IMesh* _Mesh);
 		void FinishTexturedModelPass();
 
 		const bool Terminate();

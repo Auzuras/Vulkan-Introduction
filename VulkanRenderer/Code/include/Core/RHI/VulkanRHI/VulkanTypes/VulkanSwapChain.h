@@ -70,13 +70,13 @@ namespace Core
 		/// <summary>
 		/// Creates the image views of the swap chain
 		/// </summary>
-		void CreateSwapChainImageViews(VkDevice& _Device);
+		void CreateSwapChainImageViews(VkDevice _Device);
 
 	public:
 
 		~VulkanSwapChain() override;
 
-		inline VkFormat& GetSwapChainFormat() { return m_SwapChainImageFormat; }
+		inline VkFormat GetSwapChainFormat() { return m_SwapChainImageFormat; }
 
 		/// <summary>
 		/// Creates the Swap chain for our program
@@ -101,6 +101,10 @@ namespace Core
 
 		inline size_t GetSwapchainImagesNbr() { return m_SwapChainImages.size(); }
 
+		inline VkExtent2D GetSwapchainExtent() { return m_SwapChainExtent; }
+
+		inline VulkanFramebuffer GetSwapchainFramebuffers(size_t _Index) { return m_SwapChainFramebuffers[_Index]; }
+
 		/// <summary>
 		/// Creates all the swap chain frames buffers for each image view
 		/// </summary>
@@ -115,5 +119,7 @@ namespace Core
 		static SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice _Device, VkSurfaceKHR _Surface);
 
 		void AcquireNextImage(Window* _Window, IDevice* _Device, IPipeline* _Pipeline, unsigned int _Timeout, ISemaphore* _ImageAvailableSemaphore, unsigned int& _ImageIndex);
+		RHI_RESULT SubmitGraphicsQueue(IDevice* _Device, ICommandBuffer* _CommandBuffer, ISemaphore* _ImageAvailableSemaphore, ISemaphore* _RenderFinishSemaphore, IFence* _InFlightFence) override;
+		RHI_RESULT SubmitPresentQueue(Window* _Window, IDevice* _Device, IPipeline* _Pipeline, ISemaphore* _RenderFinishSemaphore, unsigned int _ImageIndex) override;
 	};
 }

@@ -28,7 +28,7 @@ namespace Core
 		return 0;
 	}
 
-	void VulkanBuffer::CopyBuffer(VulkanDevice* _Device, VulkanCommandAllocator* _CommandAllocator, VkBuffer& _SourceBuffer, VkBuffer& _DestinationBuffer, VkDeviceSize _Size)
+	void VulkanBuffer::CopyBuffer(VulkanDevice* _Device, VulkanCommandAllocator* _CommandAllocator, VkBuffer _SourceBuffer, VkBuffer& _DestinationBuffer, VkDeviceSize& _Size)
 	{
 		// Creates a temporary command buffer for transfer
 		VkCommandBuffer commandBuffer = VulkanCommandBuffer::BeginSingleTimeCommands(_Device, _CommandAllocator);
@@ -44,7 +44,7 @@ namespace Core
 		VulkanCommandBuffer::EndSingleTimeCommands(_Device, _CommandAllocator, commandBuffer);
 	}
 
-	void VulkanBuffer::CopyBufferToImage(VulkanDevice* _Device, VulkanCommandAllocator* _CommandAllocator, VkBuffer& _SourceBuffer, VulkanImage& _Image, uint32_t _Width, uint32_t _Height)
+	void VulkanBuffer::CopyBufferToImage(VulkanDevice* _Device, VulkanCommandAllocator* _CommandAllocator, VkBuffer _SourceBuffer, VulkanImage& _Image, uint32_t _Width, uint32_t _Height)
 	{
 		// Creates a temporary command buffer for transfer
 		VkCommandBuffer commandBuffer = VulkanCommandBuffer::BeginSingleTimeCommands(_Device, _CommandAllocator);

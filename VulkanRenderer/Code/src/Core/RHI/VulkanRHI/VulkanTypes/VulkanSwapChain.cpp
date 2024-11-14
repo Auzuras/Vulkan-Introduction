@@ -1,8 +1,9 @@
 #include "RHI/VulkanRHI/VulkanTypes/VulkanSwapChain.h"
-
 #include "RHI/VulkanRHI/VulkanTypes/VulkanDevice.h"
 #include "RHI/VulkanRHI/VulkanTypes/VulkanImage.h"
 #include "RHI/VulkanRHI/VulkanTypes/VulkanSemaphore.h"
+#include "RHI/VulkanRHI/VulkanTypes/VulkanFence.h"
+#include "RHI/VulkanRHI/VulkanTypes/VulkanCommandBuffer.h"
 #include "RHI/RHITypes/IPipeline.h"
 
 #include <set>
@@ -85,13 +86,103 @@ namespace Core
 
 		if (result == VK_ERROR_OUT_OF_DATE_KHR)
 		{
-			RecreateSwapChain(_Window);
+			RecreateSwapChain(_Window, _Device, _Pipeline);
 			return;
 		}
 		else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
 		{
 			DEBUG_ERROR("Failed to acquire swap chain image, Error Code: %d", result);
 		}
+	}
+
+	RHI_RESULT VulkanSwapChain::SubmitGraphicsQueue(IDevice* _Device, ICommandBuffer* _CommandBuffer, ISemaphore* _ImageAvailableSemaphore, ISemaphore* _RenderFinishSemaphore, IFence* _InFlightFence)
+	{
+		VulkanDevice device = *_Device->CastToVulkan();
+		VkCommandBuffer commandbuffer = _CommandBuffer->CastToVulkan()->GetCommandBuffer();
+
+		VulkanSemaphore imageAvailableSync = *_ImageAvailableSemaphore->CastToVulkan();
+		VulkanSemaphore renderFinishSync = *_RenderFinishSemaphore->CastToVulkan();
+		VulkanFence inFlightSync = *_InFlightFence->CastToVulkan();
+
+		// Submit informations
+		VkSubmitInfo submitInfo{};
+		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+		// Here we reference the waiting semaphore and waiting stage
+		VkSemaphore waitSemaphores[] = { imageAvailableSync.GetSemaphore() };
+		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+
+		// Specifies to vulkan to wait for m_ImageAvailableSemaphores at VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT to start rendering
+		// We do not want to write the colors without an image so when an image is available vulkan can write in the image
+		submitInfo.waitSemaphoreCount = 1;
+		submitInfo.pWaitSemaphores = waitSemaphores;
+		submitInfo.pWaitDstStageMask = waitStages;
+
+		// Specifies the command buffer(s) that will be executed
+		submitInfo.commandBufferCount = 1;
+		submitInfo.pCommandBuffers = &commandbuffer;
+
+		VkSemaphore signalSemaphores[] = { renderFinishSync.GetSemaphore() };
+
+		// Specifies the semaphores that will indicates if the frame finished rendering
+		submitInfo.signalSemaphoreCount = 1;
+		submitInfo.pSignalSemaphores = signalSemaphores;
+
+		// Sumbit the command buffer(s) for execution to the graphic queue
+		// The last parameter is the fence that will signal when the frame finished rendering
+		VkResult result = vkQueueSubmit(device.GetGraphicsQueue(), 1, &submitInfo, inFlightSync.GetType());
+
+		if (result != VK_SUCCESS)
+		{
+			DEBUG_ERROR("Failed to submit draw command buffer, Error Code %d", result);
+			return RHI_FAILED_UNKNOWN;
+		}
+
+		return RHI_SUCCESS;
+	}
+
+	RHI_RESULT VulkanSwapChain::SubmitPresentQueue(Window* _Window, IDevice* _Device, IPipeline* _Pipeline, ISemaphore* _RenderFinishSemaphore, unsigned int _ImageIndex)
+	{
+		VulkanDevice device = *_Device->CastToVulkan();
+
+		VulkanSemaphore renderFinishSync = *_RenderFinishSemaphore->CastToVulkan();
+
+		VkSemaphore signalSemaphores[] = { renderFinishSync.GetSemaphore() };
+
+		// Presentation informations
+		VkPresentInfoKHR presentInfo{};
+		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+
+		// Specifies the semaphore to wait for in order to present an image
+		// Here we do not want to present an image it is not finished rendering
+		presentInfo.waitSemaphoreCount = 1;
+		presentInfo.pWaitSemaphores = signalSemaphores;
+
+		VkSwapchainKHR swapChains[] = { m_SwapChain };
+
+		// Reference our swap chain that will present the images
+		presentInfo.swapchainCount = 1;
+		presentInfo.pSwapchains = swapChains;
+		presentInfo.pImageIndices = &_ImageIndex;
+		presentInfo.pResults = nullptr;
+
+		// Present the image with the presentation queue
+		VkResult result = vkQueuePresentKHR(device.GetPresentationQueue(), &presentInfo);
+
+		// Checks if the swap chain is no more compatible or inadequate for presentation or if the window has been resized
+		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized)
+		{
+			// Recreates the swap chain
+			framebufferResized = false;
+			RecreateSwapChain(_Window, _Device, _Pipeline);
+		}
+		else if (result != VK_SUCCESS)
+		{
+			DEBUG_ERROR("Failed to present swap chain image, Error Code: %d", result);
+			return RHI_FAILED_UNKNOWN;
+		}
+
+		return RHI_SUCCESS;
 	}
 
 	VkSurfaceFormatKHR VulkanSwapChain::ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& _AvailableFormats)
@@ -165,7 +256,7 @@ namespace Core
 		return RHI_SUCCESS;
 	}
 
-	void VulkanSwapChain::CreateSwapChainImageViews(VkDevice& _Device)
+	void VulkanSwapChain::CreateSwapChainImageViews(VkDevice _Device)
 	{
 		m_SwapChainImageViews.resize(m_SwapChainImages.size());
 
@@ -318,7 +409,7 @@ namespace Core
 
 		for (VulkanFramebuffer framebuffer : m_SwapChainFramebuffers)
 		{
-			vkDestroyFramebuffer(device.GetLogicalDevice(), framebuffer.GetFrameBuffer(), nullptr);
+			framebuffer.DestroyFramebuffer(_Device);
 		}
 
 		for (VulkanImageView imageView : m_SwapChainImageViews)

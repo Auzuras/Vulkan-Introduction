@@ -5,6 +5,7 @@
 namespace Core
 {
 	class IDevice;
+	class VulkanFence;
 
 	class IFence
 	{
@@ -16,5 +17,7 @@ namespace Core
 
 		virtual void WaitFence(IDevice* _Device, unsigned int _CancelDelay) = 0;
 		virtual void ResetFence(IDevice* _Device) = 0;
+
+		virtual VulkanFence* CastToVulkan() = 0;
 	};
 }
