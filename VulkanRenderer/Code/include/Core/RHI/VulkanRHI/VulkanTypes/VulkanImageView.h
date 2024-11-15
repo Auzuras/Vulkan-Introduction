@@ -22,6 +22,6 @@ namespace Core
 
 		const RHI_RESULT DestroyImageView(VkDevice _Device);
 
-		inline VkImageView& GetImageView() { return m_ImageView; }
+		inline VkImageView& GetType() { return m_ImageView; }
 	};
 }

@@ -132,6 +132,9 @@
     <ClCompile Include="Code\src\LowRenderer\Model.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Code\src\Core\RHI\VulkanRHI\VulkanTypes\VulkanDescriptorLayout.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\include\Core\Maths\Matrices\Matrix2.h">
@@ -317,9 +320,21 @@
     <ClInclude Include="Code\include\LowRenderer\Model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Code\include\Core\RHI\RHITypes\IDescriptorLayout.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanDescriptorLayout.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\include\Core\RHI\RHITypes\IRenderPass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanRenderPass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets\Shaders\HelloTriangle.vert" />
-    <None Include="Assets\Shaders\HelloTriangle.frag" />
+    <None Include="Assets\Shaders\BasicShader.vert" />
+    <None Include="Assets\Shaders\BasicShader.frag" />
   </ItemGroup>
 </Project>

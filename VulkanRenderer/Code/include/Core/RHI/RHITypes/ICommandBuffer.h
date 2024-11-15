@@ -12,10 +12,13 @@ namespace Core
 	class ISwapChain;
 	class IPipeline;
 	class VulkanCommandBuffer;
+	class IDescriptor;
 
 	class ICommandBuffer
 	{
 	public:
+		virtual ~ICommandBuffer() = default;
+
 		virtual void ResetCommandBuffer() = 0;
 		virtual const RHI_RESULT StartRecordingCommandBuffer() = 0;
 		virtual const RHI_RESULT StopRecordingCommandBuffer() const = 0;
@@ -27,6 +30,8 @@ namespace Core
 
 		virtual void SetViewport(Math::Vector2 _Position, ISwapChain* _Swapchain, float _MinDepth, float _MaxDepth) const = 0;
 		virtual void SetScissor(Math::Vector2 _Offset, ISwapChain* _Swapchain) const = 0;
+
+		virtual void BindDescriptorSet(IPipeline* _Pipeline, IDescriptor* _DescriptorSet, unsigned int _SetBiding) const = 0;
 
 		virtual void BindVertexBuffer(IMesh* _Mesh) const = 0;
 		virtual void BindIndexBuffer(IMesh* _Mesh) const = 0;

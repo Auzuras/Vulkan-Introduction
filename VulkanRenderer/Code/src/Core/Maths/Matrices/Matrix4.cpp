@@ -235,7 +235,7 @@ namespace Math
 		return Translate(_xTranslation, _yTranslation, _zTranslation).Multiply(GlobalRotation(_xAngle, _yAngle, _zAngle)).Multiply(Scale(_xScale, _yScale, _zScale));
 	}
 
-	Matrix4 Matrix4::TRS(Vector3& _translation, Vector3& _rotation, Vector3& _scaling)
+	Matrix4 Matrix4::TRS(Vector3 _translation, Vector3 _rotation, Vector3 _scaling)
 	{
 		return Translate(_translation[0], _translation[1], _translation[2]).Multiply(GlobalRotation(_rotation[0], _rotation[1], _rotation[2])).Multiply(Scale(_scaling[0], _scaling[1], _scaling[2]));
 	}

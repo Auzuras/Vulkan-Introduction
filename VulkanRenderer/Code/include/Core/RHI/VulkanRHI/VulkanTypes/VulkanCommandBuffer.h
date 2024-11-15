@@ -18,6 +18,8 @@ namespace Core
 		VulkanCommandBuffer() = default;
 		VulkanCommandBuffer(VkCommandBuffer _CommandBuffer);
 
+		~VulkanCommandBuffer() override;
+
 		/// <summary>
 		/// Creates a temporary command buffer for a single command
 		/// </summary>
@@ -44,6 +46,8 @@ namespace Core
 
 		void SetViewport(Math::Vector2 _Position, ISwapChain* _Swapchain, float _MinDepth, float _MaxDepth) const override;
 		void SetScissor(Math::Vector2 _Offset, ISwapChain* _Swapchain) const override;
+
+		void BindDescriptorSet(IPipeline* _Pipeline, IDescriptor* _DescriptorSet, unsigned int _SetBiding) const override;
 
 		void BindVertexBuffer(IMesh* _Mesh) const override;
 		void BindIndexBuffer(IMesh* _Mesh) const override;

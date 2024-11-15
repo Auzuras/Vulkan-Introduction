@@ -36,5 +36,10 @@ namespace Core
 	public:
 		RHI_RESULT CreateTexture(IDevice* _Device, unsigned char* _TextureData, int _Width, int _Height) override;
 		RHI_RESULT DestroyTexture(IDevice* _Device) override;
+
+		inline VulkanTexture* CastToVulkan() override { return this; }
+
+		inline VulkanImageView GetImageView() { return m_TextureImageView; }
+		inline VkSampler GetSampler() { return m_TextureSampler; }
 	};
 }

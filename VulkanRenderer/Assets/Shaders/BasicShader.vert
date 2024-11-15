@@ -1,15 +1,15 @@
 #version 450
 
-layout(binding = 0) uniform UniformCameraData
+layout(binding = 0) uniform UniformModelData
+{	
+	mat4 model;
+} ModelData;
+
+layout(set = 1, binding = 0) uniform UniformCameraData
 {
 	mat4 view;
 	mat4 projection;
 } CameraData;
-
-layout(set = 1, binding = 0) uniform UniformModelData
-{	
-	mat4 model;
-} ModelData;
 
 layout(location = 0) in vec3 inPosition;
 layout(location = 1) in vec3 inColor;

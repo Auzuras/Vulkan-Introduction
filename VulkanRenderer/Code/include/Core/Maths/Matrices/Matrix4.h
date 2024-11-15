@@ -134,7 +134,7 @@ namespace Math
 		/// <param name="_rotation"> : Vector3 for rotation (represent the rotation on the angle x, y, z) </param>
 		/// <param name="_scaling"> : Vector3 for scaling </param>
 		/// <returns></returns>
-		static Matrix4 TRS(Vector3& _translation, Vector3& _rotation, Vector3& _scaling);
+		static Matrix4 TRS(Vector3 _translation, Vector3 _rotation, Vector3 _scaling);
 
 		/// <summary> Returns the translation matrix </summary>
 		/// <param name="_xScale"> : X parameter for translation </param>

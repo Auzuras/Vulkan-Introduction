@@ -15,15 +15,15 @@ namespace Core
 		// TODO: add frag verification
 		if (_ResourcePath.extension() == ".vert")
 		{
-			type = Core::ShaderType::VERTEX;
+			type = Core::ShaderType::RHI_VERTEX;
 		}
 		else if (_ResourcePath.extension() == ".frag")
 		{
-			type = Core::ShaderType::FRAGMENT;
+			type = Core::ShaderType::RHI_FRAGMENT;
 		}
 		else if (_ResourcePath.extension() == ".geo")
 		{
-			type = Core::ShaderType::GEOMETRY;
+			type = Core::ShaderType::RHI_GEOMETRY;
 		}
 		else
 		{

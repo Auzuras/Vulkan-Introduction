@@ -16,16 +16,18 @@ namespace Physics
 		Math::Vector3 m_Up = Math::Vector3::up;
 		Math::Vector3 m_Forward = Math::Vector3::forward;
 
-		Math::Matrix4 m_LocalTRS = Math::Matrix4::identity;
 
 	public:
 		bool isChanged = false;
 
+		Math::Matrix4 m_LocalTRS = Math::Matrix4::identity;
 		///////////////////////////////////////////////////////////////////////
 
 		/// Getters and Setters methods
 
 		///////////////////////////////////////////////////////////////////////
+
+		inline Math::Matrix4 GetLocalTRS() const { return m_LocalTRS; }
 
 		/// <summary>
 		/// Position getter

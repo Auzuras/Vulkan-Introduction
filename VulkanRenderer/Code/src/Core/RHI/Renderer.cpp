@@ -8,12 +8,12 @@ namespace Core
 	{
 		switch (m_RendererType)
 		{
-		case Core::OPENGL:
+		case Core::RHI_OPENGL:
 			break;
-		case Core::VULKAN: default:
+		case Core::RHI_VULKAN: default:
 			m_RHI = new VulkanRenderer;
 			break;
-		case Core::DIRECTX:
+		case Core::RHI_DIRECTX:
 			break;
 		}
 
@@ -26,16 +26,6 @@ namespace Core
 		CreateSimplePipeline();
 
 		m_CommandAllocator = m_RHI->InstantiateCommandAllocator(m_Device);
-
-		model = m_RHI->CreateMesh();
-		model->Load(m_Device, "Assets/Meshes/viking_room.obj");
-
-		ITexture* texture = m_RHI->CreateTexture();
-		texture->Load(m_Device, "Assets/Textures/viking_room.png");
-
-		texture->Unload(m_Device);
-
-		m_RHI->DestroyTexture(texture);
 
 		m_CommandBuffers = m_CommandAllocator->CreateCommandBuffers(m_Device, MAX_FRAMES_IN_FLIGHT);
 
@@ -54,25 +44,40 @@ namespace Core
 			m_InFlightFramesFences[i] = m_RHI->InstantiateFence(m_Device);
 		}
 
+		mesh = m_RHI->CreateMesh();
+		mesh->Load(m_Device, "Assets/Meshes/viking_room.obj");
+
+		texture = m_RHI->CreateTexture();
+		texture->Load(m_Device, "Assets/Textures/viking_room.png");
+
+		mcMesh = m_RHI->CreateMesh();
+		mcMesh->Load(m_Device, "Assets/Meshes/minecraft.obj");
+
+		mctexture = m_RHI->CreateTexture();
+		mctexture->Load(m_Device, "Assets/Textures/minecraft.png");
+
+		model = LowRenderer::Model(mesh, texture);
+		mcModel = LowRenderer::Model(mcMesh, mctexture);
+
 		return true;
 	}
 
 	void Renderer::CreateSimplePipeline()
 	{
 		IShader* vertShader = m_RHI->CreateShader();
-		vertShader->Load(m_Device, "Assets/Shaders/HelloTriangle.vert");
+		vertShader->Load(m_Device, "Assets/Shaders/BasicShader.vert");
 
 		IShader* fragShader = m_RHI->CreateShader();
-		fragShader->Load(m_Device, "Assets/Shaders/HelloTriangle.frag");
+		fragShader->Load(m_Device, "Assets/Shaders/BasicShader.frag");
 
 		PipelineShaderInfos vert;
 		vert.shader = vertShader;
-		vert.shaderType = VERTEX;
+		vert.shaderType = RHI_VERTEX;
 		vert.functionEntry = "main";
 
 		PipelineShaderInfos frag;
 		frag.shader = fragShader;
-		frag.shaderType = FRAGMENT;
+		frag.shaderType = RHI_FRAGMENT;
 		frag.functionEntry = "main";
 
 		std::vector<PipelineShaderInfos> shadersInfos = { vert, frag };
@@ -86,7 +91,7 @@ namespace Core
 		m_RHI->DestroyShader(fragShader);
 	}
 
-	void Renderer::StartFrame(Window* _Window)
+	void Renderer::StartFrame(Window* _Window, LowRenderer::Camera* _Camera)
 	{
 		m_InFlightFramesFences[m_CurrentFrame]->WaitFence(m_Device, UINT64_MAX);
 		m_InFlightFramesFences[m_CurrentFrame]->ResetFence(m_Device);
@@ -97,6 +102,12 @@ namespace Core
 
 		// Setup the command buffer
 		m_CommandBuffers[m_CurrentFrame]->StartRecordingCommandBuffer();
+
+		LowRenderer::CameraData data;
+		data.viewMatrix = _Camera->viewMatrix.Transpose();
+		data.projectionMatrix = _Camera->projectionMatrix.Transpose();
+
+		_Camera->GetUBO(m_CurrentFrame)->UpdateUBO(m_Device, &data, sizeof(data));
 	}
 
 	void Renderer::EndFrame(Window* _Window)
@@ -115,11 +126,20 @@ namespace Core
 		m_CommandBuffers[m_CurrentFrame]->SetScissor(Math::Vector2::zero, m_SwapChain);
 	}
 
-	void Renderer::TexturedModelPass(IMesh* _Mesh)
+	void Renderer::TexturedModelPass(LowRenderer::Camera* _Camera, LowRenderer::Model* _Model)
 	{
-		m_CommandBuffers[m_CurrentFrame]->BindVertexBuffer(_Mesh);
-		m_CommandBuffers[m_CurrentFrame]->BindIndexBuffer(_Mesh);
-		m_CommandBuffers[m_CurrentFrame]->DrawIndexed(_Mesh);
+		Math::Matrix4 localTRS = _Model->m_Transform.m_LocalTRS;
+
+		_Model->GetUBO(m_CurrentFrame)->UpdateUBO(m_Device, &localTRS, sizeof(localTRS));
+
+		m_CommandBuffers[m_CurrentFrame]->BindDescriptorSet(m_SimplePipeline, _Model->GetDescriptor(m_CurrentFrame), 0); // TRS
+		m_CommandBuffers[m_CurrentFrame]->BindDescriptorSet(m_SimplePipeline, _Camera->GetDescriptor(m_CurrentFrame), 1);// Camera
+		m_CommandBuffers[m_CurrentFrame]->BindDescriptorSet(m_SimplePipeline, _Model->GetTexture()->GetDescriptor(m_CurrentFrame), 2); // Texture
+
+		m_CommandBuffers[m_CurrentFrame]->BindVertexBuffer(_Model->GetMesh());
+		m_CommandBuffers[m_CurrentFrame]->BindIndexBuffer(_Model->GetMesh());
+
+		m_CommandBuffers[m_CurrentFrame]->DrawIndexed(_Model->GetMesh());
 	}
 
 	void Renderer::FinishTexturedModelPass()
@@ -128,13 +148,30 @@ namespace Core
 		m_CommandBuffers[m_CurrentFrame]->StopRecordingCommandBuffer();
 	}
 
-	const bool Renderer::Terminate()
+	const bool Renderer::Terminate(LowRenderer::Camera* _Camera)
 	{
-		model->Unload(m_Device);
-
-		m_RHI->DestroyMesh(model);
-
 		m_Device->WaitDeviceIdle();
+		
+		_Camera->DeleteDescriptors();
+
+		model.DestroyDescriptors();
+		mcModel.DestroyDescriptors();
+
+		mcMesh->Unload(m_Device);
+
+		m_RHI->DestroyMesh(mcMesh);
+
+		mctexture->Unload(m_Device);
+
+		m_RHI->DestroyTexture(mctexture);
+
+		mesh->Unload(m_Device);
+
+		m_RHI->DestroyMesh(mesh);
+
+		texture->Unload(m_Device);
+
+		m_RHI->DestroyTexture(texture);
 
 		m_RHI->DestroySwapChain(m_SwapChain, m_Device);
 

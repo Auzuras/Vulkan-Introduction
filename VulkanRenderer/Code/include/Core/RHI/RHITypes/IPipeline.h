@@ -11,6 +11,7 @@ namespace Core
 	class ISwapChain;
 	class IShader;
 	class VulkanPipeline;
+	class IDescriptorLayout;
 
 	struct PipelineShaderInfos
 	{
@@ -21,6 +22,9 @@ namespace Core
 
 	class IPipeline
 	{
+	protected:
+		std::vector<IDescriptorLayout*> p_DescriptorSetLayouts{};
+
 	public:
 		virtual ~IPipeline() = default;
 
@@ -28,5 +32,7 @@ namespace Core
 		virtual RHI_RESULT DestroyPipeline(IDevice* _Device) = 0;
 
 		virtual VulkanPipeline* CastToVulkan() = 0;
+
+		virtual std::vector<IDescriptorLayout*> GetDescriptorLayouts() { return p_DescriptorSetLayouts; }
 	};
 }

@@ -16,10 +16,14 @@ namespace Core
 		VkBuffer m_Buffer;
 		VkDeviceMemory m_BufferMemory;
 
+		~VulkanBuffer() override;
+
 		const RHI_RESULT CreateBuffer(IDevice* _Device, BufferType _BufferType, size_t _BufferSize) override;
 		const RHI_RESULT DestroyBuffer(IDevice* _Device) override;
 
 		const RHI_RESULT CreateUniformBuffer(IDevice* _Device, size_t _BufferSize);
+
+		inline VulkanBuffer* CastToVulkan() override { return this; }
 
 		/// <summary>
 		/// Creates and allocate a buffer in memory
@@ -69,5 +73,7 @@ namespace Core
 		/// </summary>
 		/// <returns></returns>
 		inline VkDeviceMemory GetBufferMemory() { return m_BufferMemory; }
+
+		void UpdateUBO(IDevice* _Device, void* _Data, size_t _DataSize) override;
 	};
 }

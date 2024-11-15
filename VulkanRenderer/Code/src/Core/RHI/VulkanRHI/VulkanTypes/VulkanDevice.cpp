@@ -335,6 +335,7 @@ namespace Core
 	void VulkanDevice::CreateSurface(Window* _Window)
 	{
 		// Gets the window surface for vulkan
+		// IDK
 		VkResult result = glfwCreateWindowSurface(m_VulkanInstance, _Window->GetWindowPointer(), nullptr, &m_Surface);
 
 		if (result != VK_SUCCESS)

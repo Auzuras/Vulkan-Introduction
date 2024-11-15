@@ -17,6 +17,8 @@ namespace Core
 			return false;
 		}
 
+		appCamera.SetupDescriptors();
+
 		return true;
 	}
 
@@ -24,7 +26,7 @@ namespace Core
 	{
 		bool returnValue = true;
 
-		if (!m_Renderer.Terminate())
+		if (!m_Renderer.Terminate(&appCamera))
 		{
 			DEBUG_ERROR("Renderer failed to terminate");
 			returnValue = false;
@@ -39,12 +41,17 @@ namespace Core
 
 	void Application::Draw()
 	{
-		m_Renderer.StartFrame(&m_Window);
+		m_Renderer.StartFrame(&m_Window, &appCamera);
 		m_Renderer.SetupTexturedModelPass();
 
-		m_Renderer.TexturedModelPass(Core::Renderer::model);
+		// Here call all objects to draw
+		m_Renderer.TexturedModelPass(&appCamera, &Core::Renderer::model);
+		m_Renderer.TexturedModelPass(&appCamera, &Core::Renderer::mcModel);
 
 		m_Renderer.FinishTexturedModelPass();
+
+		// Can create new pipelines for shadow / skybox etc
+
 		m_Renderer.EndFrame(&m_Window);
 	}
 }

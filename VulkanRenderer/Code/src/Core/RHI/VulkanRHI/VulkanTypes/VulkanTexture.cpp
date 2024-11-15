@@ -103,7 +103,7 @@ namespace Core
 		VulkanDevice device = *_Device->CastToVulkan();
 
 		vkDestroySampler(device.GetLogicalDevice(), m_TextureSampler, nullptr);
-		vkDestroyImageView(device.GetLogicalDevice(), m_TextureImageView.GetImageView(), nullptr);
+		vkDestroyImageView(device.GetLogicalDevice(), m_TextureImageView.GetType(), nullptr);
 
 		vkDestroyImage(device.GetLogicalDevice(), m_TextureImage.GetImage(), nullptr);
 		vkFreeMemory(device.GetLogicalDevice(), m_TextureImageMemory, nullptr);

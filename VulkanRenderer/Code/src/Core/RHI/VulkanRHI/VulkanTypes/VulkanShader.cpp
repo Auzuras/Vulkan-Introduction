@@ -80,13 +80,13 @@ namespace Core
 
 		switch (_ShaderType)
 		{
-		case VERTEX: default:
+		case RHI_VERTEX: default:
 			infos.shaderKind = shaderc_vertex_shader;
 			break;
-		case FRAGMENT:
+		case RHI_FRAGMENT:
 			infos.shaderKind = shaderc_fragment_shader;
 			break;
-		case GEOMETRY:
+		case RHI_GEOMETRY:
 			infos.shaderKind = shaderc_geometry_shader;
 			break;
 		}

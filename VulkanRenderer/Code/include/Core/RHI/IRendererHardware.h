@@ -269,11 +269,3 @@ namespace Core
 		virtual void DestroyBuffer(IBuffer* _Buffer, IDevice* _Device);
 	};
 }
-
-
-
-//{
-//	void* data;
-//	vkMapMemory(m_LogicalDevice, m_UniformBufferMemory[i], 0, bufferSize, 0, data)
-//		Memcopy
-//}

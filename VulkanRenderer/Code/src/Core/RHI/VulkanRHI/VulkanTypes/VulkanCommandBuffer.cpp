@@ -4,12 +4,17 @@
 #include "RHI/VulkanRHI/VulkanTypes/VulkanCommandAllocator.h"
 #include "RHI/VulkanRHI/VulkanTypes/VulkanMesh.h"
 #include "RHI/VulkanRHI/VulkanTypes/VulkanPipeline.h"
+#include "RHI/VulkanRHI/VulkanTypes/VulkanDescriptor.h"
 
 namespace Core
 {
 	VulkanCommandBuffer::VulkanCommandBuffer(VkCommandBuffer _CommandBuffer)
 		:m_CommandBuffer(_CommandBuffer)
 	{}
+
+	VulkanCommandBuffer::~VulkanCommandBuffer()
+	{
+	}
 
 	VkCommandBuffer VulkanCommandBuffer::BeginSingleTimeCommands(VulkanDevice* _Device, VulkanCommandAllocator* _CommandAllocator)
 	{
@@ -157,6 +162,14 @@ namespace Core
 		scissor.extent = swapchain.GetSwapchainExtent();
 
 		vkCmdSetScissor(m_CommandBuffer, 0, 1, &scissor);
+	}
+
+	void VulkanCommandBuffer::BindDescriptorSet(IPipeline* _Pipeline, IDescriptor* _DescriptorSet, unsigned int _SetBiding) const
+	{
+		VulkanPipeline layout = *_Pipeline->CastToVulkan();
+		VulkanDescriptor descriptor = *_DescriptorSet->CastToVulkan();
+
+		vkCmdBindDescriptorSets(m_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, layout.GetPipelineLayout(), _SetBiding, 1, &descriptor.m_DescriptorSets, 0, nullptr);
 	}
 
 	void VulkanCommandBuffer::BindVertexBuffer(IMesh* _Mesh) const

@@ -4,16 +4,16 @@ namespace Core
 {
 	enum RendererType
 	{
-		OPENGL,
-		VULKAN,
-		DIRECTX
+		RHI_OPENGL,
+		RHI_VULKAN,
+		RHI_DIRECTX
 	};
 
 	enum ShaderType
 	{
-		VERTEX,
-		FRAGMENT,
-		GEOMETRY
+		RHI_VERTEX,
+		RHI_FRAGMENT,
+		RHI_GEOMETRY
 	};
 
 	enum BufferType
@@ -21,5 +21,11 @@ namespace Core
 		RHI_VERTEX_BUFFER,
 		RHI_INDEX_BUFFER,
 		RHI_UNIFORM_BUFFER
+	};
+
+	enum DescriptorType
+	{
+		RHI_DESCRIPTOR_UNIRFORM,
+		RHI_DESCRIPTOR_SAMPLER
 	};
 }

@@ -30,13 +30,13 @@ namespace Core
 
 			switch (_ShadersInfos[i].shaderType)
 			{
-			case VERTEX: default:
+			case RHI_VERTEX: default:
 				shaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
 				break;
-			case FRAGMENT:
+			case RHI_FRAGMENT:
 				shaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
 				break;
-			case GEOMETRY:
+			case RHI_GEOMETRY:
 				shaderStageInfo.stage = VK_SHADER_STAGE_GEOMETRY_BIT;
 				break;
 			}
@@ -155,13 +155,20 @@ namespace Core
 		colorBlending.blendConstants[2] = 0.f;
 		colorBlending.blendConstants[3] = 0.f;
 
+		std::vector<VkDescriptorSetLayout> layouts(p_DescriptorSetLayouts.size());
+
+		for (size_t i = 0; i < p_DescriptorSetLayouts.size(); ++i)
+		{
+			layouts[i] = p_DescriptorSetLayouts[i]->CastToVulkan()->GetType();
+		}
+
 		// Pipeline layout infos
 		// Describes all uniform buffers present in our pipeline
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 		// References the Descriptors set layout (UBO) or global variables
-		pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(m_DescriptorSetLayouts.size());
-		pipelineLayoutInfo.pSetLayouts = m_DescriptorSetLayouts.data();
+		pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(layouts.size());
+		pipelineLayoutInfo.pSetLayouts = layouts.data();
 		pipelineLayoutInfo.pushConstantRangeCount = 0;
 		pipelineLayoutInfo.pPushConstantRanges = nullptr;
 
@@ -214,10 +221,17 @@ namespace Core
 	{
 		VulkanDevice device = *_Device->CastToVulkan();
 
-		for (VkDescriptorSetLayout descriptorSetLayout : m_DescriptorSetLayouts)
+		for (size_t i = 0; i < p_DescriptorSetLayouts.size(); ++i)
 		{
-			vkDestroyDescriptorSetLayout(device.GetLogicalDevice(), descriptorSetLayout, nullptr);
+			p_DescriptorSetLayouts[i]->DestroyDescriptorSetLayout(_Device);
 		}
+
+		for (auto& layout : p_DescriptorSetLayouts) 
+		{
+			delete layout;
+		}
+
+		p_DescriptorSetLayouts.clear();
 
 		vkDestroyPipeline(device.GetLogicalDevice(), m_GraphicsPipeline, nullptr);
 		vkDestroyPipelineLayout(device.GetLogicalDevice(), m_PipelineLayout, nullptr);
@@ -226,77 +240,33 @@ namespace Core
 		return RHI_SUCCESS;
 	}
 
-	const RHI_RESULT VulkanPipeline::CreateDescriptorSetLayout(VulkanDevice* _Device)
+	void VulkanPipeline::CreateDescriptorSetLayout(IDevice* _Device)
 	{
-		m_DescriptorSetLayouts.resize(3);
+		p_DescriptorSetLayouts.resize(3);
 
-		// Descriptor Set layout binding for ubo
-		VkDescriptorSetLayoutBinding fuboLayoutBinding{};
-		// Describe the biding of the descriptors sets (binding = 0 but for ubo samplers etc)
-		fuboLayoutBinding.binding = 0;
-		fuboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		// Can specifies if it is an array of descriptor
-		fuboLayoutBinding.descriptorCount = 1;
-		// Describes which stages can access the UBO can also be VK_SHADER_STAGE_ALL_GRAPHICS
-		fuboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+		std::vector<DescriptorLayoutInfos> UBOinfos;
+		std::vector<DescriptorLayoutInfos> SamplerInfos;
 
-		// Layout info
-		VkDescriptorSetLayoutCreateInfo layoutInfo{};
-		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-		// Nbr of bindings
-		layoutInfo.bindingCount = 1;
-		// Bindings data
-		layoutInfo.pBindings = &fuboLayoutBinding;
+		DescriptorLayoutInfos uniformInfo;
+		uniformInfo.binding = 0;
+		uniformInfo.type = DescriptorType::RHI_DESCRIPTOR_UNIRFORM;
+		uniformInfo.entryShader = ShaderType::RHI_VERTEX;
 
-		// Creates the Descriptor set layout
-		VkResult result = vkCreateDescriptorSetLayout(_Device->GetLogicalDevice(), &layoutInfo, nullptr, &m_DescriptorSetLayouts[0]);
+		UBOinfos.push_back(uniformInfo);
 
-		if (result != VK_SUCCESS)
-		{
-			DEBUG_ERROR("Failed to create descriptor set layout, Error Code: %d", result);
-			return RHI_FAILED_UNKNOWN;
-		}
+		p_DescriptorSetLayouts[0] = new VulkanDescriptorLayout();
+		p_DescriptorSetLayouts[0]->CreateDescriptorSetLayout(_Device, UBOinfos);
+		p_DescriptorSetLayouts[1] = new VulkanDescriptorLayout();
+		p_DescriptorSetLayouts[1]->CreateDescriptorSetLayout(_Device, UBOinfos);
 
-		VkDescriptorSetLayoutBinding suboLayoutBinding{};
-		suboLayoutBinding.binding = 0;
-		suboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		suboLayoutBinding.descriptorCount = 1;
-		suboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+		DescriptorLayoutInfos sampInfo;
+		sampInfo.binding = 0;
+		sampInfo.type = DescriptorType::RHI_DESCRIPTOR_SAMPLER;
+		sampInfo.entryShader = ShaderType::RHI_FRAGMENT;
 
-		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-		layoutInfo.bindingCount = 1;
-		layoutInfo.pBindings = &suboLayoutBinding;
-
-		result = vkCreateDescriptorSetLayout(_Device->GetLogicalDevice(), &layoutInfo, nullptr, &m_DescriptorSetLayouts[1]);
-
-		if (result != VK_SUCCESS)
-		{
-			DEBUG_ERROR("Failed to create descriptor set layout, Error Code: %d", result);
-			return RHI_FAILED_UNKNOWN;
-		}
-
-		// Descriptor Set layout binding for sampler
-		VkDescriptorSetLayoutBinding samplerLayoutBinding{};
-		samplerLayoutBinding.binding = 0;
-		samplerLayoutBinding.descriptorCount = 1;
-		samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		// Specifies a sampler already created to avoid specification
-		samplerLayoutBinding.pImmutableSamplers = nullptr;
-		samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-
-		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-		layoutInfo.bindingCount = 1;
-		layoutInfo.pBindings = &samplerLayoutBinding;
-
-		result = vkCreateDescriptorSetLayout(_Device->GetLogicalDevice(), &layoutInfo, nullptr, &m_DescriptorSetLayouts[2]);
-
-		if (result != VK_SUCCESS)
-		{
-			DEBUG_ERROR("Failed to create descriptor set layout, Error Code: %d", result);
-			return RHI_FAILED_UNKNOWN;
-		}
-
-		return RHI_SUCCESS;
+		SamplerInfos.push_back(sampInfo);
+		p_DescriptorSetLayouts[2] = new VulkanDescriptorLayout();
+		p_DescriptorSetLayouts[2]->CreateDescriptorSetLayout(_Device, SamplerInfos);
 	}
 
 	void VulkanPipeline::CreateRenderPass(VulkanDevice* _Device, VulkanSwapChain* _Swapchain)

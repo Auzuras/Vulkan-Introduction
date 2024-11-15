@@ -5,6 +5,12 @@
 
 namespace LowRenderer
 {
+	struct CameraData
+	{
+		Math::Matrix4 viewMatrix = Math::Matrix4::identity;
+		Math::Matrix4 projectionMatrix = Math::Matrix4::identity;
+	};
+
 	class Camera : public Object
 	{
 	private:
@@ -16,6 +22,8 @@ namespace LowRenderer
 		Math::Matrix4 viewMatrix = Math::Matrix4::identity;
 		Math::Matrix4 projectionMatrix = Math::Matrix4::identity;
 
+		void SetupDescriptors();
+		void DeleteDescriptors();
 		void Update() override;
 		void Draw() override;
 	};

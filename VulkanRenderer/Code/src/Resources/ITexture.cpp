@@ -2,6 +2,7 @@
 
 //#define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
+#include "Renderer.h"
 
 namespace Core
 {
@@ -23,12 +24,26 @@ namespace Core
 		// Free the texture on the CPU
 		stbi_image_free(texture);
 
+		p_Descriptors = Core::Renderer::GetDescriptorAllocator()->CreateTextureDescriptor(Core::Renderer::GetDevice(),
+			Core::Renderer::MAX_FRAMES_IN_FLIGHT, this, Core::Renderer::GetPipeline()->GetDescriptorLayouts()[2]);
+
 		return true;
 	}
 
 	const bool ITexture::Unload(Core::IDevice* _Device)
 	{
 		DestroyTexture(_Device);
+		DestroyDescriptor();
+
 		return true;
+	}
+
+	void ITexture::DestroyDescriptor()
+	{
+		for (Core::IDescriptor* descriptor : p_Descriptors)
+		{
+			delete descriptor;
+			descriptor = nullptr;
+		}
 	}
 }

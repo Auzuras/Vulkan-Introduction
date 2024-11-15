@@ -9,13 +9,15 @@ namespace Core
 	class VulkanDescriptor : public IDescriptor
 	{
 	private:
-		VkDescriptorSet m_DescriptorSets;
 
 	public:
+		VkDescriptorSet m_DescriptorSets = VK_NULL_HANDLE;
 
+		VulkanDescriptor() = default;
+		VulkanDescriptor(VkDescriptorSet _Descriptor);
 		~VulkanDescriptor() override;
-		
-		void DestroyDescriptorSets();
 
+		inline VulkanDescriptor* CastToVulkan() override { return this; }
+		inline VkDescriptorSet GetType() { return m_DescriptorSets; }
 	};
 }

@@ -28,6 +28,23 @@ namespace Core
 		return 0;
 	}
 
+	void VulkanBuffer::UpdateUBO(IDevice* _Device, void* _Data, size_t _DataSize)
+	{
+		VulkanDevice device = *_Device->CastToVulkan();
+
+		void* mappedMemory;
+		VkResult result = vkMapMemory(device.GetLogicalDevice(), m_BufferMemory, 0, _DataSize, 0, &mappedMemory);
+
+		if (result != VK_SUCCESS) 
+		{
+			return;
+		}
+
+		memcpy(mappedMemory, _Data, _DataSize);
+
+		vkUnmapMemory(device.GetLogicalDevice(), m_BufferMemory);
+	}
+
 	void VulkanBuffer::CopyBuffer(VulkanDevice* _Device, VulkanCommandAllocator* _CommandAllocator, VkBuffer _SourceBuffer, VkBuffer& _DestinationBuffer, VkDeviceSize& _Size)
 	{
 		// Creates a temporary command buffer for transfer
@@ -68,6 +85,10 @@ namespace Core
 
 		// Ends recording the command buffer
 		VulkanCommandBuffer::EndSingleTimeCommands(_Device, _CommandAllocator, commandBuffer);
+	}
+
+	VulkanBuffer::~VulkanBuffer()
+	{
 	}
 
 	const RHI_RESULT VulkanBuffer::CreateBuffer(IDevice* _Device, BufferType _BufferType, size_t _BufferSize)

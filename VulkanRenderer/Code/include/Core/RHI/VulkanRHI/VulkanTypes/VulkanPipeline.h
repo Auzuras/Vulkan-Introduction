@@ -4,6 +4,8 @@
 
 #include "RHI/VulkanRHI/VulkanRenderer.h"
 
+#include "RHI/VulkanRHI/VulkanTypes/VulkanDescriptorLayout.h"
+
 namespace Core
 {
 	class IDevice;
@@ -16,8 +18,6 @@ namespace Core
 
 		VkPipelineLayout m_PipelineLayout;
 
-		std::vector<VkDescriptorSetLayout> m_DescriptorSetLayouts;
-
 	public:
 		~VulkanPipeline() override;
 
@@ -27,10 +27,7 @@ namespace Core
 		RHI_RESULT CreatePipeline(IDevice* _Device, ISwapChain* _Swapchain, std::vector<PipelineShaderInfos> _ShadersInfos) override;
 		RHI_RESULT DestroyPipeline(IDevice* _Device) override;
 
-		/// <summary>
-		/// Creates all the descriptor set layout to describe the UBO or global variables
-		/// </summary>
-		const RHI_RESULT CreateDescriptorSetLayout(VulkanDevice* _Device);
+		void CreateDescriptorSetLayout(IDevice* _Device);
 
 		/// <summary>
 		/// Creates a render pass object that will descibes the attachments of a framebuffer

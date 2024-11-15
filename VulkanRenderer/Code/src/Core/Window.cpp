@@ -35,19 +35,29 @@ namespace Core
 		return glfwExtensions;
 	}
 
+	bool Window::WindowShouldClose()
+	{
+		return glfwWindowShouldClose(m_Window);
+	}
+
+	void Window::WindowPollEvents()
+	{
+		glfwPollEvents();
+	}
+
 	const bool Window::Initialize(RendererType _Type)
 	{
 		glfwInit();
 
 		switch (_Type)
 		{
-		case VULKAN: default:
+		case RHI_VULKAN: default:
 			InitializeVulkanWindow();
 			break;
-		case OPENGL:
+		case RHI_OPENGL:
 			InitializeOpenGLWindow();
 			break;
-		case DIRECTX:
+		case RHI_DIRECTX:
 			InitializeDirectXWindow();
 			break;
 		}

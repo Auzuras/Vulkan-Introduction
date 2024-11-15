@@ -104,7 +104,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>Externals/GLFW/libs;C:/VulkanSDK/1.3.296.0/Lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;vulkan-1.lib;shaderc_combinedd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;vulkan-1.lib;shaderc_combined.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -140,10 +140,11 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>Externals/GLFW/libs;C:/VulkanSDK/1.3.296.0/Lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;vulkan-1.lib;shaderc_combinedd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;vulkan-1.lib;shaderc_combined.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Code\src\Core\RHI\VulkanRHI\VulkanTypes\VulkanDescriptorLayout.cpp" />
     <ClCompile Include="Code\src\Core\RHI\VulkanRHI\VulkanTypes\VulkanMesh.cpp" />
     <ClCompile Include="Code\src\Core\RHI\IRendererHardware.cpp" />
     <ClCompile Include="Code\src\Core\RHI\Renderer.cpp" />
@@ -202,11 +203,13 @@
     <ClInclude Include="Code\include\Core\RHI\RHITypes\ICommandBuffer.h" />
     <ClInclude Include="Code\include\Core\RHI\RHITypes\IDescriptor.h" />
     <ClInclude Include="Code\include\Core\RHI\RHITypes\IDescriptorAllocator.h" />
+    <ClInclude Include="Code\include\Core\RHI\RHITypes\IDescriptorLayout.h" />
     <ClInclude Include="Code\include\Core\RHI\RHITypes\IDevice.h" />
     <ClInclude Include="Code\include\Core\RHI\RHITypes\IFence.h" />
     <ClInclude Include="Code\include\Core\RHI\RHITypes\IFramebuffer.h" />
     <ClInclude Include="Code\include\Core\RHI\RHITypes\IPipeline.h" />
     <ClInclude Include="Code\include\Core\RHI\RHITypes\IQueue.h" />
+    <ClInclude Include="Code\include\Core\RHI\RHITypes\IRenderPass.h" />
     <ClInclude Include="Code\include\Core\RHI\RHITypes\ISemaphore.h" />
     <ClInclude Include="Code\include\Core\RHI\RHITypes\ISwapChain.h" />
     <ClInclude Include="Code\include\Core\RHI\RHITypes\RHIResult.h" />
@@ -218,6 +221,7 @@
     <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanCommandBuffer.h" />
     <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanDescriptor.h" />
     <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanDescriptorAllocator.h" />
+    <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanDescriptorLayout.h" />
     <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanDevice.h" />
     <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanFence.h" />
     <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanFramebuffer.h" />
@@ -226,6 +230,7 @@
     <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanMesh.h" />
     <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanPipeline.h" />
     <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanQueue.h" />
+    <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanRenderPass.h" />
     <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanSemaphore.h" />
     <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanShader.h" />
     <ClInclude Include="Code\include\Core\RHI\VulkanRHI\VulkanTypes\VulkanSwapChain.h" />
@@ -248,8 +253,8 @@
     <ClInclude Include="Externals\TINY_OBJ_LOADER\include\tiny_obj_loader.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets\Shaders\HelloTriangle.frag" />
-    <None Include="Assets\Shaders\HelloTriangle.vert" />
+    <None Include="Assets\Shaders\BasicShader.frag" />
+    <None Include="Assets\Shaders\BasicShader.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -5,6 +5,8 @@
 #include "Application.h"
 
 #include "Time/Time.h"
+#include "Renderer.h"
+#include "Maths/Utils/Utils.h"
 
 // Selects GPU
 extern "C"
@@ -18,7 +20,7 @@ int main()
 	// Checks memory leaks
 #ifndef NDEBUG
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-	//_CrtSetBreakAlloc(38067);
+	//_CrtSetBreakAlloc(64719);
 #endif
 
 	Core::Application app;
@@ -28,10 +30,15 @@ int main()
 		return -1;
 	}
 
-	while (!glfwWindowShouldClose(app.GetWindow()->GetWindowPointer()))
+	float fRot = 0.f;
+
+	while (!app.GetWindow()->WindowShouldClose())
 	{
-		glfwPollEvents();
+		app.GetWindow()->WindowPollEvents();
 		app.appCamera.Update();
+		
+		Core::Renderer::model.m_Transform.m_LocalTRS = Math::Matrix4::TRS(Math::Vector3(1.f, 1.f, 0.f), Math::Vector3(Math::Utils::DegToRad(-90.f), Math::Utils::DegToRad(0.f), Math::Utils::DegToRad(-90.f)), Math::Vector3::one).Transpose();
+		Core::Renderer::mcModel.m_Transform.m_LocalTRS = Math::Matrix4::TRS(Math::Vector3(-1.f, 0.f, 0.f), Math::Vector3(0.f, fRot += 1.f * Core::Time::deltaTime, 0.f), Math::Vector3::one).Transpose();
 
 		app.Draw();
 
