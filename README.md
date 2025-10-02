@@ -11,6 +11,7 @@ Due to lack of time, the lights have not been implemented, but can be easily don
 
 ## More information:
 The software uses version 1.3.296.0 of [Vulkan SDK](https://vulkan.lunarg.com/sdk/home#windows) and version 3.4 of [GLFW](https://www.glfw.org/download.html).
+
 /!\ You will also required all debug tools of the SDK that are not mandatory at the installation. /!\
 
 It also uses [shaderc lib](https://github.com/google/shaderc) included in the Vulkan SDK for runtime shader compilation.
